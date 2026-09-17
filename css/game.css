@@ -131,3 +131,7 @@ body.outer-world::after{opacity:1}
 .home-recovery .rest-note+.btn{margin-top:17px}
 
 .round-event.pending{background:#242521;color:#b6b6a5;border-left-color:#68695b}
+
+/* Outcome messages sit beneath the scene heading, above the artwork. */
+.scene-top{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:9px;row-gap:12px}
+.scene-top .recent-message{grid-column:1/-1;margin:0;padding:9px 12px;border-left:2px solid var(--gold);background:linear-gradient(90deg,#10110fe8,#10110fa6);color:#e4e5d7;font-size:14px;line-height:1.5;text-shadow:0 1px 3px #000}

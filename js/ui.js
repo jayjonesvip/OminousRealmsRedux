@@ -42,9 +42,10 @@ OR.ui=(()=>{
       (d.spoken?'<span class="sr-only" role="status" aria-live="polite">'+escape(speaker+' says: '+d.text)+'</span><button class="speech-skip" data-action="skip-dialogue">TAP TO REVEAL REPLY</button>':'')+'</div>';
   }
   function scene(b,encounter=false){
-    const e=C.entities[b.subtype],local=W.local(b.x,b.y),talking=activeDialogue(b);
+    const e=C.entities[b.subtype],local=W.local(b.x,b.y),talking=activeDialogue(b),s=S.data;
+    const recent=b.resolved&&!b.dialogue&&!s.homecoming&&!s.battle&&!s.outcome&&s.message?'<p class="recent-message" role="status">'+escape(s.message)+'</p>':'';
     return '<div class="scene '+(encounter?'encounter-scene ':'')+(talking?'has-dialogue ':'')+(local?'village':'outer')+'">'+art(asset(b),e.name,'cover eager','fetchpriority="high"')+
-      '<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">'+(talking?'IN CONVERSATION':encounter?'ENCOUNTER':b.elementType==='Home'?'THE PLACE YOU DEFEND':W.border(b.x,b.y)?'BEYOND THE VEIL':'THE JOURNEY CONTINUES')+'</span><span class="region-badge">'+(local?'VILLAGE':'OUTER REALM')+'</span></div><div class="scene-copy">'+
+      '<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">'+(talking?'IN CONVERSATION':encounter?'ENCOUNTER':b.elementType==='Home'?'THE PLACE YOU DEFEND':W.border(b.x,b.y)?'BEYOND THE VEIL':'THE JOURNEY CONTINUES')+'</span><span class="region-badge">'+(local?'VILLAGE':'OUTER REALM')+'</span>'+recent+'</div><div class="scene-copy">'+
       eyebrow(b.elementType==='Nature'?'WILDERNESS':b.elementType.replace(/([a-z])([A-Z])/g,'$1 $2').toUpperCase())+'<h1>'+escape(e.name.toUpperCase())+'</h1>'+
       (talking?speechBubble(b):'<p>'+escape(W.description(b))+'</p>')+'</div></div>';
   }
@@ -79,7 +80,7 @@ OR.ui=(()=>{
   }
   function explore(encounter=false){const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft'].includes(b.elementType)&&!b.resolved;
     const suspended=s.battle?`<div class="resume-banner">${eyebrow('UNFINISHED BUSINESS')}<h2>THE FIGHT ISN’T OVER.</h2>${btn('RESUME BATTLE '+icon('battle'),'route:battle','danger')}</div>`:s.outcome?`<div class="resume-banner">${eyebrow('THE DUST HAS SETTLED')}<h2>${s.outcome.win?'VICTORY IS YOURS.':'YOU STILL BREATHE.'}</h2>${btn(s.outcome.win?'VIEW REWARDS':'RECOVER','route:aftermath',s.outcome.win?'primary':'outline')}</div>`:'';
-    return `<section>${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${suspended||`${b.resolved&&!b.dialogue&&!s.homecoming?`<p class="recent-message">${escape(s.message)}</p>`:''}${activeDialogue(b)?`<div class="tile-actions">${btn('END CONVERSATION '+icon('arrow'),'end-conversation','outline')}</div>`:interactive?`<div class="tile-actions">${encounter||['NPC','Danger','Enemy','Dragon'].includes(b.elementType)?tileActions(b):btn('INVESTIGATE '+icon('arrow'),'route:encounter')+btn('KEEP WALKING','ignore','outline')}</div>`:compass()}`}<div class="utility-row"><button class="text-button" data-action="route:journal">${icon('journal')} JOURNAL</button><span>${s.blocks.length} PLACES DISCOVERED</span></div></div></section>`;
+    return `<section>${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${suspended||`${activeDialogue(b)?`<div class="tile-actions">${btn('END CONVERSATION '+icon('arrow'),'end-conversation','outline')}</div>`:interactive?`<div class="tile-actions">${encounter||['NPC','Danger','Enemy','Dragon'].includes(b.elementType)?tileActions(b):btn('INVESTIGATE '+icon('arrow'),'route:encounter')+btn('KEEP WALKING','ignore','outline')}</div>`:compass()}`}<div class="utility-row"><button class="text-button" data-action="route:journal">${icon('journal')} JOURNAL</button><span>${s.blocks.length} PLACES DISCOVERED</span></div></div></section>`;
   }
   function roundFeedback(r,pending=false){
     if(!r)return '';
