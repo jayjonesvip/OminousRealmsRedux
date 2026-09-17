@@ -52,7 +52,7 @@ OR.ui=(()=>{
     case 'Danger':
     case 'Enemy':return btn('ENTER BATTLE '+icon('battle'),'fight','danger')+btn('KEEP WALKING','ignore','outline');
     case 'Dragon':return `<div class="warning">ANCIENT THREAT · ${num(b.dragonHp)} HP REMAINING</div>`+btn('ENTER BATTLE '+icon('battle'),'fight','danger')+btn('KEEP WALKING','ignore','outline');
-    case 'Food':return btn(S.data.hp.current<S.data.hp.max?'EAT · RESTORE ALL HEALTH':'EAT · RISK POISON','eat')+btn('IGNORE','ignore','outline');
+    case 'Food':return btn('EAT MUSHROOMS','eat')+btn('IGNORE','ignore','outline');
     case 'BuriedItems':return `${b.digDepth?`<p class="dig-progress">${b.dug} / ${b.digDepth} FEET · 1–2 HP PER FOOT</p>`:'<p class="fine">Buried 3–6 feet deep. Each foot costs 1–2 health.</p>'}`+btn(b.digDepth?'DIG ANOTHER FOOT':'BREAK GROUND','dig','primary',S.data.hp.current<=1?'disabled':'')+btn('IGNORE','ignore','outline');
     case 'LockedItem':return btn(`UNLOCK · ${S.qty('Key')?'USE 1 KEY':'KEY REQUIRED'}`,'unlock','primary',!S.qty('Key')?'disabled':'')+btn('IGNORE','ignore','outline');
     case 'Craft':return btn('ENHANCE ARMOR '+icon('shield'),'forge:armor')+btn('ENHANCE WEAPON '+icon('battle'),'forge:weapon','outline')+btn('IGNORE','ignore','text');

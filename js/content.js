@@ -38,7 +38,7 @@ OR.content = (() => {
     ['NPC','woodcutter','The Woodcutter','An axe rests against a freshly cut stump.','The woodcutter swings at a tree that bleeds.'],
     ['NPC','hunter','The Hunter','A watchful hunter reads tracks in the soft earth.','A hunter watches you instead of the tracks.'],
     ['NPC','elder','The Elder','An old soul has stories the forest still remembers.','The elder speaks to someone you cannot see.'],
-    ['Food','mushrooms','Witchcap Mushrooms','Tiny caps shine beneath a fallen branch.','Eat wounded and mend. Eat whole and pay.'],
+    ['Food','mushrooms','Witchcap Mushrooms','Tiny caps shine beneath a fallen branch.','Pale caps cluster in the ash beneath a blackened branch.'],
     ['Animal','rabbit','Wild Rabbit','A rabbit freezes, then vanishes into the ferns.','A pale rabbit watches without blinking.'],
     ['Animal','squirrel','Red Squirrel','A flash of russet darts up the ancient oak.','Ash clings to a squirrel with far too still a gaze.'],
     ['Animal','deer','Woodland Deer','A deer steps between the sunlit trees.','A stag stands in the fog, antlers tangled with bone.'],
