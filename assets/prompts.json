@@ -1,0 +1,508 @@
+{
+  "mode": "Built-in image_gen tool",
+  "style": "Dark fantasy painterly illustration, cinematic light, grain, clear silhouettes. Village: warm moss, timber and golden light. Outer: ash, dead trees and crimson fog.",
+  "groups": {
+    "characters": [
+      {
+        "id": "warrior-sword",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: a rugged strongwood warrior, male around 35, shoulder-length dark brown hair, short beard, ancestral iron armor embossed with a clearly visible branching tree crest, worn olive cloak, antique gold edging. Three-quarter portrait from knees up, both hands resting on the hilt of a broad iron sword held vertically. Quiet determination, faint forest background, dramatic warm rim light.",
+        "filename": "warrior-sword.png"
+      },
+      {
+        "id": "eldric",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: Eldric, a kind weathered father and village blacksmith, male around 60, broad shoulders, gray beard and swept-back gray hair, gentle tired eyes. Leather smith apron over a cream linen shirt, holding a worn forging hammer. Three-quarter portrait from waist up in a dim warm forge, soft firelight, composed gentle expression.",
+        "filename": "eldric.png"
+      },
+      {
+        "id": "warrior-axe",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image: identity and armor reference. Preserve this exact warrior's face, hair, tree-crest armor, olive cloak and painterly style. Three-quarter knee-up portrait. Replace the sword with a broad iron battle axe held upright at his side. Calm determined stance, dim forest, warm rim light.",
+        "filename": "warrior-axe.png"
+      },
+      {
+        "id": "warrior-hammer",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image: identity and armor reference. Preserve this exact warrior's face, hair, tree-crest armor, olive cloak and painterly style. Three-quarter knee-up portrait. Replace sword with a heavy two-handed iron war hammer held before him. Calm determined stance, dim forest, warm rim light.",
+        "filename": "warrior-hammer.png"
+      },
+      {
+        "id": "warrior-knife",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image: identity and armor reference. Preserve this exact warrior's face, hair, tree-crest armor, olive cloak and painterly style. Three-quarter knee-up portrait. Replace sword with a short iron fighting knife in one hand, clearly visible near waist. Calm determined stance, dim forest, warm rim light.",
+        "filename": "warrior-knife.png"
+      },
+      {
+        "id": "warrior-bust",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image: identity and armor reference. Preserve this exact warrior's face, hair, tree-crest armor, olive cloak and painterly style. Close bust portrait from chest upward, centered serious face, tree crest partly visible, softly blurred dark woodland background.",
+        "filename": "warrior-bust.png"
+      },
+      {
+        "id": "warrior-wounded",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image: identity and armor reference. Preserve this exact warrior's face, hair, tree-crest armor, olive cloak and painterly style. The exhausted wounded warrior sits slumped unconscious against an ancient tree, eyes closed and head lowered, sword lying beside him, non-graphic small bruises and dusty armor, no blood. Full seated figure filling frame in dark woodland, warm fading light.",
+        "filename": "warrior-wounded.png"
+      },
+      {
+        "id": "villager-village",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A young adult village woman with a brunette braid, simple cream blouse and dark brown wool shawl, carrying a small wicker basket. Welcoming but reserved face. Waist-up three-quarter portrait in a peaceful medieval forest village, warm golden dappled woodland light and softly blurred timber cottage in background.",
+        "filename": "villager-village.png"
+      },
+      {
+        "id": "farmer-village",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A weathered middle-aged male farmer, stocky, curly brown beard, rough cream tunic and dark leather vest, holding a wooden pitchfork. Humble and steady. Waist-up three-quarter portrait in a peaceful medieval forest village, warm golden dappled woodland light and softly blurred timber cottage in background.",
+        "filename": "farmer-village.png"
+      },
+      {
+        "id": "woodcutter-village",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A powerful middle-aged male woodcutter, red-brown beard, shaved temples, leather work jerkin and rolled cream sleeves, resting a long wood axe on shoulder. Waist-up three-quarter portrait in a peaceful medieval forest village, warm golden dappled woodland light and softly blurred timber cottage in background.",
+        "filename": "woodcutter-village.png"
+      },
+      {
+        "id": "hunter-village",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A lean young adult female hunter, dark hair tied back, olive hood and worn leather armor, longbow held at her side and arrow quiver behind shoulder, alert eyes. Waist-up three-quarter portrait in a peaceful medieval forest village, warm golden dappled woodland light and softly blurred timber cottage in background.",
+        "filename": "hunter-village.png"
+      },
+      {
+        "id": "elder-village",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: An elderly village woman, long silver braid, lined wise face, charcoal wool cloak with antique gold brooch, leaning on a gnarled wooden walking staff. Waist-up three-quarter portrait in a peaceful medieval forest village, warm golden dappled woodland light and softly blurred timber cottage in background.",
+        "filename": "elder-village.png"
+      },
+      {
+        "id": "villager-outer",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image is an identity, composition and clothing reference. Create this same character in the corrupted outer realm. Preserve the face, hairstyle, clothing, held tools and pose exactly. Change the peaceful village surroundings to an ash-covered dead forest with black bare trees and drifting muted crimson fog. Change warm light to eerie dim cream rim light with subtle red reflections. The character looks wary and travel-worn, with ash dust on clothes, but remains alive and human. No gore.",
+        "filename": "villager-outer.png"
+      },
+      {
+        "id": "farmer-outer",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image is an identity, composition and clothing reference. Create this same character in the corrupted outer realm. Preserve the face, hairstyle, clothing, held tools and pose exactly. Change the peaceful village surroundings to an ash-covered dead forest with black bare trees and drifting muted crimson fog. Change warm light to eerie dim cream rim light with subtle red reflections. The character looks wary and travel-worn, with ash dust on clothes, but remains alive and human. No gore.",
+        "filename": "farmer-outer.png"
+      },
+      {
+        "id": "woodcutter-outer",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image is an identity, composition and clothing reference. Create this same character in the corrupted outer realm. Preserve the face, hairstyle, clothing, held tools and pose exactly. Change the peaceful village surroundings to an ash-covered dead forest with black bare trees and drifting muted crimson fog. Change warm light to eerie dim cream rim light with subtle red reflections. The character looks wary and travel-worn, with ash dust on clothes, but remains alive and human. No gore.",
+        "filename": "woodcutter-outer.png"
+      },
+      {
+        "id": "hunter-outer",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image is an identity, composition and clothing reference. Create this same character in the corrupted outer realm. Preserve the face, hairstyle, clothing, held tools and pose exactly. Change the peaceful village surroundings to an ash-covered dead forest with black bare trees and drifting muted crimson fog. Change warm light to eerie dim cream rim light with subtle red reflections. The character looks wary and travel-worn, with ash dust on clothes, but remains alive and human. No gore.",
+        "filename": "hunter-outer.png"
+      },
+      {
+        "id": "elder-outer",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image is an identity, composition and clothing reference. Create this same character in the corrupted outer realm. Preserve the face, hairstyle, clothing, held tools and pose exactly. Change the peaceful village surroundings to an ash-covered dead forest with black bare trees and drifting muted crimson fog. Change warm light to eerie dim cream rim light with subtle red reflections. The character looks wary and travel-worn, with ash dust on clothes, but remains alive and human. No gore.",
+        "filename": "elder-outer.png"
+      },
+      {
+        "id": "ogre",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A towering hulking ogre with olive-gray skin, heavy brow, small tusks, rough hide armor, gripping a huge crude chipped iron axe. Menacing three-quarter portrait from knees up, ruined forest background, cream rim lighting.",
+        "filename": "ogre.png"
+      },
+      {
+        "id": "troll",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A hulking long-armed troll with slate-gray craggy skin, coarse dark hair, ragged leather and iron bands, gripping a massive blunt stone-and-iron hammer. Three-quarter portrait, smoky dead woodland behind, antique gold rim light.",
+        "filename": "troll.png"
+      },
+      {
+        "id": "gargoyle",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A living gargoyle of cracked charcoal stone, horned head and folded batlike wings, perched on ruined masonry, holding a long weathered iron sword upright. Whole creature visible, menacing face, dim gothic woodland ruins, cream rim light.",
+        "filename": "gargoyle.png"
+      },
+      {
+        "id": "snake",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A large dark forest viper coiled on wet roots, raised head and subtle ivory fangs, olive-black scales with antique gold flecks, eyes sharply visible. Full coil clearly readable in portrait frame, dark woodland ground and mist.",
+        "filename": "snake.png"
+      },
+      {
+        "id": "skeleton",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: An animated ancient human skeleton wearing tattered charcoal cloth and rusted armor remnants, gripping a worn iron sword. Three-quarter full-body silhouette centered in portrait frame, cream old bones, ruined forest and dim fog. No gore.",
+        "filename": "skeleton.png"
+      },
+      {
+        "id": "spider",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A huge black woodland spider, eight jointed legs and a rounded hairy abdomen, tiny reflective gold eyes, crawling over gnarled roots and old web strands. Clear single creature silhouette centered in portrait frame, moody misty forest ground.",
+        "filename": "spider.png"
+      },
+      {
+        "id": "bat",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A monstrous dark brown bat flying toward viewer, wings arched upward so entire creature fits portrait frame, leathery wings rimmed in soft gold, small alert eyes and ivory fangs. Dark forest canopy and diffuse moonlight, no gore.",
+        "filename": "bat.png"
+      },
+      {
+        "id": "dragon-village",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Subject: A magnificent verdant forest dragon resting amid ancient mossy trees, moss-green scales and bark-like horns, long neck raised, wings folded, tail curling around fern-covered roots. Dragon subtly blends into forest while its full silhouette remains readable. Portrait framing, warm gold woodland sunlight, ancient guardian presence.",
+        "filename": "dragon-village.png"
+      },
+      {
+        "id": "dragon-outer",
+        "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image is identity and composition reference. Preserve this exact forest dragon's anatomy, bark-like branching horns, curled tail and seated pose. Transform it into its corrupted outer-realm form: charcoal ash scales with faint ember-red fissures, dim crimson eyes, dead hanging vines. Replace verdant forest with blackened ash woods and drifting red fog, eerie cream rim light. Retain painterly texture, readable silhouette and full portrait composition. No fire breath, no extra characters.",
+        "filename": "dragon-outer.png"
+      }
+    ],
+    "scenery": [
+      {
+        "id": "home-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. A small welcoming moss-roofed timber cottage in a temperate woodland village, rustic stone foundation, warm window glow, front door and cottage silhouette clearly readable, garden and mossy path in foreground, tall trees framing the cottage. Golden-hour sunlight, warm gold, muted green, weathered brown. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "forest-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. A tall ancient temperate forest viewed from a low path entering the center, two large trunks framing either side, leafy canopy overhead, distant opening centered, mossy roots in foreground. Golden-hour sunlight through foliage, warm gold and muted green, tranquil but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "forest-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. A corrupted ancient temperate forest viewed from a low path entering the center, two large dead trunks framing either side, skeletal canopy overhead, distant opening centered, ash-coated roots in foreground. Crimson fog, bone-white ash, burnt black trees, ominous red light. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "mossy-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A massive moss-covered fallen log crossing diagonally through the near foreground, carpet of soft moss on roots and stones, receding woodland trunks and a small central opening. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "mossy-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A massive moss-covered fallen log crossing diagonally through the near foreground, carpet of soft moss on roots and stones, receding woodland trunks and a small central opening. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "rocks-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A cluster of large weathered boulders centered in a woodland alcove, one tall standing stone behind two rounded foreground rocks, low ferns and distant tree trunks. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "rocks-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A cluster of large weathered boulders centered in a woodland alcove, one tall standing stone behind two rounded foreground rocks, low ferns and distant tree trunks. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "stream-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A narrow winding woodland stream leading from lower foreground to the upper center, stepping stones in the foreground, roots and trees framing both banks. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "stream-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A narrow winding woodland stream leading from lower foreground to the upper center, stepping stones in the foreground, roots and trees framing both banks. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "clearing-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A broad open oval woodland clearing centered in the image, flat earth and short grasses, a complete ring of mature trees framing the open center. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "clearing-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A broad open oval woodland clearing centered in the image, flat earth and short grasses, a complete ring of mature trees framing the open center. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "grove-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A secluded grove of five tall closely spaced ancient trees, their arching roots dominating the foreground, small round patch of ground between the trunks. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "grove-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A secluded grove of five tall closely spaced ancient trees, their arching roots dominating the foreground, small round patch of ground between the trunks. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "meadow-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A gently sloping meadow of long grass and scattered small wildflowers, low woodland bordering both sides, distant rounded hills through an opening. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "meadow-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A gently sloping meadow of long grass and scattered small wildflowers, low woodland bordering both sides, distant rounded hills through an opening. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "thicket-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A dense tangle of brambles and slender trees, a narrow passage visible through the center, thorny intertwined branches framing the foreground. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "thicket-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A dense tangle of brambles and slender trees, a narrow passage visible through the center, thorny intertwined branches framing the foreground. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "waterfall-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A narrow waterfall falling from a high rocky ledge in the upper center into a round pool below, wet boulders and tree roots framing the banks. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "waterfall-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A narrow waterfall falling from a high rocky ledge in the upper center into a round pool below, wet boulders and tree roots framing the banks. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "glade-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A small serene woodland glade with one spreading tree in the middle distance, low grass and tiny wildflowers, a shaft of light touching open ground in the center. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "glade-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A small serene woodland glade with one spreading tree in the middle distance, low grass and tiny wildflowers, a shaft of light touching open ground in the center. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "marshland-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A shallow woodland marsh, scattered pools reflecting the sky, reeds and moss-covered hummocks in the foreground, thin trees receding in layers. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "marshland-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A shallow woodland marsh, scattered pools reflecting the sky, reeds and moss-covered hummocks in the foreground, thin trees receding in layers. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "home-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A small rustic moss-roofed timber cottage on a stone foundation centered beyond a winding front path, windows and doorway clearly readable, large trees framing it. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "path-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A humble woodland village front yard viewed toward a small timber cottage gate, irregular stepping stone path leading from bottom center through a split-rail fence, moss and shrubs beside the path. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "path-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A humble woodland village front yard viewed toward a small timber cottage gate, irregular stepping stone path leading from bottom center through a split-rail fence, moss and shrubs beside the path. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "forge-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A rustic open-front woodland blacksmith forge, stone hearth in the back center, iron anvil in front, timber shelter and roof, simple tool rack, no people. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "forge-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A rustic open-front woodland blacksmith forge, stone hearth in the back center, iron anvil in front, timber shelter and roof, simple tool rack, no people. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "chest-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A locked weathered timber treasure chest with iron bands and a large clear padlock, closed lid, centered on a low stone slab in a woodland alcove, framed by roots and trees. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "chest-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A locked weathered timber treasure chest with iron bands and a large clear padlock, closed lid, centered on a low stone slab in a woodland alcove, framed by roots and trees. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "dig-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A clearly visible patch of freshly disturbed soil centered in the foreground of a woodland clearing, low mound and shallow excavation, small clods of earth, roots framing it. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "dig-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A clearly visible patch of freshly disturbed soil centered in the foreground of a woodland clearing, low mound and shallow excavation, small clods of earth, roots framing it. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "mushrooms-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A clearly readable cluster of broad capped woodland mushrooms growing on a fallen stump in the near foreground, mixed small and large caps, moss, forest receding behind. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "mushrooms-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A clearly readable cluster of broad capped woodland mushrooms growing on a fallen stump in the near foreground, mixed small and large caps, moss, forest receding behind. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "arena-village",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A wide circular level woodland arena clearing occupying the lower half, simple ring of worn stones around its perimeter, tall trees framing the open center, no fighters. Lighting and environment: Alive temperate woodland near a rustic timber village. Golden-hour sun, warm gold rays, rich soft moss, muted deep greens, welcoming but mysterious. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      },
+      {
+        "id": "arena-outer",
+        "prompt": "Use case: stylized-concept. Asset type: OMINOUS REALMS game scenery plate. Scene and composition: A wide circular level woodland arena clearing occupying the lower half, simple ring of worn stones around its perimeter, tall trees framing the open center, no fighters. Lighting and environment: The corrupted outer-realm counterpart of this same scene and composition. Dead skeletal trees, crimson fog, bone-white ash, charred wood, bleached roots, ominous deep red light. Vegetation is withered and ground is ash. Preserve the described focal object and arrangement. Painterly dark fantasy, slightly grainy cinematic illustration, strong readable silhouettes. Portrait 4:5 composition, full bleed edge to edge. No people, no text, no lettering, no watermark, no border, no UI."
+      }
+    ],
+    "objects": [
+      {
+        "id": "weapon-sword",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one ancestral iron longsword with a restrained antique gold crossguard. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "weapon-axe",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one brutal ancestral iron battle axe with a dark wooden handle. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "weapon-hammer",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one ancestral iron war hammer with a heavy squared head and worn leather grip. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "weapon-knife",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one ancestral iron dagger, short broad blade, old leather handle. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "armor",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one ancestral iron breastplate with pauldrons, embossed branching tree family crest at its heart. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "item-metal",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one rough unrefined dark iron ore nugget. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "item-steel",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one refined steel ingot with silvery worn edges. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "item-potion",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one small stoppered glass potion bottle with muted amber liquid. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "item-gem",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one faceted deep garnet gemstone. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "item-key",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one large ancient iron skeleton key. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "item-crystal",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one smoky amber quartz crystal cluster. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "item-coin",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one aged gold coin with an embossed tree symbol and absolutely no lettering. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "item-pottery",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one small weathered earthenware pot. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "item-nail",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one large hand-forged iron nail. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "app-icon",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one weathered iron round shield with an antique gold branching tree crest. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "compass",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game inventory artwork. Subject: one ancient brass compass rose, ornate eight-point star, absolutely no letters, words, numbers or markings. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Square composition. No text. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "logo",
+        "prompt": "Use case: stylized-concept. Asset type: wide fantasy game title plate. Subject: one broad aged black iron title plate with subtle antique gold edging and a small branching tree crest, containing only the exact readable title OMINOUS REALMS, spelling O M I N O U S space R E A L M S, elegant cream Roman capitals. Isolated centered full object with generous margin against nearly black charcoal textured backdrop. Dark fantasy hand-painted oil illustration, cinematic warm rim light, detailed tactile weathering, fine grain, palette charcoal antique gold and cream. Sophisticated restrained gothic realism. Wide landscape composition; verify exact text OMINOUS REALMS. No border, no UI, no watermark, no collage, no additional objects."
+      },
+      {
+        "id": "rabbit-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one rabbit. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "rabbit-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground rabbit subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "rabbit-village.png"
+        ]
+      },
+      {
+        "id": "squirrel-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one squirrel. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "squirrel-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground squirrel subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "squirrel-village.png"
+        ]
+      },
+      {
+        "id": "deer-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one deer. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "deer-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground deer subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "deer-village.png"
+        ]
+      },
+      {
+        "id": "fox-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one fox. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "fox-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground fox subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "fox-village.png"
+        ]
+      },
+      {
+        "id": "owl-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one owl. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "owl-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground owl subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "owl-village.png"
+        ]
+      },
+      {
+        "id": "hawk-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one hawk. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "hawk-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground hawk subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "hawk-village.png"
+        ]
+      },
+      {
+        "id": "frog-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one frog. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "frog-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground frog subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "frog-village.png"
+        ]
+      },
+      {
+        "id": "badger-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one badger. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "badger-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground badger subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "badger-village.png"
+        ]
+      },
+      {
+        "id": "lynx-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one lynx. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "lynx-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground lynx subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "lynx-village.png"
+        ]
+      },
+      {
+        "id": "pottery-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one pottery weathered clay vessel. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "pottery-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground pottery subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "pottery-village.png"
+        ]
+      },
+      {
+        "id": "signpost-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one signpost of weathered wood with blank boards, absolutely no text. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "signpost-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground signpost subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "signpost-village.png"
+        ]
+      },
+      {
+        "id": "scroll-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one scroll of curled blank parchment without lettering. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "scroll-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground scroll subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "scroll-village.png"
+        ]
+      },
+      {
+        "id": "lantern-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one lantern. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "lantern-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground lantern subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "lantern-village.png"
+        ]
+      },
+      {
+        "id": "figurine-village",
+        "prompt": "Use case: stylized-concept. Asset type: square fantasy game environment encounter artwork. Main subject: one figurine carved from aged wood in the shape of a hooded traveler. Centered prominently in foreground at low camera height, entire subject visible, old branching tree silhouette behind on the left, trail receding to the right. Peaceful moss-covered woodland beside a secluded medieval village, golden warm sunlight, rich soft green moss, natural life and gentle haze. Dark fantasy painterly oil illustration, cinematic chiaroscuro, tactile brush grain, consistent muted charcoal antique gold cream palette with moss greens. No text, no watermark, no UI, no frame, no collage. Single cinematic scene."
+      },
+      {
+        "id": "figurine-outer",
+        "prompt": "Use case: lighting-weather. The provided village image is the EDIT TARGET. Create its cursed outer-realm counterpart, preserving the exact main foreground figurine subject, its pose, scale, location, camera angle, framing, old tree on the left, rocks and path to the right. Change only environment and lighting: trees become bare dead black branches, lush moss and plants become scorched ash-covered ground, distant village becomes abandoned ruined silhouettes, warm golden sky becomes deep red fog with drifting pale ash. Main subject remains recognizable and alive/intact, lit by faint warm rim light. Dark fantasy painterly grain, charcoal antique gold cream with restrained crimson. Same scene and shot, same square format. No text, lettering, watermark, UI, border or collage.",
+        "referenced_image_paths": [
+          "figurine-village.png"
+        ]
+      }
+    ]
+  }
+}

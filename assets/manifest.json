@@ -1,0 +1,348 @@
+{
+  "app-icon": {
+    "file": "app-icon.png"
+  },
+  "arena": {
+    "outer": "arena-outer.png",
+    "village": "arena-village.png",
+    "file": "arena-village.png"
+  },
+  "armor": {
+    "file": "armor.png"
+  },
+  "badger": {
+    "outer": "badger-outer.png",
+    "village": "badger-village.png",
+    "file": "badger-village.png"
+  },
+  "bat": {
+    "file": "bat.png"
+  },
+  "chest": {
+    "outer": "chest-outer.png",
+    "village": "chest-village.png",
+    "file": "chest-village.png"
+  },
+  "clearing": {
+    "outer": "clearing-outer.png",
+    "village": "clearing-village.png",
+    "file": "clearing-village.png"
+  },
+  "compass": {
+    "file": "compass.png"
+  },
+  "deer": {
+    "outer": "deer-outer.png",
+    "village": "deer-village.png",
+    "file": "deer-village.png"
+  },
+  "dig": {
+    "outer": "dig-outer.png",
+    "village": "dig-village.png",
+    "file": "dig-village.png"
+  },
+  "dragon": {
+    "outer": "dragon-outer.png",
+    "village": "dragon-village.png",
+    "file": "dragon-village.png"
+  },
+  "elder": {
+    "outer": "elder-outer.png",
+    "village": "elder-village.png",
+    "file": "elder-village.png"
+  },
+  "eldric": {
+    "file": "eldric.png"
+  },
+  "farmer": {
+    "outer": "farmer-outer.png",
+    "village": "farmer-village.png",
+    "file": "farmer-village.png"
+  },
+  "figurine": {
+    "outer": "figurine-outer.png",
+    "village": "figurine-village.png",
+    "file": "figurine-village.png"
+  },
+  "forest": {
+    "outer": "forest-outer.png",
+    "village": "forest-village.png",
+    "file": "forest-village.png"
+  },
+  "forge": {
+    "outer": "forge-outer.png",
+    "village": "forge-village.png",
+    "file": "forge-village.png"
+  },
+  "fox": {
+    "outer": "fox-outer.png",
+    "village": "fox-village.png",
+    "file": "fox-village.png"
+  },
+  "frog": {
+    "outer": "frog-outer.png",
+    "village": "frog-village.png",
+    "file": "frog-village.png"
+  },
+  "gargoyle": {
+    "file": "gargoyle.png"
+  },
+  "glade": {
+    "outer": "glade-outer.png",
+    "village": "glade-village.png",
+    "file": "glade-village.png"
+  },
+  "grove": {
+    "outer": "grove-outer.png",
+    "village": "grove-village.png",
+    "file": "grove-village.png"
+  },
+  "hawk": {
+    "outer": "hawk-outer.png",
+    "village": "hawk-village.png",
+    "file": "hawk-village.png"
+  },
+  "home": {
+    "outer": "home-outer.png",
+    "village": "home-village.png",
+    "file": "home-village.png"
+  },
+  "hunter": {
+    "outer": "hunter-outer.png",
+    "village": "hunter-village.png",
+    "file": "hunter-village.png"
+  },
+  "item-coin": {
+    "file": "item-coin.png"
+  },
+  "item-crystal": {
+    "file": "item-crystal.png"
+  },
+  "item-gem": {
+    "file": "item-gem.png"
+  },
+  "item-key": {
+    "file": "item-key.png"
+  },
+  "item-metal": {
+    "file": "item-metal.png"
+  },
+  "item-nail": {
+    "file": "item-nail.png"
+  },
+  "item-potion": {
+    "file": "item-potion.png"
+  },
+  "item-pottery": {
+    "file": "item-pottery.png"
+  },
+  "item-steel": {
+    "file": "item-steel.png"
+  },
+  "lantern": {
+    "outer": "lantern-outer.png",
+    "village": "lantern-village.png",
+    "file": "lantern-village.png"
+  },
+  "logo": {
+    "file": "logo.png"
+  },
+  "lynx": {
+    "outer": "lynx-outer.png",
+    "village": "lynx-village.png",
+    "file": "lynx-village.png"
+  },
+  "marshland": {
+    "outer": "marshland-outer.png",
+    "village": "marshland-village.png",
+    "file": "marshland-village.png"
+  },
+  "meadow": {
+    "outer": "meadow-outer.png",
+    "village": "meadow-village.png",
+    "file": "meadow-village.png"
+  },
+  "mossy": {
+    "outer": "mossy-outer.png",
+    "village": "mossy-village.png",
+    "file": "mossy-village.png"
+  },
+  "mushrooms": {
+    "outer": "mushrooms-outer.png",
+    "village": "mushrooms-village.png",
+    "file": "mushrooms-village.png"
+  },
+  "ogre": {
+    "file": "ogre.png"
+  },
+  "owl": {
+    "outer": "owl-outer.png",
+    "village": "owl-village.png",
+    "file": "owl-village.png"
+  },
+  "path": {
+    "outer": "path-outer.png",
+    "village": "path-village.png",
+    "file": "path-village.png"
+  },
+  "pottery": {
+    "outer": "pottery-outer.png",
+    "village": "pottery-village.png",
+    "file": "pottery-village.png"
+  },
+  "rabbit": {
+    "outer": "rabbit-outer.png",
+    "village": "rabbit-village.png",
+    "file": "rabbit-village.png"
+  },
+  "rocks": {
+    "outer": "rocks-outer.png",
+    "village": "rocks-village.png",
+    "file": "rocks-village.png"
+  },
+  "scroll": {
+    "outer": "scroll-outer.png",
+    "village": "scroll-village.png",
+    "file": "scroll-village.png"
+  },
+  "signpost": {
+    "outer": "signpost-outer.png",
+    "village": "signpost-village.png",
+    "file": "signpost-village.png"
+  },
+  "skeleton": {
+    "file": "skeleton.png"
+  },
+  "snake": {
+    "file": "snake.png"
+  },
+  "spider": {
+    "file": "spider.png"
+  },
+  "squirrel": {
+    "outer": "squirrel-outer.png",
+    "village": "squirrel-village.png",
+    "file": "squirrel-village.png"
+  },
+  "stream": {
+    "outer": "stream-outer.png",
+    "village": "stream-village.png",
+    "file": "stream-village.png"
+  },
+  "thicket": {
+    "outer": "thicket-outer.png",
+    "village": "thicket-village.png",
+    "file": "thicket-village.png"
+  },
+  "troll": {
+    "file": "troll.png"
+  },
+  "ui-battle": {
+    "file": "ui-battle.svg"
+  },
+  "ui-east": {
+    "file": "ui-east.svg"
+  },
+  "ui-explore": {
+    "file": "ui-explore.svg"
+  },
+  "ui-gold-hover": {
+    "file": "ui-gold-hover.svg"
+  },
+  "ui-gold-normal": {
+    "file": "ui-gold-normal.svg"
+  },
+  "ui-gold-pressed": {
+    "file": "ui-gold-pressed.svg"
+  },
+  "ui-hero": {
+    "file": "ui-hero.svg"
+  },
+  "ui-hp-frame": {
+    "file": "ui-hp-frame.svg",
+    "nineSlice": {
+      "top": 2,
+      "right": 2,
+      "bottom": 2,
+      "left": 2
+    }
+  },
+  "ui-hud-panel": {
+    "file": "ui-hud-panel.svg",
+    "nineSlice": {
+      "top": 14,
+      "right": 14,
+      "bottom": 14,
+      "left": 14
+    }
+  },
+  "ui-map": {
+    "file": "ui-map.svg"
+  },
+  "ui-north": {
+    "file": "ui-north.svg"
+  },
+  "ui-pack": {
+    "file": "ui-pack.svg"
+  },
+  "ui-red-hover": {
+    "file": "ui-red-hover.svg"
+  },
+  "ui-red-normal": {
+    "file": "ui-red-normal.svg"
+  },
+  "ui-red-pressed": {
+    "file": "ui-red-pressed.svg"
+  },
+  "ui-south": {
+    "file": "ui-south.svg"
+  },
+  "ui-west": {
+    "file": "ui-west.svg"
+  },
+  "villager": {
+    "outer": "villager-outer.png",
+    "village": "villager-village.png",
+    "file": "villager-village.png"
+  },
+  "warrior-axe": {
+    "file": "warrior-axe.png"
+  },
+  "warrior-bust": {
+    "file": "warrior-bust.png"
+  },
+  "warrior-hammer": {
+    "file": "warrior-hammer.png"
+  },
+  "warrior-knife": {
+    "file": "warrior-knife.png"
+  },
+  "warrior-sword": {
+    "file": "warrior-sword.png"
+  },
+  "warrior-wounded": {
+    "file": "warrior-wounded.png"
+  },
+  "waterfall": {
+    "outer": "waterfall-outer.png",
+    "village": "waterfall-village.png",
+    "file": "waterfall-village.png"
+  },
+  "weapon-axe": {
+    "file": "weapon-axe.png"
+  },
+  "weapon-hammer": {
+    "file": "weapon-hammer.png"
+  },
+  "weapon-knife": {
+    "file": "weapon-knife.png"
+  },
+  "weapon-sword": {
+    "file": "weapon-sword.png"
+  },
+  "woodcutter": {
+    "outer": "woodcutter-outer.png",
+    "village": "woodcutter-village.png",
+    "file": "woodcutter-village.png"
+  }
+}
