@@ -6,7 +6,7 @@ A complete, self-contained dark fantasy browser game. No framework, build step, 
 
 Open **index.html** in a modern browser. Keep the entire folder together so its local artwork and fonts load. You can also serve this folder with any static web server.
 
-Start your journey, accept Eldric’s armor, choose a weapon, and name your warrior. Explore with the compass. Investigate encounters, gather supplies, and find a forge to strengthen your gear. Travel beyond coordinate ±25 to enter the Outer Realm.
+Start your journey, accept Eldric’s armor, choose a weapon, and name your warrior. Explore with the compass. Investigate encounters, gather supplies, and tap WPN or ARM in the HUD to strengthen your gear anywhere outside combat. Travel beyond coordinate ±25 to enter the Outer Realm.
 
 Progress saves automatically in this browser under **ominousrealms.save**. Returning visits open Explore; an unfinished fight has a Resume Battle button. Rewards are recorded when a fight ends, so reloading or claiming twice cannot duplicate or lose them. Hero → Reset Journey permanently removes the save after confirmation.
 
@@ -19,7 +19,7 @@ Browser storage belongs to the current browser and origin. A file opened directl
 - Four weapons, armor, accuracy, magic crystals, lucky coins, bribes, fleeing, and unconsciousness at 1 HP.
 - Screen shake and portrait impacts; gold hits, purple magic, red incoming damage, and blue misses. Reduced-motion preferences disable shake.
 - Combat reveals your result first, pauses for 950 ms, then reveals the enemy response for 950 ms. Vitality updates with the enemy response; actions stay locked until the sequence finishes. Both sides roll accuracy independently.
-- Forge upgrade screens offer a direct switch to the other upgrade and a Keep Walking button.
+- WPN and ARM in the HUD open the matching gear upgrade anywhere outside combat, using the same ingot costs. Forge locations are optional stops. Upgrade screens offer a direct switch to the other upgrade and a Keep Walking button; returning preserves the current encounter.
 - All health loss animates Vitality with a red pulse, an HP-loss label, and a draining bar. Poisoned mushrooms add a red screen flash, shake, and explicit Poisoned toast; reduced-motion preferences disable animation.
 - Visible item rewards and an itemized claim toast. Defeats show a separate Wake at Home flow with no loot or collection button.
 - NPC replies type inside speech bubbles beneath the speaker’s name; tap to reveal, then End Conversation to resume walking. Terrain descriptions appear immediately.

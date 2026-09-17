@@ -19,6 +19,6 @@ OR.actions=(()=>{
   function rest(){const s=S.data;if(s.battle||s.outcome||s.x!==0||s.y!==0||s.hp.current>=s.hp.max)return false;S.syncRest();S.save();return true;}
   const armorCost=()=>Math.max(1,S.data.armor.craftCost||S.data.armor.resistance);
   const weaponCost=()=>S.data.weapon.basePower+1;
-  function craft(which){const s=S.data;if(s.battle||s.outcome||W.current().elementType!=='Craft')return false;const isArmor=which==='armor';if(!isArmor&&which!=='weapon')return false;if(isArmor&&s.armor.resistance>=95)return false;const cost=isArmor?armorCost():weaponCost(),type=isArmor?'MetalIngot':'SteelIngot';if(S.qty(type)<cost)return false;S.add(type,-cost);if(isArmor){s.armor.resistance++;s.armor.craftCost=s.armor.resistance;}else s.weapon.basePower++;S.log(isArmor?'Your ancestral iron grows stronger. +1 armor.':'The edge catches the firelight. +1 weapon power.');S.save();return true;}
+  function craft(which){const s=S.data;if(s.battle||s.outcome)return false;const isArmor=which==='armor';if(!isArmor&&which!=='weapon')return false;if(isArmor&&s.armor.resistance>=95)return false;const cost=isArmor?armorCost():weaponCost(),type=isArmor?'MetalIngot':'SteelIngot';if(S.qty(type)<cost)return false;S.add(type,-cost);if(isArmor){s.armor.resistance++;s.armor.craftCost=s.armor.resistance;}else s.weapon.basePower++;S.log(isArmor?'Your ancestral iron grows stronger. +1 armor.':'The edge catches the firelight. +1 weapon power.');S.save();return true;}
   return {resolve,ignore,talk,eat,dig,unlock,potion,rest,craft,armorCost,weaponCost};
 })();
