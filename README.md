@@ -18,6 +18,7 @@ Browser storage belongs to the current browser and origin. A file opened directl
 - Sticky two-row HUD and five-button navigation; centered 430px mobile layout.
 - Four weapons, armor, accuracy, magic crystals, lucky coins, bribes, fleeing, and unconsciousness at 1 HP.
 - Screen shake and portrait impacts; gold hits, purple magic, red incoming damage, and blue misses. Reduced-motion preferences disable shake.
+- All health loss animates Vitality with a red pulse, an HP-loss label, and a draining bar. Poisoned mushrooms add a red screen flash, shake, and explicit Poisoned toast; reduced-motion preferences disable animation.
 - Visible item rewards and an itemized claim toast. Defeats show a separate Wake at Home flow with no loot or collection button.
 - NPC replies type inside speech bubbles beneath the speaker’s name; tap to reveal, then End Conversation to resume walking. Terrain descriptions appear immediately.
 - Walking at 50% health or lower without a potion gives a 35% find chance per step, guaranteed by the third step. At 25% or lower, the next step guarantees a potion. Existing encounters stay intact. A pickup card and toast show the find, with a full-heal button. Mushrooms can now appear in both realms.

@@ -9,6 +9,20 @@
 #toast{bottom:calc(93px + env(safe-area-inset-bottom))}
 
 /* Combat results use both color and explicit hit / miss labels. */
+/* Shared vitality feedback for poison, digging, and enemy damage. */
+.health-cell{position:relative}
+.health-cell.vitality-damaged{background:#4b201e;box-shadow:inset 0 0 0 1px #ec8375;animation:vitality-pulse 1.4s ease-out}
+.vitality-damaged>strong{color:#ffaea2;animation:vitality-number .45s ease-out}
+.vitality-damaged .hp-track>span{background:#ef897b;animation:vitality-drain .85s ease-out both}
+.vitality-loss{position:absolute;right:5px;bottom:10px;padding:3px 5px;background:#611f1a;color:#ffe0d8;border:1px solid #e48372;font:600 12px/1.2 var(--display);z-index:2;pointer-events:none;animation:vitality-loss 1.4s ease-out both}
+#stage.damage-taken>section:not(.battle-screen){animation:combat-shake .54s ease-out}
+#stage.damage-taken::after{content:"";position:fixed;inset:0;max-width:430px;margin:auto;z-index:60;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,#c62c28aa 100%);opacity:0;animation:damage-vignette .8s ease-out}
+@keyframes vitality-drain{from{width:var(--hp-before)}}
+@keyframes vitality-pulse{0%,25%{background:#7b3028}100%{background:#4b201e}}
+@keyframes vitality-number{0%,100%{transform:translateY(0)}35%{transform:translateY(-3px)}}
+@keyframes vitality-loss{0%{opacity:0;transform:translateY(6px)}15%,75%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-8px)}}
+@keyframes damage-vignette{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){#stage.damage-taken>section{animation:none!important}.vitality-loss{opacity:1;transform:none}}
 .battle-screen{position:relative}
 .battle-screen.combat-impact{animation:combat-shake .54s ease-out}
 .fighter-art{position:relative}
