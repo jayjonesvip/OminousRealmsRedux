@@ -55,7 +55,7 @@ OR.ui=(()=>{
     case 'Food':return btn('EAT MUSHROOMS','eat')+btn('IGNORE','ignore','outline');
     case 'BuriedItems':return `${b.digDepth?`<p class="dig-progress">${b.dug} / ${b.digDepth} FEET · 1–2 HP PER FOOT</p>`:'<p class="fine">Buried 3–6 feet deep. Each foot costs 1–2 health.</p>'}`+btn(b.digDepth?'DIG ANOTHER FOOT':'BREAK GROUND','dig','primary',S.data.hp.current<=1?'disabled':'')+btn('IGNORE','ignore','outline');
     case 'LockedItem':return btn(`UNLOCK · ${S.qty('Key')?'USE 1 KEY':'KEY REQUIRED'}`,'unlock','primary',!S.qty('Key')?'disabled':'')+btn('IGNORE','ignore','outline');
-    case 'Craft':return btn('ENHANCE ARMOR '+icon('shield'),'forge:armor')+btn('ENHANCE WEAPON '+icon('battle'),'forge:weapon','outline')+btn('IGNORE','ignore','text');
+    case 'Craft':return btn('ENHANCE ARMOR '+icon('shield'),'forge:armor')+btn('ENHANCE WEAPON '+icon('battle'),'forge:weapon','outline')+btn('KEEP WALKING','ignore','outline');
     default:return '';
   }}
   function restCountdown(){
@@ -78,7 +78,7 @@ OR.ui=(()=>{
   }
   function explore(encounter=false){const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft'].includes(b.elementType)&&!b.resolved;
     const suspended=s.battle?`<div class="resume-banner">${eyebrow('UNFINISHED BUSINESS')}<h2>THE FIGHT ISN’T OVER.</h2>${btn('RESUME BATTLE '+icon('battle'),'route:battle','danger')}</div>`:s.outcome?`<div class="resume-banner">${eyebrow('THE DUST HAS SETTLED')}<h2>${s.outcome.win?'VICTORY IS YOURS.':'YOU STILL BREATHE.'}</h2>${btn(s.outcome.win?'VIEW REWARDS':'RECOVER','route:aftermath',s.outcome.win?'primary':'outline')}</div>`:'';
-    return `<section>${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${suspended||`${b.resolved&&!b.dialogue&&!s.homecoming?`<p class="recent-message">${escape(s.message)}</p>`:''}${activeDialogue(b)?`<div class="tile-actions">${btn('END CONVERSATION '+icon('arrow'),'end-conversation','outline')}</div>`:interactive?`<div class="tile-actions">${encounter||['NPC','Danger','Enemy','Dragon'].includes(b.elementType)?tileActions(b):btn('INVESTIGATE '+icon('arrow'),'route:encounter')+(b.elementType==='Craft'?'':btn('KEEP WALKING','ignore','outline'))}</div>`:compass()}`}<div class="utility-row"><button class="text-button" data-action="route:journal">${icon('journal')} JOURNAL</button><span>${s.blocks.length} PLACES DISCOVERED</span></div></div></section>`;
+    return `<section>${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${suspended||`${b.resolved&&!b.dialogue&&!s.homecoming?`<p class="recent-message">${escape(s.message)}</p>`:''}${activeDialogue(b)?`<div class="tile-actions">${btn('END CONVERSATION '+icon('arrow'),'end-conversation','outline')}</div>`:interactive?`<div class="tile-actions">${encounter||['NPC','Danger','Enemy','Dragon'].includes(b.elementType)?tileActions(b):btn('INVESTIGATE '+icon('arrow'),'route:encounter')+btn('KEEP WALKING','ignore','outline')}</div>`:compass()}`}<div class="utility-row"><button class="text-button" data-action="route:journal">${icon('journal')} JOURNAL</button><span>${s.blocks.length} PLACES DISCOVERED</span></div></div></section>`;
   }
   function roundFeedback(r){
     if(!r)return '';
