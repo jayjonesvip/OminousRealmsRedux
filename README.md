@@ -18,6 +18,8 @@ Browser storage belongs to the current browser and origin. A file opened directl
 - Sticky two-row HUD and five-button navigation; centered 430px mobile layout.
 - Four weapons, armor, accuracy, magic crystals, lucky coins, bribes, fleeing, and unconsciousness at 1 HP.
 - Screen shake and portrait impacts; gold hits, purple magic, red incoming damage, and blue misses. Reduced-motion preferences disable shake.
+- Combat reveals your result first, pauses for 950 ms, then reveals the enemy response for 950 ms. Vitality updates with the enemy response; actions stay locked until the sequence finishes. Both sides roll accuracy independently.
+- Forge upgrade screens offer a direct switch to the other upgrade and a Keep Walking button.
 - All health loss animates Vitality with a red pulse, an HP-loss label, and a draining bar. Poisoned mushrooms add a red screen flash, shake, and explicit Poisoned toast; reduced-motion preferences disable animation.
 - Visible item rewards and an itemized claim toast. Defeats show a separate Wake at Home flow with no loot or collection button.
 - NPC replies type inside speech bubbles beneath the speaker’s name; tap to reveal, then End Conversation to resume walking. Terrain descriptions appear immediately.

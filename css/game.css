@@ -129,3 +129,5 @@ body.outer-world::after{opacity:1}
 .rest-progress{height:7px}
 .home-recovery .rest-note{font-size:13px;margin:11px 0 0}
 .home-recovery .rest-note+.btn{margin-top:17px}
+
+.round-event.pending{background:#242521;color:#b6b6a5;border-left-color:#68695b}
