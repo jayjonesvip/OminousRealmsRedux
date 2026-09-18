@@ -5,7 +5,7 @@ OR.world=(()=>{
   const border=(x,y)=>Math.abs(x)===26||Math.abs(y)===26;
   const realm=(x,y)=>local(x,y)?'Strongwood Village':'The Outer Realm';
   const at=(x,y)=>S.data.blocks.find(b=>b.x===x&&b.y===y);
-  function spawn(type,x,y){const candidates=Object.values(C.entities).filter(e=>e.type===type);const e=C.pick(candidates);return {x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};}
+  function spawn(type,x,y){const candidates=Object.values(C.entities).filter(e=>e.type===type&&(e.id!=='villager'||local(x,y)));const e=C.pick(candidates);return {x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};}
   function getOrCreateBlock(x,y,revisit=false){
     let b=at(x,y);
     if(b){if(revisit&&b.elementType==='Nature'&&!b.cleared){const type=Math.random()<0.5?'Danger':local(x,y)?'Danger':'Enemy';Object.assign(b,spawn(type,x,y));}return b;}

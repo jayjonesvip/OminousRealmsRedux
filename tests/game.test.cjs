@@ -21,6 +21,30 @@ test('embark defaults and save schema',()=>{const g=game();const s=g.state.data;
 test('home and all eight front-yard coordinates are stable',()=>{const g=game();const b=g.world.current();assert.equal(b.elementType,'Home');for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)if(x||y)assert.equal(g.world.getOrCreateBlock(x,y).elementType,'NPC');assert.equal(g.world.current(),b);assert.equal(g.state.data.blocks.length,9);});
 test('compass uses correct axes and last heading',()=>{const g=game();for(const d of ['N','E','S','W'])assert.ok(g.world.move(d));assert.equal(g.state.data.x,0);assert.equal(g.state.data.y,0);assert.equal(g.state.data.direction,'W');assert.equal(g.state.data.steps,4);});
 test('realm and border include negative coordinates',()=>{const g=game();assert.ok(g.world.local(25,-25));assert.ok(!g.world.local(26,0));assert.ok(!g.world.local(0,-26));assert.ok(g.world.border(-26,50));assert.ok(!g.world.border(27,27));});
+test('Strongwood Villagers are excluded beyond every realm boundary',()=>{
+  const g=game();
+  for(const [x,y] of [[26,0],[-26,0],[0,26],[0,-26],[30,-40]]){
+    const found=new Set();
+    for(let i=0;i<100;i++){g.rng((i+.5)/100);found.add(g.world.spawn('NPC',x,y).subtype);}
+    assert.deepEqual([...found].sort(),['elder','farmer','hunter','woodcutter']);
+  }
+  g.rng(0);for(const [x,y] of [[25,0],[-25,0],[0,25],[0,-25],[25,-25]])assert.equal(g.world.spawn('NPC',x,y).subtype,'villager');
+  assert.equal(g.content.encounterRates(false).NPC,5);assert.equal(g.content.encounterRates(true).NPC,10);
+});
+test('saved outer villagers become stable hunters without carrying their old dialogue',()=>{
+  const g=game(new Map(),true);
+  for(const [x,y] of [[26,0],[-26,0],[0,26],[0,-26],[25,-25]]){
+    const b=g.place('NPC','villager',x,y);b.resolved=true;b.dialogue={text:'An old villager reply.',spoken:true,dismissed:false};
+  }
+  g.state.data.x=26;g.state.data.y=0;g.state.log('An old villager reply.');g.state.save();g.state.load();
+  for(const b of g.state.data.blocks.filter(b=>b.elementType==='NPC')){
+    if(g.world.local(b.x,b.y)){assert.equal(b.subtype,'villager');assert.ok(b.dialogue);}
+    else{assert.equal(b.subtype,'hunter');assert.equal(b.dialogue,undefined);assert.equal(b.resolved,true);}
+  }
+  assert.equal(g.state.data.message,'');g.ui.init();assert.match(g.nodes.stage.innerHTML,/THE HUNTER/);
+  assert.doesNotMatch(g.nodes.stage.innerHTML,/STRONGWOOD VILLAGER|An old villager reply/);
+  g.state.save();g.state.load();assert.equal(g.world.current().subtype,'hunter');
+});
 test('local generation excludes outer-only elements',()=>{const g=game();for(let x=-25;x<=25;x++)for(let y=-25;y<=25;y++){const b=g.world.getOrCreateBlock(x,y);assert.ok(!g.content.outerOnly.includes(b.elementType));}});
 test('critical health finds a potion on the next step without replacing the tile',()=>{const g=game();g.state.data.hp.current=10;g.rng(.99);g.world.move('N');assert.equal(g.state.qty('Potion'),1);assert.equal(g.world.current().elementType,'NPC');assert.equal(g.state.data.hp.current,10);assert.equal(g.state.data.lastFind.type,'Potion');g.state.load();assert.equal(g.state.qty('Potion'),1);assert.equal(g.state.data.lastFind.y,-1);});
 test('low-health healing is guaranteed by three steps even on previously explored paths',()=>{const g=game();g.state.data.hp.current=25;g.rng(.99);g.world.move('N');assert.equal(g.state.qty('Potion'),0);g.state.load();g.world.move('S');assert.equal(g.state.qty('Potion'),0);g.world.move('N');assert.equal(g.state.qty('Potion'),1);assert.equal(g.state.data.healingSearchSteps,0);assert.equal(g.world.current().elementType,'NPC');});
