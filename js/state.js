@@ -31,7 +31,7 @@ OR.state = (() => {
       // Older saves kept cleared encounters as resolved clearings without a flag.
       // Preserve that ground rather than allowing another threat to spawn there.
       for(const b of data.blocks)if(b.cleared===undefined&&b.elementType==='Nature'&&b.subtype==='clearing'&&b.resolved)b.cleared=true;
-      if(data.foundLoot&&(data.foundLoot.source!=='dig'||!Array.isArray(data.foundLoot.rewards)||!data.foundLoot.rewards.length||!data.foundLoot.rewards.every(r=>r&&OR.content.items[r.type]&&Number.isSafeInteger(r.qty)&&r.qty>0)))data.foundLoot=null;
+      if(data.foundLoot&&(!['dig','puzzle'].includes(data.foundLoot.source)||!Array.isArray(data.foundLoot.rewards)||!data.foundLoot.rewards.length||!data.foundLoot.rewards.every(r=>r&&OR.content.items[r.type]&&Number.isSafeInteger(r.qty)&&r.qty>0)))data.foundLoot=null;
       if (data.battle && (!data.battle.enemy || !Number.isFinite(data.battle.enemy.hp) || !Array.isArray(data.battle.enemy.moves))) data.battle=null;
       if(data.battle){const e=data.battle.enemy;Object.assign(e,OR.content.creature(e.id,e.level||data.level));}
       syncRest();

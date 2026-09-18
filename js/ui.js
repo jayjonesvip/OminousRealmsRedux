@@ -1,6 +1,6 @@
 'use strict';
 OR.ui=(()=>{
-  const S=OR.state,C=OR.content,W=OR.world,A=OR.actions,B=OR.combat;
+  const S=OR.state,C=OR.content,W=OR.world,A=OR.actions,B=OR.combat,P=OR.puzzles;
   const $=id=>document.getElementById(id);
   let vitalitySnapshot=null,damageTimer=null,roundPhase=null,roundStartHealth=null,forgeFocus='armor',hudObserver=null;
   function syncHudHeight(){const height=$('hud').getBoundingClientRect?.().height;if(height>0)for(const id of ['stage','toast','combat-toasts'])$(id).style?.setProperty('--hud-height',height+'px');}
@@ -18,7 +18,7 @@ OR.ui=(()=>{
   const btn=(label,action,kind='primary',extra='')=>`<button class="btn ${kind}" data-action="${action}" ${extra}>${label}</button>`;
   const eyebrow=text=>`<div class="eyebrow">${text}</div>`;
   const sectionHead=(small,big,sub='')=>`<div class="section-head">${eyebrow(small)}<h1>${big}</h1>${sub?`<p>${sub}</p>`:''}</div>`;
-  function asset(b){const paired=['Home','Nature','NPC','Food','Animal','Thing','Dragon','LockedItem','BuriedItems','Craft'].includes(b.elementType);return b.subtype+(paired?(W.local(b.x,b.y)?'-village':'-outer'):'');}
+  function asset(b){const paired=['Home','Nature','NPC','Food','Animal','Thing','Dragon','LockedItem','BuriedItems','Craft','Puzzle'].includes(b.elementType);return b.subtype+(paired?(W.local(b.x,b.y)?'-village':'-outer'):'');}
   const playerArt=()=>`warrior-${S.data.weapon.type.toLowerCase()}`;
   function hpBar(current,max,cls=''){const p=Math.max(0,Math.min(100,current/max*100));return `<div class="hp-track ${p<=25?'critical':p<=50?'wounded':''} ${cls}" role="progressbar" aria-label="Health" aria-valuenow="${num(current)}" aria-valuemin="0" aria-valuemax="${num(max)}"><span style="width:${p}%"></span></div>`;}
   function hud(){const s=S.data;if(!s){vitalitySnapshot=null;$('hud').hidden=true;$('nav').hidden=true;return;}const hp=visibleHealth();const lost=vitalitySnapshot?.data===s?Math.max(0,vitalitySnapshot.hp-hp.current):0,previousPercent=vitalitySnapshot?Math.min(100,100*vitalitySnapshot.hp/vitalitySnapshot.max):0;vitalitySnapshot={data:s,hp:hp.current,max:hp.max};const local=W.local(s.x,s.y),pack=s.inventory.reduce((n,i)=>n+i.qty,0);$('hud').hidden=false;$('nav').hidden=false;
@@ -49,7 +49,18 @@ OR.ui=(()=>{
       eyebrow(b.elementType==='Nature'?'WILDERNESS':b.elementType.replace(/([a-z])([A-Z])/g,'$1 $2').toUpperCase())+'<h1>'+escape(e.name.toUpperCase())+'</h1>'+
       (talking?speechBubble(b):'<p>'+escape(W.description(b))+'</p>')+'</div></div>';
   }
+  function puzzleActions(b){
+    const p=P.ensure(b),rule=P.pattern(b);
+    if(p.claimed)return '<div class="puzzle-panel"><div class="eyebrow">CHAMBER SEARCHED</div><p>The passage remains open. Its treasure has already been gathered.</p></div>';
+    if(p.solved)return '<div class="puzzle-panel"><div class="eyebrow">SEAL OPENED</div><p>A small chamber waits beyond the stone.</p>'+btn(b.subtype==='puzzle-plate'?'ENTER CAVE':'ENTER CHAMBER','puzzle:enter')+'</div>';
+    let controls='';
+    if(b.subtype==='puzzle-plate')controls='<p class="puzzle-status">ON THE PLATE: '+p.offered+' INGOT'+(p.offered===1?'':'S')+'</p><div class="button-pair">'+['MetalIngot','SteelIngot'].map(type=>btn('PLACE 1 '+(type==='MetalIngot'?'METAL':'STEEL'),'puzzle:offer-'+type,'outline',S.qty(type)?'':'disabled')).join('')+'</div><p class="fine">Pack: '+S.qty('MetalIngot')+' Metal · '+S.qty('SteelIngot')+' Steel. Opening consumes the offering. Until then, you can recover it.</p>'+(p.offered?btn('RECOVER OFFERING','puzzle:recover','outline'):'');
+    if(b.subtype==='puzzle-runes')controls='<p class="fine">Left → right. Tap a stone to turn it, then test the seal.</p><div class="puzzle-controls">'+p.wheels.map((n,i)=>'<button class="puzzle-choice" data-action="puzzle:turn-'+i+'" aria-label="Turn '+['left','middle','right'][i]+' rune, currently '+P.runes[n].name+'"><span class="rune-symbol" aria-hidden="true">'+P.runes[n].symbol+'</span><strong>'+P.runes[n].name.toUpperCase()+'</strong><small>'+['LEFT','MIDDLE','RIGHT'][i]+'</small></button>').join('')+'</div>'+btn('TEST THE SEAL','puzzle:check')+'<p class="fine">○ Moon · △ Flame · ◇ Root. Wrong alignments cost nothing.</p>';
+    if(b.subtype==='puzzle-levers')controls='<p class="puzzle-status">'+p.progress+' / '+rule.order.length+' PULLS IN SEQUENCE</p><div class="puzzle-controls">'+P.levers(b).map((name,i)=>btn(name.toUpperCase(),'puzzle:pull-'+i,'outline')).join('')+'</div><p class="fine">Follow the inscription. A wrong pull resets the sequence, without harm.</p>'+(p.progress?btn('RESET LEVERS','puzzle:reset','outline'):'');
+    return '<div class="puzzle-panel">'+eyebrow('INSCRIPTION · '+rule.name.toUpperCase())+'<p class="puzzle-clue">“'+escape(P.clue(b))+'”</p>'+controls+'</div>';
+  }
   function tileActions(b){switch(b.elementType){
+    case 'Puzzle':return puzzleActions(b);
     case 'Home':return btn('ELDRIC’S FORGE '+icon('forge'),'forge:armor');
     case 'NPC':return '<div class="button-pair">'+btn('SPEAK','talk')+btn('ATTACK','npc-attack','outline')+'</div>';
     case 'Danger':
@@ -79,11 +90,11 @@ OR.ui=(()=>{
     if(!s.lastFind||s.lastFind.x!==s.x||s.lastFind.y!==s.y||!S.qty('Potion')||s.hp.current>=s.hp.max)return '';
     return '<div class="healing-find">'+art('item-potion','A crimson healing potion')+'<div>'+eyebrow('HEALING FOUND')+'<h2>ONE MORE CHANCE.</h2><p>+1 Potion in your pack. Restore all your health.</p></div>'+btn('DRINK POTION · FULL HEAL','potion')+'</div>';
   }
-  function explore(encounter=false){const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft'].includes(b.elementType)&&!b.resolved;
+  function explore(encounter=false){const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle'].includes(b.elementType)&&!b.resolved;
     const suspended=s.battle?`<div class="resume-banner">${eyebrow('UNFINISHED BUSINESS')}<h2>THE FIGHT ISN’T OVER.</h2>${btn('RESUME BATTLE '+icon('battle'),'route:battle','danger')}</div>`:s.outcome?`<div class="resume-banner">${eyebrow('THE DUST HAS SETTLED')}<h2>${s.outcome.win?'VICTORY IS YOURS.':'YOU STILL BREATHE.'}</h2>${btn(s.outcome.win?'VIEW REWARDS':'RECOVER','route:aftermath',s.outcome.win?'primary':'outline')}</div>`:s.foundLoot?discoveryLoot():'';
     const walking=!interactive&&!activeDialogue(b)&&!suspended&&!S.restStatus()&&!healingFind();
     const prompts=b.elementType==='Home'?tileActions(b):interactive?tileActions(b):'';
-    return `<section class="exploration-view${walking?' walking-view':''}${prompts?' has-encounter-actions':''}${['Dragon','BuriedItems'].includes(b.elementType)?' extended-actions':''}">${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${suspended||compass(prompts)}<div class="utility-row"><button class="text-button" data-action="route:journal">${icon('journal')} JOURNAL</button><span>${s.blocks.length} PLACES DISCOVERED</span></div></div></section>`;
+    return `<section class="exploration-view${walking?' walking-view':''}${prompts?' has-encounter-actions':''}${['Dragon','BuriedItems','Puzzle'].includes(b.elementType)?' extended-actions':''}">${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${suspended||compass(prompts)}<div class="utility-row"><button class="text-button" data-action="route:journal">${icon('journal')} JOURNAL</button><span>${s.blocks.length} PLACES DISCOVERED</span></div></div></section>`;
   }
   let combatToasts=[];
   function clearCombatToasts(){for(const entry of combatToasts){clearTimeout(entry.timer);entry.node.remove();}combatToasts=[];}
@@ -138,8 +149,8 @@ OR.ui=(()=>{
     return [...totals].map(([type,qty])=>({type,qty}));
   }
   function discoveryLoot(){
-    const rewards=rewardList(S.data.foundLoot.rewards);
-    return '<div class="discovery-loot" role="region" aria-label="Unearthed treasure">'+eyebrow('THE EARTH GIVES WAY')+'<h2>TREASURE UNEARTHED.</h2><p>Brush off the soil. Here is what you found.</p><div class="reward-list">'+rewards.map(r=>'<div class="reward-item">'+art(C.items[r.type].art,C.items[r.type].name)+'<span>'+C.items[r.type].name+'</span><strong>+'+r.qty+'</strong></div>').join('')+'</div>'+btn('GATHER LOOT '+icon('pack'),'gather-loot')+'</div>';
+    const rewards=rewardList(S.data.foundLoot.rewards),puzzle=S.data.foundLoot.source==='puzzle';
+    return '<div class="discovery-loot" role="region" aria-label="Discovered treasure">'+eyebrow(puzzle?'BEYOND THE SEAL':'THE EARTH GIVES WAY')+'<h2>'+(puzzle?'HIDDEN CHAMBER.':'TREASURE UNEARTHED.')+'</h2><p>'+(puzzle?'A forgotten cache rests inside. Gather your treasure.':'Brush off the soil. Here is what you found.')+'</p><div class="reward-list">'+rewards.map(r=>'<div class="reward-item">'+art(C.items[r.type].art,C.items[r.type].name)+'<span>'+C.items[r.type].name+'</span><strong>+'+r.qty+'</strong></div>').join('')+'</div>'+btn('GATHER LOOT '+icon('pack'),'gather-loot')+'</div>';
   }
   function aftermath(){
     const s=S.data,o=s.outcome;if(!o)return explore();
@@ -179,8 +190,8 @@ OR.ui=(()=>{
       }).join('')+(atForge?btn('ENHANCE '+other.toUpperCase(),'forge:'+other,'outline'):'')+
       (s.battle?btn('BACK TO BATTLE','route:battle','outline'):s.outcome?btn('VIEW BATTLE RESULT','route:aftermath','outline'):'')+'</section>';
   }
-  function map(){const s=S.data,colors={Home:'home',NPC:'npc',Nature:'nature',Animal:'nature',Food:'food',Danger:'danger',Thing:'thing',Enemy:'danger',Dragon:'dragon',LockedItem:'treasure',BuriedItems:'treasure',Craft:'craft'};let grid='';for(let dy=-5;dy<=5;dy++)for(let dx=-5;dx<=5;dx++){const x=s.x+dx,y=s.y+dy,b=W.at(x,y),self=dx===0&&dy===0;grid+=`<button role="gridcell" class="map-cell ${b?colors[b.elementType]:'fog'} ${self?'you':''} ${W.border(x,y)?'border-cell':''} ${!W.local(x,y)?'outer-cell':''}" data-action="tile:${x},${y}" aria-label="${x}, ${y}: ${b?escape(b.elementType==='Home'?'Strongwood Cottage · Eldric’s forge':C.entities[b.subtype].name):'Unexplored'}${self?', your location':''}">${b&&['Home','Craft'].includes(b.elementType)?icon('battle','forge-marker'):self?'◆':''}</button>`;}
-    return `<section class="page">${sectionHead('KNOW YOUR GROUND','THE REALMS.')}<div class="map-heading"><span>NORTH ↑</span><span>11 × 11 · LOCAL VIEW</span></div><div class="world-map" role="grid" aria-label="Discovered world map">${grid}</div><p id="map-detail" class="map-detail" aria-live="polite">${escape(C.entities[W.current().subtype].name)} · ${W.coords(s.x,s.y)}</p><div class="map-legend"><span><i class="nature"></i>Wilds</span><span><i class="npc"></i>People</span><span><i class="danger"></i>Threat</span><span><i class="treasure"></i>Finds</span><span>${icon('battle','forge-marker')}Forge</span><span><i class="home"></i>Home forge</span><span><i class="fog"></i>Fog</span><span><i class="border-cell"></i>Border</span></div><div class="map-summary"><div><strong>${s.blocks.length}</strong><span>DISCOVERED</span></div><div><strong>${Math.max(Math.abs(s.x),Math.abs(s.y))}</strong><span>TILES FROM HOME</span></div></div><p class="fine">Strongwood ends at ±25. The Outer Realm begins at ±26. Gold borders mark the crossing.</p><div class="map-landscape">${art('forest-'+(W.local(s.x,s.y)?'village':'outer'),'The realm around you','cover')}<span>${W.realm(s.x,s.y)}</span></div></section>`;
+  function map(){const s=S.data,colors={Home:'home',NPC:'npc',Nature:'nature',Animal:'nature',Food:'food',Danger:'danger',Thing:'thing',Enemy:'danger',Dragon:'dragon',LockedItem:'treasure',BuriedItems:'treasure',Craft:'craft',Puzzle:'puzzle'};let grid='';for(let dy=-5;dy<=5;dy++)for(let dx=-5;dx<=5;dx++){const x=s.x+dx,y=s.y+dy,b=W.at(x,y),self=dx===0&&dy===0;grid+=`<button role="gridcell" class="map-cell ${b?colors[b.elementType]:'fog'} ${self?'you':''} ${W.border(x,y)?'border-cell':''} ${!W.local(x,y)?'outer-cell':''}" data-action="tile:${x},${y}" aria-label="${x}, ${y}: ${b?escape(b.elementType==='Home'?'Strongwood Cottage · Eldric’s forge':C.entities[b.subtype].name):'Unexplored'}${self?', your location':''}">${b&&['Home','Craft'].includes(b.elementType)?icon('battle','forge-marker'):b?.elementType==='Puzzle'?(b.puzzle?.solved?'◇':'?'):self?'◆':''}</button>`;}
+    return `<section class="page">${sectionHead('KNOW YOUR GROUND','THE REALMS.')}<div class="map-heading"><span>NORTH ↑</span><span>11 × 11 · LOCAL VIEW</span></div><div class="world-map" role="grid" aria-label="Discovered world map">${grid}</div><p id="map-detail" class="map-detail" aria-live="polite">${escape(C.entities[W.current().subtype].name)} · ${W.coords(s.x,s.y)}</p><div class="map-legend"><span><i class="nature"></i>Wilds</span><span><i class="npc"></i>People</span><span><i class="danger"></i>Threat</span><span><i class="treasure"></i>Finds</span><span>${icon('battle','forge-marker')}Forge</span><span><i class="home"></i>Home forge</span><span><i class="puzzle"></i>Puzzle (?)</span><span><i class="fog"></i>Fog</span><span><i class="border-cell"></i>Border</span></div><div class="map-summary"><div><strong>${s.blocks.length}</strong><span>DISCOVERED</span></div><div><strong>${Math.max(Math.abs(s.x),Math.abs(s.y))}</strong><span>TILES FROM HOME</span></div></div><p class="fine">Strongwood ends at ±25. The Outer Realm begins at ±26. Gold borders mark the crossing.</p><div class="map-landscape">${art('forest-'+(W.local(s.x,s.y)?'village':'outer'),'The realm around you','cover')}<span>${W.realm(s.x,s.y)}</span></div></section>`;
   }
   function hero(){const s=S.data,progress=S.levelProgress();return `<section class="hero-page"><div class="hero-portrait">${art(playerArt(),s.name,'cover')}<div class="scene-shade"></div><div class="hero-name">${eyebrow('STRONGWOOD’S DEFENDER · LEVEL '+s.level)}<h1>${escape(s.name.toUpperCase())}</h1><span>YOUR NAME. YOUR REALM. YOUR LEGEND.</span></div></div><div class="page hero-details"><div class="career-stats"><div><strong>${s.victories}</strong><span>VICTORIES</span></div><div><strong>${s.level}</strong><span>LEVEL</span></div><div><strong>${s.steps}</strong><span>STEPS TAKEN</span></div></div><div class="section-label"><span>LEVEL ${s.level+1}</span><span>${progress.earned} / ${progress.required} WINS</span></div><div class="xp-track"><span style="width:${progress.percent}%"></span></div><div class="hero-gear"><div>${art('weapon-'+s.weapon.type.toLowerCase(),s.weapon.type)}<strong>${s.weapon.type}</strong><span>${s.weapon.basePower} BASE POWER</span></div><div>${art('armor','Ancestral iron armor')}<strong>Ancestral Iron</strong><span>${s.armor.resistance}% RESISTANCE</span></div></div><div class="section-label">YOUR MOVESET</div><div class="move-summary">${s.weapon.moves.map(m=>`<div><span>${m.name}${m.magic?' · MAGIC':''}</span><b>+${m.power} / ${m.accuracy}%</b></div>`).join('')}</div><dl class="hero-facts"><div><dt>HEALTH</dt><dd>${num(s.hp.current)} / ${num(s.hp.max)}</dd></div><div><dt>REALM</dt><dd>${W.realm(s.x,s.y)}</dd></div><div><dt>POSITION</dt><dd>X ${s.x} · Y ${s.y}</dd></div><div><dt>HEADING</dt><dd>${{N:'North',S:'South',E:'East',W:'West'}[s.direction]||'North'}</dd></div></dl>${btn('READ YOUR JOURNAL '+icon('journal'),'route:journal','outline')}<div class="retire">${eyebrow('PERMANENT DECISION')}<h2>LAY DOWN YOUR IRON.</h2><p>Erase this warrior, their world, and their legend.</p>${btn('RESET JOURNEY','reset','danger-outline')}</div></div></section>`;}
   function journal(){return `<section class="page">${sectionHead('REMEMBER THE ROAD','YOUR JOURNAL.','The last 50 moments of your legend.')}<div class="journal-banner">${art('scroll-'+(W.local(S.data.x,S.data.y)?'village':'outer'),'An ancient scroll','cover')}</div><ol class="journal-list">${[...S.data.journal].reverse().map((line,i)=>`<li><span>${String(S.data.journal.length-i).padStart(2,'0')}</span><p>${escape(line)}</p></li>`).join('')}</ol></section>`;}
@@ -218,10 +229,16 @@ OR.ui=(()=>{
     switch(key){
       case 'move':{
         const b=W.current();let notice='';
-        if(['N','S','E','W'].includes(value)&&S.data.hp.current>1&&['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft'].includes(b.elementType)&&(!b.resolved||activeDialogue(b))){
+        if(['N','S','E','W'].includes(value)&&S.data.hp.current>1&&['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle'].includes(b.elementType)&&(!b.resolved||activeDialogue(b))){
           if(A.ignore())notice=S.data.message;
         }
         if(W.move(value)){route('explore');if(S.data.lastFind)toast('POTION FOUND','reward','+1 Potion in your pack · Use HEAL to recover.');else if(notice)toast(notice);}
+        break;
+      }
+      case 'puzzle':{
+        const [verb,arg]=value.split('-'),result=P.act(verb,arg);if(!result)break;
+        render(true);if(!result.quiet&&!result.entered)toast(result.title,result.kind,result.detail);
+        if(/^(turn|pull)-[012]$/.test(value))document.querySelector('[data-action="puzzle:'+value+'"]')?.focus({preventScroll:true});
         break;
       }
       case 'talk':if(A.talk())route('encounter');break;

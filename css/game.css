@@ -142,6 +142,19 @@ body.in-game{min-height:100dvh}
 .compass-block>.tile-actions{margin:10px 0 0}
 .equipment-hint{grid-column:1/-1;font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
 .inventory-entry>.btn{margin:10px 0 16px}
+.puzzle-panel{padding:15px;border:1px solid #55503b;background:#1a1e16}
+.puzzle-panel>p{font-size:14px;color:#c6c8b7;line-height:1.5}
+.puzzle-panel .puzzle-clue{margin:10px 0 14px;padding-left:10px;border-left:2px solid var(--gold);color:#eee5c9}
+.puzzle-status{font-family:var(--display);letter-spacing:1px;margin:12px 0}
+.puzzle-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0}
+.puzzle-controls>.btn{padding:10px 4px;font-size:13px;letter-spacing:.7px;margin:0}
+.puzzle-choice{min-height:84px;border:1px solid #706447;background:#252b20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px;color:var(--cream)}
+.puzzle-choice strong{font-family:var(--display);font-size:14px;letter-spacing:1px}.puzzle-choice small{font-size:9px;color:var(--muted)}
+.rune-symbol{font-size:27px;line-height:1;color:var(--gold-light)}
+.puzzle-panel>.btn{margin-top:12px}.puzzle-panel>.fine{font-size:12px;margin:10px 0 0}
+.map-cell.puzzle,.map-legend .puzzle{background:#645075;color:#f1dfff}
+.scene>.cover[src*="/puzzle-"]{object-position:center 60%}
+.scene>.cover[src*="/puzzle-runes"]{object-position:center 48%}
 .map-legend .craft{background:#d18d49}.map-legend .home{background:#d6b76d}
 .map-cell.craft{color:#21160e}.map-cell .forge-marker{width:16px;height:16px;stroke-width:1.8}.map-legend .forge-marker{width:13px;height:13px;color:var(--gold)}
 .compass-block>.tile-actions>.button-pair{margin-top:0}

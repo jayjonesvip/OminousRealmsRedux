@@ -614,6 +614,38 @@
         "prompt": "Use case: stylized-concept. Asset type: individual full-bleed portrait game scene for OMINOUS REALMS, Unmarked Grave, Outer Realm variant. Subject: One crooked plain wooden grave marker above a single low mound of settled earth in the woods. Humble and weathered, no inscription, no lettering, no visible remains. Style: dark fantasy painterly realism with fine grain, detailed natural textures, cinematic lighting, clear readable silhouette, matching the supplied reference's rendering and palette only. Composition: portrait 4:5, keep key subject entirely within central 70% with generous room above it, lower edge subdued to support a UI text overlay (do not draw UI). Environment: the same kind of woodland transformed to ash-gray soil, dead black trees, crimson fog and muted blood-red sky. Unsettling atmosphere, restrained red rim light, preserve natural subject anatomy and ordinary scale. No people, buildings, ruins, weapons, armor, extra animals, supernatural creatures, text, logos, frames or watermark. Single scene, never a collage or grid.",
         "reference": "forest-outer.png"
       }
+    ],
+    "puzzles": [
+      {
+        "id": "puzzle-plate-village",
+        "filename": "puzzle-plate-village.png",
+        "prompt": "Use case: stylized-concept. Asset type: portrait 1024x1536 environmental illustration for Ominous Realms dark medieval fantasy browser game. Painterly realism, intricate weathered materials, cinematic chiaroscuro, subdued earthy palette, no people, no text, no lettering, no UI, no watermark. Important mechanism centered in middle third, generous surroundings above and below so usable in a cropped mobile scene. Subject: A sealed ancient cave entrance of fitted stone, a low iron offering pedestal with a single broad empty pressure plate before it. Mossy carved stone doorway, enigmatic mechanical lock. Plate and cave are the unmistakable focal point. Scene and lighting: Strongwood setting: living old woodland, green moss, roots and ferns, restrained warm amber shafts of sunlight. Ancient but inviting, mysterious adventure."
+      },
+      {
+        "id": "puzzle-plate-outer",
+        "filename": "puzzle-plate-outer.png",
+        "prompt": "Use case: stylized-concept. Asset type: portrait 1024x1536 environmental illustration for Ominous Realms dark medieval fantasy browser game. Painterly realism, intricate weathered materials, cinematic chiaroscuro, subdued earthy palette, no people, no text, no lettering, no UI, no watermark. Important mechanism centered in middle third, generous surroundings above and below so usable in a cropped mobile scene. Subject: A sealed ancient cave entrance of fitted stone, a low iron offering pedestal with a single broad empty pressure plate before it. Mossy carved stone doorway, enigmatic mechanical lock. Plate and cave are the unmistakable focal point. Scene and lighting: Outer Realm setting: dead twisted woodland, charcoal stone, black roots, ash and sparse blood-red twilight, cold eerie highlights. Ominous and abandoned, same grounded medieval aesthetic."
+      },
+      {
+        "id": "puzzle-runes-village",
+        "filename": "puzzle-runes-village.png",
+        "prompt": "Use case: stylized-concept. Asset type: portrait 1024x1536 environmental illustration for Ominous Realms dark medieval fantasy browser game. Painterly realism, intricate weathered materials, cinematic chiaroscuro, subdued earthy palette, no people, no text, no lettering, no UI, no watermark. Important mechanism centered in middle third, generous surroundings above and below so usable in a cropped mobile scene. Subject: An ancient sealed stone doorway with exactly three chunky rotating stone rune wheels arranged horizontally across its center, faint simple geometric carvings on the wheels, a mysterious forgotten forest shrine. Scene and lighting: Strongwood setting: living old woodland, green moss, roots and ferns, restrained warm amber shafts of sunlight. Ancient but inviting, mysterious adventure."
+      },
+      {
+        "id": "puzzle-runes-outer",
+        "filename": "puzzle-runes-outer.png",
+        "prompt": "Use case: stylized-concept. Asset type: portrait 1024x1536 environmental illustration for Ominous Realms dark medieval fantasy browser game. Painterly realism, intricate weathered materials, cinematic chiaroscuro, subdued earthy palette, no people, no text, no lettering, no UI, no watermark. Important mechanism centered in middle third, generous surroundings above and below so usable in a cropped mobile scene. Subject: An ancient sealed stone doorway with exactly three chunky rotating stone rune wheels arranged horizontally across its center, faint simple geometric carvings on the wheels, a mysterious forgotten forest shrine. Scene and lighting: Outer Realm setting: dead twisted woodland, charcoal stone, black roots, ash and sparse blood-red twilight, cold eerie highlights. Ominous and abandoned, same grounded medieval aesthetic."
+      },
+      {
+        "id": "puzzle-levers-village",
+        "filename": "puzzle-levers-village.png",
+        "prompt": "Use case: stylized-concept. Asset type: portrait 1024x1536 environmental illustration for Ominous Realms dark medieval fantasy browser game. Painterly realism, intricate weathered materials, cinematic chiaroscuro, subdued earthy palette, no people, no text, no lettering, no UI, no watermark. Important mechanism centered in middle third, generous surroundings above and below so usable in a cropped mobile scene. Subject: A weathered iron mechanism with exactly three upright lever handles in a horizontal row before a sealed stone vault entrance. Each lever mounted on a distinct squat plinth, subtle animal reliefs, worn medieval craftsmanship. Scene and lighting: Strongwood setting: living old woodland, green moss, roots and ferns, restrained warm amber shafts of sunlight. Ancient but inviting, mysterious adventure."
+      },
+      {
+        "id": "puzzle-levers-outer",
+        "filename": "puzzle-levers-outer.png",
+        "prompt": "Use case: stylized-concept. Asset type: portrait 1024x1536 environmental illustration for Ominous Realms dark medieval fantasy browser game. Painterly realism, intricate weathered materials, cinematic chiaroscuro, subdued earthy palette, no people, no text, no lettering, no UI, no watermark. Important mechanism centered in middle third, generous surroundings above and below so usable in a cropped mobile scene. Subject: A weathered iron mechanism with exactly three upright lever handles in a horizontal row before a sealed stone vault entrance. Each lever mounted on a distinct squat plinth, subtle animal reliefs, worn medieval craftsmanship. Scene and lighting: Outer Realm setting: dead twisted woodland, charcoal stone, black roots, ash and sparse blood-red twilight, cold eerie highlights. Ominous and abandoned, same grounded medieval aesthetic."
+      }
     ]
   }
 }

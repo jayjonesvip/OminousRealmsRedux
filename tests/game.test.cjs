@@ -13,7 +13,7 @@ function game(storage=new Map(),ui=false){
   const nodes=Object.fromEntries(['hud','stage','nav','modal','toast','combat-toasts'].map(id=>[id,mockNode()]));
   const ctx={console,Math:Object.create(Math),localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setInterval:()=>1,clearInterval(){},setTimeout:()=>1,clearTimeout,matchMedia:()=>({matches:true}),scrollY:0,scrollTo(){},history:{pushState(){},replaceState(){}},location:{hash:''},addEventListener(){},document:{createElement:mockNode,getElementById:id=>nodes[id],querySelector:()=>null,addEventListener(){},body:{classList:{toggle(){}}}}};
   ctx.window=ctx;vm.createContext(ctx);
-  for(const file of ['content','dialogue','state','world','combat','actions',...(ui?['ui']:[])])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),ctx,{filename:file+'.js'});
+  for(const file of ['content','dialogue','state','world','puzzles','combat','actions',...(ui?['ui']:[])])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),ctx,{filename:file+'.js'});
   const g=ctx.OR;g.state.create('Rowan','Sword');g.world.current();g.state.save();
   return {...g,storage,ctx,nodes,rng:n=>ctx.Math.random=()=>n,place:(type,subtype,x=3,y=3)=>{g.state.data.x=x;g.state.data.y=y;let b=g.world.at(x,y);if(!b){b={x,y};g.state.data.blocks.push(b);}Object.assign(b,{elementType:type,subtype,resolved:false});return b;}};
 }
@@ -408,9 +408,9 @@ test('new-coordinate rates reserve quiet terrain, scarce NPCs and increased oute
     assert.ok(Math.abs(Object.values(rates).reduce((a,b)=>a+b,0)-100)<1e-10);
     const threats=['Danger','Enemy','Dragon'];
     if(!local){assert.ok(Math.abs(threats.reduce((sum,type)=>sum+rates[type],0)-20)<1e-10);assert.equal(rates.Danger,rates.Enemy);assert.equal(rates.Danger,4*rates.Dragon);}
-    const others=Object.entries(rates).filter(([type])=>type!=='Nature'&&type!=='NPC'&&(local||!threats.includes(type)));
+    const others=Object.entries(rates).filter(([type])=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&(local||!threats.includes(type)));
     const totalWeight=others.reduce((sum,[type])=>sum+g.content.weights[type],0);
-    for(const [type,rate] of others)assert.ok(Math.abs(rate-(local?50:35)*g.content.weights[type]/totalWeight)<1e-10,type);
+    for(const [type,rate] of others)assert.ok(Math.abs(rate-(local?48.5:33.5)*g.content.weights[type]/totalWeight)<1e-10,type);
     assert.equal(Object.hasOwn(rates,'Home'),false);
     for(const type of g.content.outerOnly)assert.equal(Object.hasOwn(rates,type),!local);
     let start=0,i=0;
@@ -435,4 +435,59 @@ test('new scenery, animals and grave can spawn, render in both realms and surviv
     g.state.save();g.state.load();assert.equal(g.world.current().subtype,id);
     assert.equal(g.world.current().elementType,type);
   }
+});
+
+test('puzzles are 1.5 percent of new coordinates and have stable realm artwork and patterns',()=>{
+  for(const local of [true,false]){
+    const g=game(new Map(),true),rates=g.content.encounterRates(local);assert.equal(rates.Puzzle,1.5);
+    assert.equal(rates.Nature,40);assert.equal(rates.NPC,local?10:5);
+    for(const [n,id] of ['puzzle-plate','puzzle-runes','puzzle-levers'].entries()){
+      g.rng((n+.5)/3);const b=g.world.spawn('Puzzle',local?5:30,5+n);assert.equal(b.subtype,id);assert.ok(Number.isInteger(b.puzzle.variant));
+      g.state.data.blocks.push(b);g.state.data.x=b.x;g.state.data.y=b.y;g.ui.route('explore');
+      assert.match(g.nodes.stage.innerHTML,new RegExp(id+'-'+(local?'village':'outer')+'\\.png'));assert.match(g.nodes.stage.innerHTML,/INSCRIPTION/);assert.match(g.nodes.stage.innerHTML,/data-action="move:N"/);
+      const before=JSON.stringify(b.puzzle);g.state.save();g.state.load();assert.equal(JSON.stringify(g.world.current().puzzle),before);
+    }
+  }
+});
+test('all twelve puzzle patterns solve in both realms and grant their cached treasure only once',()=>{
+  const answers={'puzzle-plate':[['MetalIngot',1],['SteelIngot',1],['MetalIngot',2],['SteelIngot',2]],'puzzle-runes':[[0,1,2],[2,1,0],[1,2,0],[2,0,1]],'puzzle-levers':[[0,1,2],[2,0,1],[1,2,1,0],[0,2,0,1]]};
+  for(const local of [true,false])for(const [id,variants] of Object.entries(answers))for(const [variant,answer] of variants.entries()){
+    const g=game(new Map(),true),b=g.place('Puzzle',id,local?5:30,5);b.puzzle=g.puzzles.create(id);b.puzzle.variant=variant;g.state.add('MetalIngot',10);g.state.add('SteelIngot',10);g.ui.route('explore');
+    if(id==='puzzle-plate'){for(let n=0;n<answer[1];n++)g.ui.dispatch('puzzle:offer-'+answer[0]);assert.equal(g.state.qty(answer[0]),10-answer[1]);}
+    if(id==='puzzle-runes'){for(const [i,turns] of answer.entries())for(let n=0;n<turns;n++)g.ui.dispatch('puzzle:turn-'+i);g.ui.dispatch('puzzle:check');}
+    if(id==='puzzle-levers')for(const index of answer)g.ui.dispatch('puzzle:pull-'+index);
+    assert.equal(b.puzzle.solved,true,id+' '+variant);assert.equal(g.state.data.foundLoot,null);assert.match(g.nodes.toast.innerHTML,/SEAL OPENED/);assert.match(g.nodes.stage.innerHTML,/ENTER CAVE|ENTER CHAMBER/);
+    const rewards=JSON.stringify(b.puzzle.rewards),inventory=JSON.stringify(g.state.data.inventory);g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');
+    assert.equal(g.world.current().puzzle.solved,true);assert.equal(JSON.stringify(g.world.current().puzzle.rewards),rewards);assert.equal(JSON.stringify(g.state.data.inventory),inventory);
+    g.ui.dispatch('puzzle:enter');assert.match(g.nodes.stage.innerHTML,/HIDDEN CHAMBER/);assert.match(g.nodes.stage.innerHTML,/GATHER LOOT/);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);assert.equal(g.world.move('N'),false);
+    g.state.load();g.ui.init();assert.equal(JSON.stringify(g.state.data.foundLoot.rewards),rewards);assert.match(g.nodes.stage.innerHTML,/HIDDEN CHAMBER/);
+    const before=Object.fromEntries(JSON.parse(rewards).map(r=>[r.type,g.state.qty(r.type)]));g.ui.dispatch('gather-loot');
+    for(const r of JSON.parse(rewards))assert.equal(g.state.qty(r.type),before[r.type]+r.qty);
+    assert.equal(g.world.current().puzzle.claimed,true);assert.equal(g.state.data.foundLoot,null);assert.match(g.nodes.toast.innerHTML,/LOOT GATHERED/);assert.match(g.nodes.stage.innerHTML,/CHAMBER SEARCHED/);
+    const final=JSON.stringify(g.state.data.inventory);g.ui.dispatch('puzzle:enter');g.ui.dispatch('gather-loot');g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');g.ui.dispatch('puzzle:enter');
+    assert.equal(JSON.stringify(g.state.data.inventory),final);assert.equal(g.state.data.foundLoot,null);assert.match(g.world.description(),/already been searched/);
+  }
+});
+test('plate rejects wrong ingots without spending them and preserves recoverable partial offerings',()=>{
+  const g=game(new Map(),true),b=g.place('Puzzle','puzzle-plate',5,5);b.puzzle=g.puzzles.create(b.subtype);b.puzzle.variant=2;
+  assert.equal(g.puzzles.act('offer','MetalIngot'),false);g.state.add('MetalIngot',2);g.state.add('SteelIngot',1);
+  g.ui.dispatch('puzzle:offer-SteelIngot');assert.equal(g.state.qty('SteelIngot'),1);assert.equal(b.puzzle.offered,0);assert.match(g.nodes.toast.innerHTML,/Nothing spent/);
+  g.ui.dispatch('puzzle:offer-MetalIngot');assert.equal(b.puzzle.offered,1);assert.equal(g.state.qty('MetalIngot'),1);g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');
+  assert.equal(g.world.current().puzzle.offered,1);g.ui.dispatch('puzzle:recover');assert.equal(g.state.qty('MetalIngot'),2);assert.equal(g.world.current().puzzle.offered,0);
+  g.ui.dispatch('puzzle:recover');assert.equal(g.state.qty('MetalIngot'),2);g.ui.dispatch('puzzle:offer-MetalIngot');g.ui.dispatch('puzzle:offer-MetalIngot');g.ui.dispatch('puzzle:recover');assert.equal(g.state.qty('MetalIngot'),0);
+});
+test('rune and lever progress survives departure while mistakes never damage or charge the player',()=>{
+  const g=game(new Map(),true),b=g.place('Puzzle','puzzle-runes',5,5);b.puzzle=g.puzzles.create(b.subtype);b.puzzle.variant=0;
+  g.ui.dispatch('puzzle:turn-1');g.ui.dispatch('puzzle:check');assert.equal(b.puzzle.solved,false);assert.equal(g.state.data.hp.current,50);assert.match(g.nodes.toast.innerHTML,/SEAL HOLDS/);
+  g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');assert.equal(JSON.stringify(g.world.current().puzzle.wheels),'[0,1,0]');
+  const lever=g.place('Puzzle','puzzle-levers',8,8);lever.puzzle=g.puzzles.create(lever.subtype);lever.puzzle.variant=2;
+  g.ui.dispatch('puzzle:pull-1');g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');assert.equal(g.world.current().puzzle.progress,1);
+  g.ui.dispatch('puzzle:pull-0');assert.equal(g.world.current().puzzle.progress,0);assert.equal(g.state.data.hp.current,50);assert.match(g.nodes.toast.innerHTML,/LEVERS RESET/);assert.equal(g.state.data.inventory.length,0);
+  assert.equal(g.puzzles.act('pull','-1'),false);assert.equal(g.puzzles.act('pull','3'),false);assert.equal(g.puzzles.act('turn','0'),false);
+});
+test('puzzles respect battle, result, found-loot and recovery guards without changing resources',()=>{
+  const g=game(),b=g.place('Puzzle','puzzle-plate',5,5);b.puzzle=g.puzzles.create(b.subtype);b.puzzle.variant=0;g.state.add('MetalIngot',2);
+  for(const key of ['battle','outcome','foundLoot']){g.state.data[key]={};assert.equal(g.puzzles.act('offer','MetalIngot'),false);g.state.data[key]=null;}
+  g.state.data.hp.current=1;assert.equal(g.puzzles.act('offer','MetalIngot'),false);assert.equal(g.state.qty('MetalIngot'),2);assert.equal(b.puzzle.offered,0);
+  g.state.data.hp.current=50;g.place('Nature','forest');assert.equal(g.puzzles.act('enter'),false);
 });

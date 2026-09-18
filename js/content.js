@@ -80,22 +80,25 @@ OR.content = (() => {
     ['Dragon','dragon','Verdant Dragon','The forest itself seems to draw breath.','A green scale mountain rises through the crimson fog.'],
     ['LockedItem','chest','Ironbound Chest','Old iron guards a forgotten promise.','A locked chest waits among the bones.'],
     ['BuriedItems','dig','Disturbed Earth','Something lies below the freshly turned soil.','The ash has been moved. Someone left in a hurry.'],
-    ['Craft','forge','Wayfarer’s Forge','Warm iron. A steady flame. Make yourself stronger.','A lonely forge still burns against the dark.']
+    ['Craft','forge','Wayfarer’s Forge','Warm iron. A steady flame. Make yourself stronger.','A lonely forge still burns against the dark.'],
+    ['Puzzle','puzzle-plate','The Weighted Gate','An empty plate guards a cave sealed in old stone.','A cold offering plate waits before a sealed hollow.'],
+    ['Puzzle','puzzle-runes','The Turning Stones','Three carved wheels bar a forgotten woodland chamber.','Three stone wheels hold a vault against the dark.'],
+    ['Puzzle','puzzle-levers','The Silent Mechanism','Three levers stand watch over an ancient vault.','Three rusted levers wait beneath watchful stone beasts.']
   ];
   const entities = Object.fromEntries(entries.map(([type,id,name,village,outer])=>[id,{type,id,name,village,outer}]));
-  const weights = {Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2};
+  const weights = {Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1};
   const outerOnly = ['Enemy','Dragon','LockedItem'];
   // New coordinates: quiet terrain and scarce travelers in both realms.
   // Outside, reserve 20% for threats; preserve relative weights within each pool.
   const encounterRates=isLocal=>{
     const eligible=Object.entries(weights).filter(([type])=>type!=='Home'&&(!isLocal||!outerOnly.includes(type)));
     const threats=['Danger','Enemy','Dragon'];
-    const inPool=type=>type!=='Nature'&&type!=='NPC'&&(isLocal||!threats.includes(type));
+    const inPool=type=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&(isLocal||!threats.includes(type));
     const poolWeight=eligible.reduce((total,[type,weight])=>total+(inPool(type)?weight:0),0);
     const threatWeight=threats.reduce((total,type)=>total+weights[type],0);
     return Object.fromEntries(eligible.map(([type,weight])=>[type,
-      type==='Nature'?40:type==='NPC'?(isLocal?10:5):
-      !isLocal&&threats.includes(type)?20*weight/threatWeight:(isLocal?50:35)*weight/poolWeight
+      type==='Nature'?40:type==='NPC'?(isLocal?10:5):type==='Puzzle'?1.5:
+      !isLocal&&threats.includes(type)?20*weight/threatWeight:(isLocal?48.5:33.5)*weight/poolWeight
     ]));
   };
   const random = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;

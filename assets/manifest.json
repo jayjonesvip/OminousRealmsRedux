@@ -389,5 +389,20 @@
     "outer": "grave-outer.png",
     "village": "grave-village.png",
     "file": "grave-village.png"
+  },
+  "puzzle-plate": {
+    "village": "puzzle-plate-village.png",
+    "outer": "puzzle-plate-outer.png",
+    "file": "puzzle-plate-village.png"
+  },
+  "puzzle-runes": {
+    "village": "puzzle-runes-village.png",
+    "outer": "puzzle-runes-outer.png",
+    "file": "puzzle-runes-village.png"
+  },
+  "puzzle-levers": {
+    "village": "puzzle-levers-village.png",
+    "outer": "puzzle-levers-outer.png",
+    "file": "puzzle-levers-village.png"
   }
 }
