@@ -219,4 +219,3 @@ test('new rounds replace old notices and leaving battle cancels the pending enem
   g.ui.route('pack');timers.flush();assert.equal(g.nodes['combat-toasts'].children.length,0);
   assert.equal([...timers.pending.values()].filter(t=>t.ms===5000).length,0);
 });
-
