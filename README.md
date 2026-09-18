@@ -22,6 +22,7 @@ Browser storage belongs to the current browser and origin. A file opened directl
 - WPN and ARM in the HUD open the matching gear upgrade anywhere outside combat, using the same ingot costs. Forge locations are optional stops. Upgrade screens offer a direct switch to the other upgrade and a Keep Walking button; returning preserves the current encounter.
 - All health loss animates Vitality with a red pulse, an HP-loss label, and a draining bar. Poisoned mushrooms add a red screen flash, shake, and explicit Poisoned toast; reduced-motion preferences disable animation.
 - Visible item rewards and an itemized claim toast. Defeats show a separate Wake at Home flow with no loot or collection button.
+- Five NPC types each have 25 Strongwood lines, 25 Outer Realm lines, and 10 attack responses: 300 unique messages. Every realm pool mixes everyday life, gameplay tips, ramblings, and irritated replies. Each encounter represents a different person. Random selection excludes the previous line for that type/context across saves, and the Elder always replies.
 - NPC replies type inside speech bubbles beneath the speaker’s name; tap to reveal, then End Conversation to resume walking. Terrain descriptions appear immediately.
 - Walking at 50% health or lower without a potion gives a 35% find chance per step, guaranteed by the third step. At 25% or lower, the next step guarantees a potion. Existing encounters stay intact. A pickup card and toast show the find, with a full-heal button. Mushrooms can now appear in both realms.
 - Defeat or dropping to 1 HP returns you to Strongwood Cottage at (0,0). Your pack and discovered world remain intact, including wounded dragons. Existing saves at 1 HP away from home are rescued on load. Walking potion finds apply above 1 HP.
@@ -39,6 +40,7 @@ The scripts use a small `OR` namespace and deferred classic scripts so `index.ht
 | --- | --- |
 | js/state.js | Version 1 save validation, storage, inventory and journal |
 | js/content.js | Entities, dual descriptions, item tables, moves and weights |
+| js/dialogue.js | NPC dialogue pools, tones, stable line IDs and random selection |
 | js/world.js | Coordinates, discovery, revisits and realm boundaries |
 | js/combat.js | Damage, enemy response, victory, leveling and dragon wounds |
 | js/actions.js | Talk, eat, dig, unlock, healing and crafting |
