@@ -8,7 +8,7 @@ OR.world=(()=>{
   function spawn(type,x,y){const candidates=Object.values(C.entities).filter(e=>e.type===type);const e=C.pick(candidates);return {x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};}
   function getOrCreateBlock(x,y,revisit=false){
     let b=at(x,y);
-    if(b){if(revisit&&b.elementType==='Nature'){const type=Math.random()<0.5?'Danger':local(x,y)?'Danger':'Enemy';Object.assign(b,spawn(type,x,y));}return b;}
+    if(b){if(revisit&&b.elementType==='Nature'&&!b.cleared){const type=Math.random()<0.5?'Danger':local(x,y)?'Danger':'Enemy';Object.assign(b,spawn(type,x,y));}return b;}
     let type;
     if(x===0&&y===0)type='Home';
     else if(Math.max(Math.abs(x),Math.abs(y))===1)type='NPC';
@@ -20,7 +20,7 @@ OR.world=(()=>{
     b=spawn(type,x,y);S.data.blocks.push(b);return b;
   }
   const current=()=>getOrCreateBlock(S.data.x,S.data.y);
-  function clear(){const b=current();Object.assign(b,{elementType:'Nature',subtype:'clearing',dragonHp:null,resolved:true});}
+  function clear(permanent=false){const b=current();Object.assign(b,{elementType:'Nature',subtype:'clearing',dragonHp:null,resolved:true,cleared:permanent||b.cleared===true});}
   function returnHome(reason='Your strength gives out. You are carried home to Strongwood Cottage.'){
     const s=S.data;
     if(s.battle?.enemyId==='dragon'){
@@ -58,7 +58,7 @@ OR.world=(()=>{
     if(wasLocal&&!local(s.x,s.y))S.log('THE VEIL BREAKS. Strongwood’s warmth dies behind you.');
     S.log(description(b));findHealing();S.syncRest();S.save();return b;
   }
-  function description(b=current()){return C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
+  function description(b=current()){return b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
   const coords=(x,y)=>x===0&&y===0?'HOME · 0 / 0':`${Math.abs(x)}${x<0?'W':'E'} ${Math.abs(y)}${y<0?'N':'S'}`;
   return {local,border,realm,at,spawn,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
 })();

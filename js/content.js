@@ -9,6 +9,14 @@ OR.content = (() => {
     Knife: {pitch:'Quick hands. A thousand small endings.',moves:[move('Stab',4,99,'Find the gap.'),move('Backstab',10,85,'Strike before the shadow moves.')]}
   };
   const weapon = type => ({type,basePower:5,moves:[move('Tackle',0,99,'Shoulder first. No hesitation.'),...weapons[type].moves.map(m=>({...m})),move('Realmfire',25,100,'Burn a magic crystal. Scorch the veil.',true)]});
+  const creatures = {
+    bat:{attackStyle:'Fangs & wings',moves:[move('Wing Bash',0,99,''),move('Bite',4,99,''),move('Diving Bite',10,85,'')]},
+    snake:{attackStyle:'Fangs & coils',moves:[move('Tail Lash',0,99,''),move('Fang Strike',4,99,''),move('Lunge',10,85,'')]},
+    spider:{attackStyle:'Fangs & legs',moves:[move('Leg Strike',0,99,''),move('Bite',4,99,''),move('Pounce',10,85,'')]},
+    gargoyle:{attackStyle:'Talons',defense:'Stone hide',moves:[move('Talon Strike',0,99,''),move('Stone Claw',6,92,''),move('Wing Slam',12,72,'')]},
+    dragon:{attackStyle:'Claws & fire',defense:'Scales',moves:[move('Tail Sweep',0,99,''),move('Claw Rake',11,78,''),move('Crushing Bite',20,50,''),move('Cinder Breath',15,75,'')]}
+  };
+  const creature=(id,level=1)=>{const c=creatures[id];return c?{weapon:null,attackStyle:c.attackStyle,defense:c.defense||null,resistance:c.defense?Math.min(95,14+level):0,moves:c.moves.map(m=>({...m}))}:null;};
   const items = {
     MetalIngot:{name:'Metal Ingot',art:'item-metal',group:'CRAFTING',note:'Reinforce your ancestral armor.'},
     SteelIngot:{name:'Steel Ingot',art:'item-steel',group:'CRAFTING',note:'Put a sharper edge on your weapon.'},
@@ -71,5 +79,5 @@ OR.content = (() => {
   const random = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
   const pick = arr=>arr[random(0,arr.length-1)];
   const required = level=>5*Math.pow(1.5,level-1);
-  return {weapons,weapon,items,entities,weights,outerOnly,random,pick,required};
+  return {weapons,weapon,creatures,creature,items,entities,weights,outerOnly,random,pick,required};
 })();

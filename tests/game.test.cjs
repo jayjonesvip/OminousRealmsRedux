@@ -84,3 +84,63 @@ test('claim toast identifies quantities, merges duplicate loot and never re-awar
 test('leaving battle cancels the pending presentation timer without discarding its outcome',()=>{const g=game(new Map(),true),timers=roundTimers(g);g.place('Danger','snake');g.combat.start();g.state.data.battle.enemy.hp=1;g.rng(0);g.ui.route('battle');g.ui.dispatch('attack:1');g.ui.route('pack');timers.flush();assert.equal(g.ui.screen,'pack');assert.equal(g.state.data.outcome.win,true);g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/VIEW REWARDS/);});
 test('magic has its own outcome color and consumes a crystal exactly once',()=>{const g=game(new Map(),true);roundTimers(g);g.place('Enemy','ogre',27,0);g.combat.start();g.state.data.battle.enemy.hp=1000;g.state.add('MagicCrystal');g.rng(0);g.ui.route('battle');g.ui.dispatch('attack:3');assert.match(g.nodes.stage.innerHTML,/round-event magic-hit/);assert.match(g.nodes.stage.innerHTML,/Realmfire/);assert.equal(g.state.qty('MagicCrystal'),0);g.ui.dispatch('attack:3');assert.equal(g.state.data.battle.round,2);});
 if(process.env.ASSET_AUDIT){test('every rendered image, manifest entry and stylesheet reference exists',()=>{const g=game(new Map(),true);const refs=new Set();const collect=()=>{for(const html of [g.nodes.stage.innerHTML,g.nodes.hud.innerHTML])for(const m of html.matchAll(/(?:src|href)="(assets\/[^"#]+)"/g))refs.add(m[1]);};g.ui.init();for(const page of ['title','explore','pack','forge','map','hero','journal']){g.ui.route(page);collect();}for(const e of Object.values(g.content.entities))for(const outer of [false,true]){g.place(e.type,e.id,outer?27:3,3);g.ui.route('encounter');collect();}for(const type of Object.keys(g.content.weapons)){g.state.data.weapon=g.content.weapon(type);g.ui.route('hero');collect();}for(const m of fs.readFileSync(path.join(root,'css/game.css'),'utf8').matchAll(/url\(['"]?\.\.\/(assets\/[^)'";]+)['"]?\)/g))refs.add(m[1]);const manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/manifest.json'),'utf8'));for(const entry of Object.values(manifest))for(const k of ['file','village','outer'])if(entry[k])refs.add('assets/'+entry[k]);for(const ref of refs)assert.ok(fs.existsSync(path.join(root,ref)),ref);console.log('Verified '+refs.size+' distinct referenced assets.');});}
+
+
+test('defeated coordinates stay safe across repeated walks and reloads without farmable rewards',()=>{
+  for(const [type,id,x] of [['Danger','bat',3],['Enemy','ogre',27],['Dragon','dragon',27]]){
+    const g=game(new Map(),true);g.rng(0);const tile=g.place(type,id,x,3);
+    if(type==='Dragon')tile.dragonHp=300;
+    g.combat.start();g.state.data.battle.enemy.hp=1;g.combat.attack(0);g.combat.claim();
+    const loot=JSON.stringify(g.state.data.inventory);
+    for(let i=0;i<4;i++){
+      assert.ok(g.world.move('E'));assert.ok(g.world.move('W'));g.state.load();
+      assert.equal(g.world.current().elementType,'Nature');assert.equal(g.world.current().cleared,true);
+      assert.equal(g.combat.start(),false);assert.equal(g.state.data.victories,1);
+      assert.equal(JSON.stringify(g.state.data.inventory),loot);
+    }
+    g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/No threat remains here/);
+    assert.doesNotMatch(g.nodes.stage.innerHTML,/ENTER BATTLE/);
+  }
+});
+
+test('bribed threats stay cleared while fleeing leaves an undefeated threat behind',()=>{
+  const g=game();g.place('Enemy','ogre',27,3);g.state.add('Gem');g.combat.start();g.combat.bribe();g.combat.claim();
+  g.world.move('E');g.world.move('W');assert.equal(g.world.current().cleared,true);assert.equal(g.combat.start(),false);
+  const h=game();h.place('Danger','bat');h.combat.start();h.combat.flee();h.world.move('E');h.world.move('W');
+  assert.equal(h.world.current().elementType,'Danger');assert.ok(!h.world.current().cleared);assert.ok(h.combat.start());
+});
+
+test('legacy resolved clearings migrate safely without marking new resource clearings as victories',()=>{
+  const g=game();g.place('Danger','skeleton');g.world.clear();delete g.world.current().cleared;
+  g.state.save();g.state.load();assert.equal(g.world.current().cleared,true);
+  g.world.move('E');g.world.move('W');assert.equal(g.world.current().elementType,'Nature');
+  const h=game();h.place('Food','mushrooms');h.state.data.hp.current=25;h.actions.eat();h.state.load();
+  assert.equal(h.world.current().cleared,false);
+});
+
+test('creatures use natural attacks and small creatures have no armor at any level',()=>{
+  for(const id of ['bat','snake','spider','gargoyle','dragon'])for(const level of [1,20]){
+    const g=game(new Map(),true);g.state.data.level=level;
+    const type=g.content.entities[id].type,b=g.place(type,id,27,3);if(id==='dragon')b.dragonHp=500;
+    g.combat.start();const e=g.state.data.battle.enemy;
+    assert.equal(e.weapon,null);assert.ok(e.attackStyle);assert.ok(e.moves.every(m=>m.accuracy>0&&m.accuracy<=100));
+    assert.ok(e.moves.every(m=>!['Stab','Backstab','Slash','Cleave','Crush','Earthshaker','Chop','Execution'].includes(m.name)));
+    if(['bat','snake','spider'].includes(id)){assert.equal(e.resistance,0);assert.equal(e.defense,null);}
+    else{assert.ok(e.resistance>0);assert.ok(['Scales','Stone hide'].includes(e.defense));}
+    g.ui.route('battle');const enemyCard=g.nodes.stage.innerHTML.match(/class="fighter enemy"><div class="fighter-info">([\s\S]*?)<\/div><\/div>/)[1];
+    assert.doesNotMatch(enemyCard,/% ARM|Knife|Sword|Hammer/);assert.match(enemyCard,/Fangs|Talons|Claws/);
+  }
+  for(const [id,weapon] of [['skeleton','Sword'],['ogre','Axe'],['troll','Hammer']]){
+    const g=game();g.place(g.content.entities[id].type,id,27,3);g.combat.start();
+    assert.equal(g.state.data.battle.enemy.weapon,weapon);assert.ok(g.state.data.battle.enemy.resistance>0);
+  }
+});
+
+test('an existing creature battle sheds old equipment without losing health or progress',()=>{
+  const g=game();g.place('Danger','bat');g.combat.start();const e=g.state.data.battle.enemy;
+  Object.assign(e,{hp:12,weapon:'Knife',resistance:15,moves:g.content.weapon('Knife').moves.filter(m=>!m.magic)});
+  delete e.attackStyle;delete e.defense;g.state.data.battle.round=4;g.state.save();g.state.load();
+  const saved=g.state.data.battle;assert.equal(saved.round,4);assert.equal(saved.enemy.hp,12);
+  assert.equal(saved.enemy.weapon,null);assert.equal(saved.enemy.resistance,0);
+  assert.deepEqual(Array.from(saved.enemy.moves,m=>m.name),['Wing Bash','Bite','Diving Bite']);
+});

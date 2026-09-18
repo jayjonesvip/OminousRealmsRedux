@@ -30,6 +30,8 @@ Browser storage belongs to the current browser and origin. A file opened directl
 - Resting at home automatically restores health gradually, taking 10 minutes from 1 HP to full; lighter wounds take less time. A countdown shows the remaining time. Saved timestamps credit time with the game closed. Leaving home stops recovery, and time away or in battle never grants passive healing. You can leave once above 1 HP. Potions still heal fully and instantly anywhere, including battle. Older saves begin tracking rest when first opened with this update.
 - Weighted persistent world, discovered 11×11 map, village/outer descriptions and artwork, NPC encounters, mushrooms, excavation, chests, and forges.
 - Persistent dragon wounds, dual dragon rewards, victory thresholds, automatic leveling, and a 50-entry journal.
+- Winning or bribing a threat permanently clears its coordinate, including after revisiting or reloading. Fleeing does not clear it. Legacy resolved clearings are preserved as safe ground; older saves did not distinguish combat clearings from consumed resources.
+- Bats, snakes, and spiders use natural attacks with zero armor. Gargoyles use talons and stone hide; dragons use claws, fire, and scales. Skeletons, ogres, and trolls retain equipment. Existing saved creature battles receive the corrected attack profiles without losing their health or round progress.
 - Generated portraits, equipment, items, animals, scenery, dragon variants, logo, compass, and app icon, indexed in **assets/manifest.json**.
 - Local fonts and a web app manifest. The manifest is a foundation for a future PWA; offline installation and service-worker caching are not implemented.
 

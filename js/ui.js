@@ -109,7 +109,7 @@ OR.ui=(()=>{
         (combatBusy?impactBadge(amount,enemy,r?.magic):'')+'</div></div>';
       return wrapper+'<div class="fighter-info">'+
         eyebrow((enemy?'ENEMY':'YOU')+' · LVL '+(enemy?e.level:s.level))+'<h2>'+escape(enemy?e.name:s.name)+'</h2><span>'+
-        (enemy?e.weapon:s.weapon.type)+' · '+(enemy?e.resistance:s.armor.resistance)+'% ARM</span>'+
+        (enemy?(e.attackStyle?escape(e.attackStyle)+(e.defense?' · '+escape(e.defense)+' '+e.resistance+'%':''):e.weapon+' · '+e.resistance+'% ARM'):s.weapon.type+' · '+s.armor.resistance+'% ARM')+'</span>'+
         hpBar(enemy?e.hp:hp.current,enemy?e.maxHp:hp.max)+'<b>'+num(enemy?e.hp:hp.current)+' <small>/ '+num(enemy?e.maxHp:hp.max)+' HP</small></b></div></div>';
     };
     return '<section class="battle-screen '+(shake?'combat-impact':'')+'"><div class="battle-head">'+eyebrow('DEFEND YOUR REALM')+
