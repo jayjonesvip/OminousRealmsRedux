@@ -13,8 +13,8 @@ OR.village=(()=>{
     const routes=[];let x=0,y=0;
     for(const destination of destinations){
       const turn=C.pick([-1,1]);
-      const nodes=[{x,y},{x,y:y-1},{x,y:y-2},{x,y:y-3},{x:x+turn,y:y-3},{x:x+turn,y:y-4}];
-      routes.push({direction:'N',destination,nodes});x+=turn;y-=4;
+      const nodes=[{x,y},{x,y:y-1},{x:x+turn,y:y-1},{x:x+turn,y:y-2}];
+      routes.push({direction:'N',destination,nodes});x+=turn;y-=2;
     }
     return routes;
   }
@@ -26,7 +26,7 @@ OR.village=(()=>{
   }
   function template(x,y){
     if(!S.data?.village||x===0&&y===0)return null;
-    for(const route of S.data.village.routes){const index=route.nodes.findIndex(n=>n.x===x&&n.y===y);if(index>0)return {x,y,elementType:index===5?'Landmark':'Path',subtype:index===5?route.destination:'forest-path',resolved:false};}
+    for(const route of S.data.village.routes){const index=route.nodes.findIndex(n=>n.x===x&&n.y===y);if(index>0)return {x,y,elementType:index===route.nodes.length-1?'Landmark':'Path',subtype:index===route.nodes.length-1?route.destination:'forest-path',resolved:false};}
     return null;
   }
   function connections(x,y){
@@ -34,14 +34,30 @@ OR.village=(()=>{
     for(const r of S.data?.village?.routes||[]){const i=r.nodes.findIndex(n=>n.x===x&&n.y===y);if(i<0)continue;for(const n of [r.nodes[i-1],r.nodes[i+1]])if(n)dirs.add(n.x>x?'E':n.x<x?'W':n.y>y?'S':'N');}
     return [...dirs];
   }
-  function guidance(id){
-    return {'village-forge':'Keep following the cobblestone path north to the tavern. The barkeep has wisdom for the road.',tavern:'Keep following the cobblestone path north. The wizard at the sanctuary may help you bring peace to Strongwood.','wizard-sanctuary':'Keep following the cobblestone path north to the herbalist’s cottage. She has something for your travels.','herbalist-cottage':'You have reached the end of the village trail. Follow the cobblestones south to return home, or step off the path to explore Strongwood.'}[id]||'';
-  }
   const completed=id=>!!S.data?.village?.visits[id];
+  const active=()=>!!S.data?.village&&!S.data.village.legacy&&S.data.village.routes.length>0;
+  const allVisited=()=>active()&&destinations.every(completed);
+  const farewell='You have met everyone along the village trail. We have shared what we can. The path you choose from here is your own.';
+  const nextStop=()=>destinations.find(id=>!completed(id));
+  function guidance(id){
+    if(allVisited())return farewell;
+    const next=destinations.find(d=>d!==id&&!completed(d));
+    if(!next)return 'Accept this gift when you are ready. You have reached the last of your village introductions.';
+    const direction=destinations.indexOf(next)>destinations.indexOf(id)?'north':'south';
+    return 'Keep following the cobblestone path '+direction+' to '+C.entities[next].name+'. '+{'village-forge':'The road is easier with good iron at your side.',tavern:'There are still folk along that trail worth listening to.','wizard-sanctuary':'Peace begins with the help we offer one another.','herbalist-cottage':'Let the others prepare you before you wander farther.'}[id];
+  }
+  function reminder(type){
+    if(!active()||allVisited())return '';
+    const voices={villager:'Before you wander too far, follow our cobblestone path. There are folk there who want to help you.',farmer:'Even a long furrow starts with a straight step. Find the cobblestone path and finish calling on our neighbors.',woodcutter:'Do not lose the trail for the trees. Get back to the cobblestones; you have not met everyone along them yet.',hunter:'A wise traveler prepares before leaving tracks in unknown country. Follow the cobblestone path and hear the village folk out.',elder:'The road will wait. Follow the old cobblestones while there are still people along them with something to give you.'};
+    return voices[type]?voices[type]+' '+C.entities[nextStop()].name+' still awaits you. The map shows the trail.':'';
+  }
+  function updateSpeech(b){
+    b.dialogue={text:'“'+words[b.subtype]+' '+guidance(b.subtype)+'”',spoken:true,speaker:names[b.subtype],dismissed:false};
+  }
   function speak(){
     const s=S.data,b=OR.world.current();if(!s.village||s.battle||s.outcome||s.foundLoot||b.elementType!=='Landmark'||completed(b.subtype))return false;
-    b.dialogue={text:'“'+words[b.subtype]+' '+guidance(b.subtype)+'”',spoken:true,speaker:names[b.subtype],dismissed:false};b.resolved=true;
     if(b.subtype==='tavern')s.village.visits.tavern=true;
+    updateSpeech(b);b.resolved=true;
     S.log(names[b.subtype]+': '+words[b.subtype]+' '+guidance(b.subtype));S.save();return true;
   }
   function claim(){
@@ -49,10 +65,12 @@ OR.village=(()=>{
     const rewards=b.subtype==='wizard-sanctuary'?[{type:'MagicCrystal',qty:1}]:b.subtype==='village-forge'?[{type:'MetalIngot',qty:1},{type:'SteelIngot',qty:1}]:[{type:'Potion',qty:1}];
     s.village.visits[b.subtype]=true;if(b.subtype==='wizard-sanctuary')s.enchanted=true;
     for(const r of rewards)S.add(r.type,r.qty);
+    if(allVisited()){updateSpeech(b);S.log(names[b.subtype]+': '+farewell);}
     S.log((b.subtype==='wizard-sanctuary'?'Realmfire enchanted. ':'')+'Received: '+rewards.map(r=>r.qty+' '+C.items[r.type].name).join(', ')+'.');S.save();return rewards;
   }
   function empty(b){return completed(b.subtype)&&!(b.resolved&&b.dialogue&&!b.dialogue.dismissed);}
   function description(b){
+    if(b.elementType==='Home'&&allVisited())return 'Your hearth is here whenever you need it. The path you choose from here is your own.';
     if(b.elementType==='Home')return S.data.village?.legacy?'Smoke curls above the roof. Eldric’s forge burns beside your cottage.':'Follow the cobblestone path north to Eldric’s forge. The people of Strongwood will help prepare you for the road.';
     if(b.elementType==='Path')return 'Weathered cobblestones wind through Strongwood. Follow the trail on your map; no wandering encounters disturb this path.';
     if(b.elementType!=='Landmark')return null;
@@ -60,5 +78,5 @@ OR.village=(()=>{
     if(!empty(b))return C.entities[b.subtype].village;
     return {'wizard-sanctuary':'The wizard has departed. The sanctuary is quiet; his enchantment remains.',tavern:'The tavern is quiet. The barkeep is away.','herbalist-cottage':'The herbalist is gathering beyond the village. Her cottage stands quiet.'}[b.subtype];
   }
-  return {setup,template,connections,completed,speak,claim,empty,description,destinations};
+  return {setup,template,connections,completed,speak,claim,empty,description,destinations,reminder,allVisited};
 })();

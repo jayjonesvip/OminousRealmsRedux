@@ -67,7 +67,7 @@ OR.ui=(()=>{
   }
   function tileActions(b){switch(b.elementType){
     case 'Puzzle':return puzzleActions(b);
-    case 'Home':return S.data.village?.legacy?btn('ELDRIC’S FORGE '+icon('forge'),'forge:armor'):'<p class="fine">Start north. Follow the cobblestones to Eldric’s forge, then onward to the tavern, wizard and herbalist.</p>';
+    case 'Home':return V.allVisited()?'<p class="fine">Strongwood has helped you prepare. The path ahead is yours to choose.</p>':S.data.village?.legacy?btn('ELDRIC’S FORGE '+icon('forge'),'forge:armor'):'<p class="fine">Start north. Follow the cobblestones to Eldric’s forge, then onward to the tavern, wizard and herbalist.</p>';
     case 'Landmark':return landmarkActions(b);
     case 'NPC':return '<div class="button-pair">'+btn('SPEAK','talk')+btn('ATTACK','npc-attack','outline')+'</div>';
     case 'Danger':
@@ -184,7 +184,7 @@ OR.ui=(()=>{
     const notice=!atForge?'Visit a forge to enhance. Follow a village path to Eldric’s forge.':!ready?'Finish your battle or gather your rewards before upgrading.':'Metal ingots reinforce armor. Steel ingots enhance weapons.';
     return '<section class="page">'+sectionHead(atForge?'TEMPER YOUR LEGEND':'KNOW YOUR EQUIPMENT',atForge?(home?'ELDRIC’S FORGE.':'WAYFARER’S FORGE.'):'YOUR EQUIPMENT.')+
       (atForge?'<div class="forge-art">'+art(home?'forge-village':'forge-'+(W.local(s.x,s.y)?'village':'outer'),home?'Eldric at his home forge':'A permanent wayfarer forge','cover')+'</div>':'')+
-      '<p class="notice">'+notice+'</p>'+(home&&!V.completed('village-forge')&&activeDialogue(W.current())?speechBubble(W.current())+btn('ACCEPT INGOTS','village:claim'):'')+(forgeSingle?[forgeFocus]:[forgeFocus,other]).map(type=>{
+      '<p class="notice">'+notice+'</p>'+(home&&activeDialogue(W.current())?speechBubble(W.current())+(!V.completed('village-forge')?btn('ACCEPT INGOTS','village:claim'):''):'')+(forgeSingle?[forgeFocus]:[forgeFocus,other]).map(type=>{
         const ar=type==='armor',cost=ar?A.armorCost():A.weaponCost(),ingot=ar?'MetalIngot':'SteelIngot',available=S.qty(ingot),mastered=ar&&s.armor.resistance>=95;
         const current=ar?s.armor.resistance+'% RESISTANCE':s.weapon.basePower+' BASE POWER';
         const next=ar?Math.min(95,s.armor.resistance+1)+'% RESISTANCE':s.weapon.basePower+1+' BASE POWER';

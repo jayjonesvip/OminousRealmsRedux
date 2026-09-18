@@ -18,7 +18,8 @@ OR.actions=(()=>{
     const s=S.data;if(!s.dialogueLast||typeof s.dialogueLast!=='object'||Array.isArray(s.dialogueLast))s.dialogueLast={};
     const line=OR.dialogue.choose(b.subtype,context,s.dialogueLast[key]);
     s.dialogueLast[key]=line.id;
-    const text='“'+line.text+'”',narration=attack?'They move beyond your reach.':'',spoken=true;
+    const hint=attack?'':OR.village.reminder(b.subtype);
+    const text='“'+line.text+(hint?' '+hint:'')+'”',narration=attack?'They move beyond your reach.':'',spoken=true;
     resolve([narration,text].filter(Boolean).join(' '));
     b.dialogue={text,narration,spoken,dismissed:false,id:line.id};S.save();return S.data.message;
   }
