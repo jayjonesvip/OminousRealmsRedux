@@ -47,6 +47,12 @@
 .round-event.hurt{background:#3e221d;color:#ff9c83}
 .round-event.miss{background:#202d37;color:#accde5}
 .round-event.magic-hit{background:#30243f;color:#d4a6ff}
+#combat-toasts{position:fixed;bottom:calc(83px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:calc(100% - 36px);max-width:394px;display:grid;gap:7px;z-index:80;pointer-events:none}
+.combat-toast{box-shadow:0 6px 25px #0009;animation:combat-toast-life 5s ease both}
+.combat-toast>span{min-width:0}
+.combat-toast>strong{flex-shrink:0}
+.combat-toast.opening{background:#25291e;color:#e5d8a9}
+@keyframes combat-toast-life{0%{opacity:0;transform:translateY(10px)}5%,88%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-6px)}}
 .defeat .result-title h1{color:#ed8a75}
 .defeat .result-title .eyebrow{color:#e5a290}
 .defeat-notice{padding:18px;margin:22px 0;border:1px solid #864535;background:#351e17}

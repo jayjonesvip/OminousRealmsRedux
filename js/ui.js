@@ -84,12 +84,23 @@ OR.ui=(()=>{
     const walking=!interactive&&!activeDialogue(b)&&!suspended&&!S.restStatus()&&!healingFind();
     return `<section class="exploration-view${walking?' walking-view':''}">${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${suspended||`${activeDialogue(b)?`<div class="tile-actions">${btn('END CONVERSATION '+icon('arrow'),'end-conversation','outline')}</div>`:interactive?`<div class="tile-actions">${encounter||['NPC','Danger','Enemy','Dragon'].includes(b.elementType)?tileActions(b):btn('INVESTIGATE '+icon('arrow'),'route:encounter')+btn('KEEP WALKING','ignore','outline')}</div>`:compass()}`}<div class="utility-row"><button class="text-button" data-action="route:journal">${icon('journal')} JOURNAL</button><span>${s.blocks.length} PLACES DISCOVERED</span></div></div></section>`;
   }
-  function roundFeedback(r,pending=false){
-    if(!r)return '';
-    const outgoing=r.dealt>0?(r.magic?'magic-hit':'hit'):'miss';
-    return '<div class="round-feedback" role="status" aria-live="polite">'+
-      '<div class="round-event '+outgoing+'"><span><b>'+(r.dealt>0?'YOU HIT':'YOU MISSED')+'</b><small>'+escape(r.move)+'</small></span><strong>'+(r.dealt>0?num(r.dealt)+' DMG':'MISS')+'</strong></div>'+
-      (pending?'<div class="round-event pending"><span><b>ENEMY PREPARING</b><small>The enemy readies a response…</small></span><strong>…</strong></div>':r.received===null?'<div class="round-event hit"><span><b>ENEMY DEFEATED</b><small>No counterattack</small></span><strong>KO</strong></div>':'<div class="round-event '+(r.received>0?'hurt':'miss')+'"><span><b>'+(r.received>0?'YOU TOOK DAMAGE':'ENEMY MISSED')+'</b><small>'+escape(r.reply)+'</small></span><strong>'+(r.received>0?'−'+num(r.received)+' HP':'MISS')+'</strong></div>')+'</div>';
+  let combatToasts=[];
+  function clearCombatToasts(){for(const entry of combatToasts){clearTimeout(entry.timer);entry.node.remove();}combatToasts=[];}
+  function combatToast(kind,title,detail,value=''){
+    clearTimeout(toastTimer);$('toast').classList.remove('show');
+    // Keep the latest pair visible without covering the pinned health cards.
+    while(combatToasts.length>=2){const oldest=combatToasts.shift();clearTimeout(oldest.timer);oldest.node.remove();}
+    const node=document.createElement('div');node.className='round-event '+kind+' combat-toast';
+    node.innerHTML='<span><b>'+escape(title)+'</b><small>'+escape(detail)+'</small></span>'+(value?'<strong>'+escape(value)+'</strong>':'');
+    $('combat-toasts').appendChild(node);
+    const entry={node,timer:null};combatToasts.push(entry);
+    entry.timer=setTimeout(()=>{node.remove();combatToasts=combatToasts.filter(item=>item!==entry);},5000);
+  }
+  function roundToast(r,enemy=false){
+    if(enemy&&r.received===null){combatToast('hit','ENEMY DEFEATED','No counterattack','KO');return;}
+    const amount=enemy?r.received:r.dealt,kind=amount>0?(enemy?'hurt':r.magic?'magic-hit':'hit'):'miss';
+    combatToast(kind,enemy?(amount>0?'YOU TOOK DAMAGE':'ENEMY MISSED'):(amount>0?'YOU HIT':'YOU MISSED'),
+      (enemy?r.reply:r.move)+' · ROUND '+r.round,amount>0?(enemy?'−'+num(amount)+' HP':num(amount)+' DMG'):'MISS');
   }
   function impactBadge(amount,enemy,magic=false){
     if(amount===null||amount===undefined)return '';
@@ -98,7 +109,7 @@ OR.ui=(()=>{
   }
   function battle(){
     const s=S.data,b=s.battle||roundPlayback;if(!b)return explore();
-    const e=b.enemy,outer=!W.local(b.x,b.y),r=b.lastRound,hp=visibleHealth(),playerBeat=roundPhase==='player',pending=combatBusy&&playerBeat&&r?.received!==null;
+    const e=b.enemy,outer=!W.local(b.x,b.y),r=b.lastRound,hp=visibleHealth(),playerBeat=roundPhase==='player';
     const shake=combatBusy&&r&&(playerBeat?r.dealt>0:r.received>0);
     const actor=(enemy,portrait=false)=>{
       const amount=enemy?(playerBeat?r?.dealt:null):(playerBeat?null:r?.received);
@@ -115,7 +126,6 @@ OR.ui=(()=>{
     return '<section class="battle-screen '+(shake?'combat-impact':'')+'"><div class="battle-head">'+eyebrow('DEFEND YOUR REALM')+
       '<h1>STEEL MEETS SHADOW.</h1><div class="round-label"><span></span> ROUND '+String(combatBusy&&r?r.round:b.round).padStart(2,'0')+' <span></span></div></div>'+
       '<div class="arena">'+actor(false,true)+'<span class="vs">VS</span>'+actor(true,true)+'</div><div class="battle-status" role="region" aria-label="Fighter health">'+actor(false)+actor(true)+'</div><div class="battle-body">'+
-      (r?roundFeedback(r,pending):'<p class="combat-log" aria-live="polite">'+escape(b.log)+'</p>')+
       '<div class="section-label"><span>'+(combatBusy?(playerBeat?'YOUR ATTACK':'ENEMY RESPONSE'):'MAKE YOUR MOVE')+'</span>'+(S.qty('LuckyCoin')?'<span class="gold">LUCK +5% ACC</span>':'<span>'+(combatBusy?'STEEL IN MOTION':'YOUR TURN')+'</span>')+'</div><div class="moves">'+
       s.weapon.moves.map((m,i)=>'<button class="move '+(m.magic?'magic':'')+'" data-action="attack:'+i+'" '+(combatBusy||(m.magic&&!S.qty('MagicCrystal'))?'disabled':'')+'><span><strong>'+m.name.toUpperCase()+'</strong><small>'+(m.magic?(S.qty('MagicCrystal')?'CONSUMES 1 CRYSTAL':'MAGIC CRYSTAL REQUIRED'):m.description)+'</small></span><span class="move-stats"><b>'+(s.weapon.basePower+m.power)+'<small>PWR</small></b><b>'+Math.min(100,m.accuracy+(S.qty('LuckyCoin')?5:0))+'%<small>ACC</small></b></span></button>').join('')+
       '</div><div class="button-pair">'+btn('FLEE','flee','outline',combatBusy?'disabled':'')+btn('BRIBE · 1 GEM','bribe','outline',combatBusy||!S.qty('Gem')?'disabled':'')+'</div><p class="fine centered">Fall, and rise again. Your health never falls below 1.</p></div></section>';
@@ -157,8 +167,8 @@ OR.ui=(()=>{
     typing=setInterval(()=>{el.textContent=full.slice(0,++pos);if(pos>=full.length)finish();},12);
   }
   function render(keepScroll=false){if(S.syncRest().changed)S.save();if(typeFinish)typeFinish();const pos=window.scrollY;document.body.classList.toggle('in-game',!!S.data);document.body.classList.toggle('outer-world',!!S.data&&!W.local(S.data.x,S.data.y));const views={title,embark,explore,encounter:()=>explore(true),battle,aftermath,pack,forge,map,hero,journal};$('stage').innerHTML=(views[screen]||explore)()+(screen==='hero'?`<div class="page">${btn('RETURN TO TITLE','route:title','text')}</div>`:'');hud();syncHudHeight();typewriter();if(!keepScroll)window.scrollTo(0,0);else window.scrollTo(0,pos);}
-  function route(id,replace=false){clearTimeout(roundTimer);roundPlayback=null;combatBusy=false;roundPhase=null;roundStartHealth=null;const allowed=['title','embark','explore','encounter','battle','aftermath','pack','forge','map','hero','journal'];if(!allowed.includes(id))id=S.data?'explore':'title';if(!S.data&&!['title','embark'].includes(id))id='title';if(S.data&&id==='embark')id='explore';if(id==='battle'&&!S.data?.battle)id='explore';if(id==='aftermath'&&!S.data?.outcome)id='explore';screen=id;if(S.data){S.data.state=S.data.battle?'Battle':id==='encounter'?'Interacting':'Explore';S.save();}history[replace?'replaceState':'pushState'](null,'','#'+id);render();$('stage').focus({preventScroll:true});}
-  function toast(text,kind='notice',detail=''){$('toast').className='toast-'+kind;$('toast').innerHTML='<strong>'+escape(text)+'</strong>'+(detail?'<span>'+escape(detail)+'</span>':'');$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),detail?5500:3300);}
+  function route(id,replace=false,keepCombatToasts=false){if(!keepCombatToasts)clearCombatToasts();clearTimeout(roundTimer);roundPlayback=null;combatBusy=false;roundPhase=null;roundStartHealth=null;const allowed=['title','embark','explore','encounter','battle','aftermath','pack','forge','map','hero','journal'];if(!allowed.includes(id))id=S.data?'explore':'title';if(!S.data&&!['title','embark'].includes(id))id='title';if(S.data&&id==='embark')id='explore';if(id==='battle'&&!S.data?.battle)id='explore';if(id==='aftermath'&&!S.data?.outcome)id='explore';screen=id;if(S.data){S.data.state=S.data.battle?'Battle':id==='encounter'?'Interacting':'Explore';S.save();}history[replace?'replaceState':'pushState'](null,'','#'+id);render();$('stage').focus({preventScroll:true});if(id==='battle'&&S.data.battle&&!S.data.battle.lastRound)combatToast('opening','CHOOSE YOUR OPENING',S.data.battle.enemy.name+' awaits your move.');}
+  function toast(text,kind='notice',detail=''){clearCombatToasts();$('toast').className='toast-'+kind;$('toast').innerHTML='<strong>'+escape(text)+'</strong>'+(detail?'<span>'+escape(detail)+'</span>':'');$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),detail?5500:3300);}
   function confirmReset(){focusBefore=document.activeElement;$('modal').innerHTML=`${eyebrow('IRREVERSIBLE DECISION')}<h2 id="modal-title">RETIRE THIS WARRIOR?</h2><p>Your warrior, discovered world, pack, and journal will be erased.</p><p class="warning">THIS CANNOT BE UNDONE.</p>${btn('KEEP DEFENDING','cancel-modal','outline')}${btn('ERASE MY JOURNEY','confirm-reset','danger')}`;$('modal').showModal();$('modal').querySelector('button').focus();}
   function dispatch(action){if(combatBusy)return;const [key,value]=action.split(':');
     if(key==='route'){route(value);return;}
@@ -194,11 +204,11 @@ OR.ui=(()=>{
       case 'attack':{
         const previous=S.data.battle,before={...S.data.hp};
         if(!B.attack(Number(value)))break;
-        roundPlayback=previous;roundStartHealth=before;roundPhase='player';combatBusy=true;render(true);
-        const finish=()=>{roundPlayback=null;roundStartHealth=null;roundPhase=null;combatBusy=false;if(S.data.outcome)route('aftermath');else{render(true);document.querySelector('[data-action="attack:'+Number(value)+'"]:not(:disabled)')?.focus({preventScroll:true});}};
+        roundPlayback=previous;roundStartHealth=before;roundPhase='player';combatBusy=true;clearCombatToasts();render(true);roundToast(previous.lastRound);
+        const finish=()=>{roundPlayback=null;roundStartHealth=null;roundPhase=null;combatBusy=false;if(S.data.outcome)route('aftermath',false,true);else{render(true);document.querySelector('[data-action="attack:'+Number(value)+'"]:not(:disabled)')?.focus({preventScroll:true});}};
         roundTimer=setTimeout(()=>{
-          if(previous.lastRound.received===null){finish();return;}
-          roundPhase='enemy';render(true);
+          if(previous.lastRound.received===null){roundToast(previous.lastRound,true);finish();return;}
+          roundPhase='enemy';render(true);roundToast(previous.lastRound,true);
           roundTimer=setTimeout(finish,950);
         },950);
         break;
