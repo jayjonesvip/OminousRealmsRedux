@@ -117,22 +117,17 @@ OR.ui=(()=>{
     combatToast(kind,enemy?(amount>0?'YOU TOOK DAMAGE':'ENEMY MISSED'):(amount>0?'YOU HIT':'YOU MISSED'),
       (enemy?r.reply:r.move)+' · ROUND '+r.round,amount>0?(enemy?'−'+num(amount)+' HP':num(amount)+' DMG'):'MISS');
   }
-  function impactBadge(amount,enemy,magic=false){
-    if(amount===null||amount===undefined)return '';
-    const kind=amount>0?(enemy?(magic?'magic-hit':'hit'):'hurt'):'miss';
-    return '<div class="impact-badge '+kind+'"><strong>'+(amount>0?'−'+num(amount):'MISS')+'</strong><span>'+(amount>0?(enemy?'HIT LANDED':'DAMAGE TAKEN'):(enemy?'ATTACK MISSED':'DODGED'))+'</span></div>';
-  }
   function battle(){
     const s=S.data,b=s.battle||roundPlayback;if(!b)return explore();
     const e=b.enemy,outer=!W.local(b.x,b.y),r=b.lastRound,hp=visibleHealth(),playerBeat=roundPhase==='player';
     const shake=combatBusy&&r&&(playerBeat?r.dealt>0:r.received>0);
     const actor=(enemy,portrait=false)=>{
       const amount=enemy?(playerBeat?r?.dealt:null):(playerBeat?null:r?.received);
-      const hitClass=combatBusy&&amount>0?(enemy?'struck-enemy':'struck-player'):'';
-      const wrapper='<div class="fighter '+(enemy?'enemy':'player')+'">';
-      if(portrait)return wrapper+'<div class="fighter-art '+hitClass+'">'+
+      const borderClass=combatBusy&&amount!==null&&amount!==undefined?' fighter-pulse '+(amount>0?(enemy?'border-hit':'border-hurt'):'border-miss'):'';
+      const wrapper='<div class="fighter '+(enemy?'enemy':'player')+borderClass+'">';
+      if(portrait)return wrapper+'<div class="fighter-art">'+
         art(enemy?(e.id==='dragon'?'dragon-'+(outer?'outer':'village'):e.id):playerArt(),enemy?e.name:s.name,'cover')+
-        (combatBusy?impactBadge(amount,enemy,r?.magic):'')+'</div></div>';
+        '</div></div>';
       return wrapper+'<div class="fighter-info">'+
         eyebrow((enemy?'ENEMY':'YOU')+' · LVL '+(enemy?e.level:s.level))+'<h2>'+escape(enemy?e.name:s.name)+'</h2><span>'+
         (enemy?(e.attackStyle?escape(e.attackStyle)+(e.defense?' · '+escape(e.defense)+' '+e.resistance+'%':''):e.weapon+' · '+e.resistance+'% ARM'):s.weapon.type+' · '+s.armor.resistance+'% ARM')+'</span>'+

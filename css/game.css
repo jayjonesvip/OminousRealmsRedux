@@ -29,15 +29,6 @@
 .battle-status .fighter-info{width:100%}
 .battle-screen.combat-impact{animation:combat-shake .54s ease-out}
 .fighter-art{position:relative}
-.struck-enemy{animation:enemy-impact .55s ease-out}
-.struck-player{animation:player-impact .55s .2s ease-out}
-.impact-badge{position:absolute;left:8px;right:8px;bottom:18px;display:flex;flex-direction:column;align-items:center;padding:9px 4px;background:#152a18eb;border:1px solid currentColor;box-shadow:0 5px 22px #000a;color:#ead179;animation:impact-pop .85s ease-out both;pointer-events:none;text-shadow:0 2px 3px #000}
-.impact-badge strong{font:600 40px/1 var(--display)}
-.impact-badge span{font:500 10px/1.4 var(--display);letter-spacing:1.2px;margin-top:5px}
-.impact-badge.hurt{color:#ffb09a;background:#551c18ed}
-.impact-badge.miss{color:#b6d1e6;background:#243345eb}
-.impact-badge.magic-hit{color:#dec3ff;background:#3b244fed}
-.player .impact-badge{animation-delay:.2s}
 .round-feedback{margin:17px 0;display:grid;gap:7px}
 .round-event{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 13px;border-left:3px solid currentColor;background:#292619cc;color:#eed27f}
 .round-event>span{display:flex;flex-direction:column;gap:5px}
@@ -71,10 +62,6 @@
 #toast.toast-reward{background:#24341ccc;color:#f0dfa7;border-color:#a5b36a;border-left:5px solid #bfd180}
 #toast.toast-danger{background:#3a201ccc;color:#ffc7b5;border-color:#b26a53;border-left:5px solid #e58b70}
 @keyframes combat-shake{0%,100%{transform:translate(0,0)}10%{transform:translate(-5px,2px)}22%{transform:translate(5px,-2px)}34%{transform:translate(-3px,1px)}48%{transform:translate(3px,0)}62%{transform:translate(-4px,2px)}78%{transform:translate(2px,-1px)}}
-@keyframes enemy-impact{0%,100%{filter:none}15%{filter:brightness(1.7) sepia(.6)}40%{filter:brightness(1.12)}}
-@keyframes player-impact{0%,100%{filter:none}15%{filter:sepia(1) saturate(3) hue-rotate(315deg) brightness(1.2)}40%{filter:brightness(.8)}}
-@keyframes impact-pop{0%{opacity:0;transform:translateY(14px) scale(.86)}20%{opacity:1;transform:translateY(-4px) scale(1.06)}40%,100%{opacity:1;transform:translateY(0) scale(1)}}
-@media(prefers-reduced-motion:reduce){.combat-impact,.struck-enemy,.struck-player,.impact-badge{animation:none!important;transform:none!important}}
 
 /* Keep dialogue beside its speaker, separate from terrain narration. */
 .scene.has-dialogue{height:480px;overflow:visible}
@@ -182,3 +169,11 @@ body.in-game{min-height:100dvh}
 .scene-top{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:9px;row-gap:12px}
 
 .discovery-loot{padding:20px 0 6px}.discovery-loot h2{font-size:30px;margin:10px 0;color:var(--gold)}.discovery-loot>p{font-size:15px;color:var(--muted);margin-bottom:18px}.discovery-loot>.btn{margin-top:20px}
+
+/* Match the top toast without covering portraits or sticky health cards. */
+.fighter.border-hit{--impact-color:#8fd49b}
+.fighter.border-hurt{--impact-color:#f38b79}
+.fighter.border-miss{--impact-color:#9bc8ef}
+.fighter.fighter-pulse{border-color:var(--impact-color);animation:fighter-border-pulse .9s ease-out both}
+@keyframes fighter-border-pulse{0%{box-shadow:inset 0 0 0 0 var(--impact-color)}20%,45%{box-shadow:inset 0 0 0 3px var(--impact-color),0 0 12px -3px var(--impact-color)}100%{box-shadow:inset 0 0 0 0 var(--impact-color)}}
+@media(prefers-reduced-motion:reduce){.fighter.fighter-pulse{animation:none;box-shadow:inset 0 0 0 2px var(--impact-color)}}
