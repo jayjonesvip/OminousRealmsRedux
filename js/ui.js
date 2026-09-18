@@ -50,7 +50,7 @@ OR.ui=(()=>{
       (talking?speechBubble(b):'<p>'+escape(W.description(b))+'</p>')+'</div></div>';
   }
   function tileActions(b){switch(b.elementType){
-    case 'NPC':return btn('SAY HELLO','talk')+`<div class="button-pair">${btn('ATTACK','npc-attack','outline')}${btn('KEEP WALKING','ignore','outline')}</div>`;
+    case 'NPC':return btn('SPEAK','talk')+`<div class="button-pair">${btn('ATTACK','npc-attack','outline')}${btn('KEEP WALKING','ignore','outline')}</div>`;
     case 'Danger':
     case 'Enemy':return btn('ENTER BATTLE '+icon('battle'),'fight','danger')+btn('KEEP WALKING','ignore','outline');
     case 'Dragon':return `<div class="warning">ANCIENT THREAT · ${num(b.dragonHp)} HP REMAINING</div>`+btn('ENTER BATTLE '+icon('battle'),'fight','danger')+btn('KEEP WALKING','ignore','outline');
