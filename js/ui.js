@@ -235,6 +235,7 @@ OR.ui=(()=>{
     if(S.data.foundLoot&&key!=='gather-loot'){route('explore');return;}
     switch(key){
       case 'move':{
+        if(V.pendingGift())break;
         const b=W.current();let notice='';
         if(['N','S','E','W'].includes(value)&&S.data.hp.current>1&&['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle','Landmark'].includes(b.elementType)&&(!b.resolved||activeDialogue(b))){
           if(A.ignore())notice=S.data.message;
