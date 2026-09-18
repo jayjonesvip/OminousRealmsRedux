@@ -35,6 +35,8 @@ Browser storage belongs to the current browser and origin. A file opened directl
 
 ## Source
 
+Before publishing code or style changes, run `node scripts/version-assets.cjs`, then `node scripts/version-assets.cjs --check`. This stamps the stylesheet and all game scripts with a shared content version so browsers request the matching release instead of cached files. It does not change saved games.
+
 The scripts use a small `OR` namespace and deferred classic scripts so `index.html` works directly without ES-module file-origin restrictions. Each responsibility is separate:
 
 | File | Responsibility |
