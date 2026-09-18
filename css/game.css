@@ -122,19 +122,17 @@ body.outer-world::after{opacity:1}
 /* A single row keeps all four directions within easy reach. */
 .compass{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:56px;gap:6px;max-width:none}
 .compass .direction{grid-area:auto;width:100%;height:56px;min-width:0;flex-direction:column;gap:3px;font-size:13px;letter-spacing:1px}
-/* Walking uses the actual available viewport; navigation needs no spacer. */
-html:has(.walking-view),body:has(.walking-view){min-height:100dvh}
-body:has(.walking-view) #game{display:grid;grid-template-rows:auto minmax(min-content,1fr) auto;height:100dvh;min-height:100dvh}
-body:has(.walking-view) #hud{position:relative;top:auto}
-body:has(.walking-view) #stage{display:flex;flex-direction:column;min-height:0;padding-bottom:0}
-body:has(.walking-view) #nav{position:relative;bottom:auto;left:auto;transform:none;width:100%}
-.walking-view{display:grid;grid-template-rows:minmax(180px,1fr) auto;flex:1;min-height:0}
-.walking-view>.scene{height:auto;min-height:180px}
-.walking-view>.scene:has(.recent-message){min-height:260px}
-.walking-view>.explore-body{padding-top:4px;padding-bottom:4px}
-.walking-view .compass-block .section-label{margin:10px 0}
-.walking-view .utility-row{margin-top:10px;padding-top:7px}
-@media(max-height:600px){.walking-view .scene-copy h1{font-size:32px}.walking-view .scene-copy p{min-height:0}}
+/* Keep one shell before, during and after encounters. */
+body.in-game{min-height:100dvh}
+.in-game #stage{min-height:0;padding-bottom:calc(73px + env(safe-area-inset-bottom))}
+/* Bound the art independently of its intrinsic size and the controls below it.
+   svh also keeps browser toolbar changes from stretching the portrait. */
+.exploration-view>.scene:not(.has-dialogue){height:clamp(240px,calc(100svh - 410px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),355px)}
+.exploration-view>.scene>.cover{position:absolute;inset:0}
+.exploration-view>.explore-body{padding-top:4px;padding-bottom:8px}
+.exploration-view .compass-block .section-label{margin:10px 0}
+.exploration-view .utility-row{margin-top:10px;padding-top:7px}
+@media(max-height:600px){.exploration-view .scene-copy h1{font-size:32px}.exploration-view .scene-copy>p{min-height:0}}
 
 
 .rest-status{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:18px 0 10px}
