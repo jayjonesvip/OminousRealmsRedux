@@ -97,3 +97,5 @@ Narrative convention: the subtle gold compass glow represents the grandfather’
 
 Dialogue is divided into balanced pages when longer than roughly 280 characters. Next and final acceptance controls are fixed above the measured bottom navigation; text flows downward with space below it. Conversation page progress is saved.
 `nExplore uses one fixed dock above bottom navigation: always-visible compass, then contextual action controls. Movement locks disable compass buttons. Dock height is measured to reserve scroll space for dialogue, including smaller mobile viewports. The Explore Journal button is removed.
+
+Explore scene metadata (category, title, description) is measured as the first section of the bottom dock, immediately above the compass. Dialogue is a separate top-of-scene region below its label. Small screens can scroll dialogue clear of the dock; long control panels have bounded scrolling.

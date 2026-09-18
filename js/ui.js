@@ -54,9 +54,9 @@ OR.ui=(()=>{
   function scene(b,encounter=false){
     const e=C.entities[b.subtype],local=W.local(b.x,b.y),talking=activeDialogue(b);
     return '<div class="scene '+(encounter?'encounter-scene ':'')+(talking?'has-dialogue ':'')+(local?'village':'outer')+'">'+art(asset(b),e.name,'cover eager','fetchpriority="high"')+
-      '<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">'+(talking?'IN CONVERSATION':encounter?'ENCOUNTER':b.elementType==='Home'?'THE PLACE YOU DEFEND':W.border(b.x,b.y)?'BEYOND THE VEIL':'THE JOURNEY CONTINUES')+'</span><span class="region-badge">'+(local?'VILLAGE':'OUTER REALM')+'</span></div><div class="scene-copy">'+
+      '<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">'+(talking?'IN CONVERSATION':encounter?'ENCOUNTER':b.elementType==='Home'?'THE PLACE YOU DEFEND':W.border(b.x,b.y)?'BEYOND THE VEIL':'THE JOURNEY CONTINUES')+'</span><span class="region-badge">'+(local?'VILLAGE':'OUTER REALM')+'</span></div>'+(talking?'<div class="scene-dialogue">'+speechBubble(b)+'</div>':'')+'<div class="scene-copy scene-metadata">'+
       eyebrow(b.elementType==='Nature'?'WILDERNESS':b.elementType.replace(/([a-z])([A-Z])/g,'$1 $2').toUpperCase())+'<h1>'+escape(e.name.toUpperCase())+'</h1>'+
-      (talking?speechBubble(b):'<p>'+escape(W.description(b))+'</p>')+'</div></div>';
+      '<p>'+escape(W.description(b))+'</p>'+'</div></div>';
   }
   function puzzleActions(b){
     const p=P.ensure(b),rule=P.pattern(b);
@@ -109,7 +109,7 @@ OR.ui=(()=>{
   function grandfatherVision(){
     const dialogue=S.data.village.visionDialogue||(S.data.village.visionDialogue={text:'“'+V.visionWords+'”',speaker:'YOUR GRANDFATHER',spoken:true});
     const speech=speechBubble({dialogue});
-    return '<section class="exploration-view has-encounter-actions"><div class="scene encounter-scene has-dialogue village vision-scene">'+art('grandfather-vision','A spectral vision of your grandfather in Strongwood','cover eager','fetchpriority="high"')+'<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">A FAMILIAR VOICE</span><span class="region-badge">VISION</span></div><div class="scene-copy">'+eyebrow('BLOOD REMEMBERS')+'<h1>YOUR GRANDFATHER</h1>'+speech+'</div></div><div class="explore-body">'+(moreDialogue(dialogue)?'':dialogueDock(btn('FOLLOW YOUR INSTINCTS','village:vision')))+'</div></section>';
+    return '<section class="exploration-view has-encounter-actions"><div class="scene encounter-scene has-dialogue village vision-scene">'+art('grandfather-vision','A spectral vision of your grandfather in Strongwood','cover eager','fetchpriority="high"')+'<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">A FAMILIAR VOICE</span><span class="region-badge">VISION</span></div><div class="scene-dialogue">'+speech+'</div><div class="scene-copy scene-metadata">'+eyebrow('BLOOD REMEMBERS')+'<h1>YOUR GRANDFATHER</h1><p>A familiar presence watches over you.</p>'+'</div></div><div class="explore-body">'+(moreDialogue(dialogue)?'':dialogueDock(btn('FOLLOW YOUR INSTINCTS','village:vision')))+'</div></section>';
   }
   function explore(encounter=false){if(V.visionActive())return grandfatherVision();const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle','Landmark'].includes(b.elementType)&&!b.resolved;
     const suspended=s.battle?`<div class="resume-banner">${eyebrow('UNFINISHED BUSINESS')}<h2>THE FIGHT ISN’T OVER.</h2>${btn('RESUME BATTLE '+icon('battle'),'route:battle','danger')}</div>`:s.outcome?`<div class="resume-banner">${eyebrow('THE DUST HAS SETTLED')}<h2>${s.outcome.win?'VICTORY IS YOURS.':'YOU STILL BREATHE.'}</h2>${btn(s.outcome.win?'VIEW REWARDS':'RECOVER','route:aftermath',s.outcome.win?'primary':'outline')}</div>`:s.foundLoot?discoveryLoot():'';
@@ -237,10 +237,11 @@ OR.ui=(()=>{
     const dialogue=view.querySelector('.dialogue-dock'),tile=compassBlock.querySelector('.tile-actions');
     if(dialogue){while(dialogue.firstChild)actions.appendChild(dialogue.firstChild);dialogue.remove();tile?.remove();}
     else if(tile){while(tile.firstChild)actions.appendChild(tile.firstChild);tile.remove();}
+    const metadata=view.querySelector('.scene-metadata');if(metadata)dock.appendChild(metadata);
     dock.appendChild(compassBlock);if(actions.children.length)dock.appendChild(actions);
     view.appendChild(dock);
     let reservedHeight=previousDockHeight||0;
-    const measure=()=>{const nav=$('nav').getBoundingClientRect().height;dock.style.setProperty('--nav-height',nav+'px');view.style.paddingBottom=(Math.max(reservedHeight,dock.getBoundingClientRect().height)+16)+'px';};
+    const measure=()=>{const nav=$('nav').getBoundingClientRect().height;dock.style.setProperty('--nav-height',nav+'px');const dockHeight=Math.max(reservedHeight,dock.getBoundingClientRect().height);view.style.paddingBottom=(dockHeight+16)+'px';view.style.setProperty('--dock-height',dockHeight+'px');};
     measure();
     const height=dock.getBoundingClientRect().height,delta=height-(previousDockHeight??height);
     previousDockHeight=height;
