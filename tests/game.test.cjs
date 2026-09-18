@@ -268,6 +268,51 @@ test('defeat shows red damage and recovery, never reward collection',()=>{const 
 test('claim toast identifies quantities, merges duplicate loot and never re-awards it',()=>{const g=game(new Map(),true);g.state.add('MetalIngot',5);g.state.add('Gem',1);g.state.data.outcome={win:true,rewards:[{type:'MetalIngot',qty:2},{type:'MetalIngot',qty:3},{type:'Gem',qty:1}],levels:0,enemy:'Ogre',art:'warrior-sword'};g.ui.route('aftermath');assert.equal((g.nodes.stage.innerHTML.match(/class="reward-item"/g)||[]).length,2);assert.match(g.nodes.stage.innerHTML,/>\+5</);g.ui.dispatch('claim');assert.match(g.nodes.toast.innerHTML,/LOOT SECURED/);assert.match(g.nodes.toast.innerHTML,/\+5 Metal Ingot · \+1 Gem/);assert.equal(g.nodes.toast.className,'toast-reward');g.ui.dispatch('claim');assert.equal(g.state.qty('MetalIngot'),5);assert.equal(g.state.qty('Gem'),1);});
 test('leaving battle cancels the pending presentation timer without discarding its outcome',()=>{const g=game(new Map(),true),timers=roundTimers(g);g.place('Danger','snake');g.combat.start();g.state.data.battle.enemy.hp=1;g.rng(0);g.ui.route('battle');g.ui.dispatch('attack:1');g.ui.route('pack');timers.flush();assert.equal(g.ui.screen,'pack');assert.equal(g.state.data.outcome.win,true);g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/VIEW REWARDS/);});
 test('magic has its own outcome color and consumes a crystal exactly once',()=>{const g=game(new Map(),true);roundTimers(g);g.place('Enemy','ogre',27,0);g.combat.start();g.state.data.battle.enemy.hp=1000;g.state.add('MagicCrystal');g.rng(0);g.ui.route('battle');g.ui.dispatch('attack:3');assert.match(g.nodes['combat-toasts'].innerHTML,/round-event magic-hit/);assert.match(g.nodes['combat-toasts'].innerHTML,/Realmfire/);assert.equal(g.state.qty('MagicCrystal'),0);g.ui.dispatch('attack:3');assert.equal(g.state.data.battle.round,2);});
+test('each weapon has exactly one stagger move on its heavy strike',()=>{
+  const heavy={Sword:'Cleave',Axe:'Execution',Hammer:'Earthshaker',Knife:'Backstab'};
+  for(const [type,name] of Object.entries(heavy)){
+    const moves=game().content.weapon(type).moves;
+    assert.equal(moves.filter(m=>m.stagger).length,1,type);
+    assert.equal(moves.find(m=>m.name===name).stagger,true);
+    assert.ok(moves.filter(m=>['Tackle',type==='Sword'?'Slash':type==='Axe'?'Chop':type==='Hammer'?'Crush':'Stab','Realmfire'].includes(m.name)).every(m=>!m.stagger));
+  }
+});
+test('a landed heavy hit skips the enemy response; misses and light hits do not',()=>{
+  const g=game();g.place('Enemy','ogre',27,0);g.combat.start();
+  const hp=g.state.data.hp.current,enemyHp=g.state.data.battle.enemy.hp;
+  g.rng(0);assert.ok(g.combat.attack(2));
+  assert.equal(g.state.data.battle.lastRound.stagger,true);
+  assert.equal(g.state.data.battle.lastRound.received,null);
+  assert.equal(g.state.data.hp.current,hp);
+  assert.ok(g.state.data.battle.enemy.hp<enemyHp);
+  assert.equal(g.state.data.battle.round,2);
+  assert.equal(g.state.data.outcome,null);
+  g.rng(.9999);g.combat.attack(2);
+  assert.equal(g.state.data.battle.lastRound.stagger,false);
+  assert.notEqual(g.state.data.battle.lastRound.received,null);
+  assert.ok(g.state.data.battle.lastRound.reply);
+  const light=game();light.place('Enemy','ogre',27,0);light.combat.start();
+  light.rng(0);light.combat.attack(1);
+  assert.equal(light.state.data.battle.lastRound.stagger,false);
+  assert.notEqual(light.state.data.battle.lastRound.received,null);
+  assert.ok(light.state.data.hp.current<50);
+  const kill=game();kill.place('Danger','snake');kill.combat.start();
+  kill.state.data.battle.enemy.hp=1;kill.rng(0);kill.combat.attack(2);
+  assert.equal(kill.state.data.outcome.win,true);
+  assert.equal(kill.state.data.outcome.lastRound.stagger,false);
+  assert.equal(kill.state.data.battle,null);
+});
+test('staggered heavy hits announce immediately with no enemy counter toast',()=>{
+  const g=game(new Map(),true),timers=roundTimers(g);g.place('Enemy','ogre',27,0);g.combat.start();g.rng(0);g.ui.route('battle');
+  g.ui.dispatch('attack:2');assert.equal(g.ui.screen,'battle');
+  const stack=g.nodes['combat-toasts'];
+  assert.match(stack.innerHTML,/STAGGERED/);assert.match(stack.innerHTML,/NO COUNTER/);assert.match(stack.innerHTML,/round-event hit/);
+  assert.doesNotMatch(stack.innerHTML,/ENEMY VANQUISHED|YOU TOOK DAMAGE|ENEMY MISSED/);
+  assert.equal(g.state.data.hp.current,50);assert.equal(g.state.data.battle.round,2);
+  g.ui.dispatch('attack:2');assert.equal(g.state.data.battle.round,2);
+  timers.flush();assert.equal(g.ui.screen,'battle');assert.equal(g.state.data.outcome,null);
+  assert.match(g.nodes.stage.innerHTML,/MAKE YOUR MOVE/);
+});
 if(process.env.ASSET_AUDIT){test('every rendered image, manifest entry and stylesheet reference exists',()=>{const g=game(new Map(),true);const refs=new Set();const collect=()=>{for(const html of [g.nodes.stage.innerHTML,g.nodes.hud.innerHTML])for(const m of html.matchAll(/(?:src|href)="(assets\/[^"#]+)"/g))refs.add(m[1]);};g.ui.init();for(const page of ['title','explore','pack','forge','map','hero','journal']){g.ui.route(page);collect();}for(const e of Object.values(g.content.entities))for(const outer of [false,true]){g.place(e.type,e.id,outer?27:3,3);g.ui.route('encounter');collect();}for(const type of Object.keys(g.content.weapons)){g.state.data.weapon=g.content.weapon(type);g.ui.route('hero');collect();}for(const m of fs.readFileSync(path.join(root,'css/game.css'),'utf8').matchAll(/url\(['"]?\.\.\/(assets\/[^)'";]+)['"]?\)/g))refs.add(m[1]);const manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/manifest.json'),'utf8'));for(const entry of Object.values(manifest))for(const k of ['file','village','outer'])if(entry[k])refs.add('assets/'+entry[k]);for(const ref of refs)assert.ok(fs.existsSync(path.join(root,ref)),ref);console.log('Verified '+refs.size+' distinct referenced assets.');});}
 
 
