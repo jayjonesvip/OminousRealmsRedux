@@ -69,7 +69,7 @@ test('wilderness forges stay usable after upgrades, departure, revisits and relo
     for(let trip=0;trip<3;trip++){
       assert.equal(g.actions.craft('weapon'),true);assert.equal(g.actions.craft('armor'),true);
       g.ui.dispatch('move:N');assert.equal(g.world.at(x,5).elementType,'Craft');
-      g.state.load();g.ui.dispatch('move:S');assert.equal(g.world.current().subtype,'forge');assert.match(g.nodes.stage.innerHTML,/ENHANCE ARMOR/);
+      g.state.load();g.ui.dispatch('move:S');assert.equal(g.world.current().subtype,'forge');assert.match(g.nodes.stage.innerHTML,/ENTER THE FORGE/);
     }
     assert.equal(g.state.data.weapon.basePower,8);assert.equal(g.state.data.armor.resistance,13);
   }
