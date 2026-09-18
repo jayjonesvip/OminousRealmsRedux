@@ -29,7 +29,7 @@ OR.content = (() => {
     RustyNail:{name:'Rusty Nail',art:'item-nail',group:'REMNANTS',note:'Even the old world had loose ends.'}
   };
   const entries = [
-    ['Home','home','Strongwood Cottage','Smoke curls above the roof. Home still stands.','The hearth is cold. Something remembers you.'],
+    ['Home','home','Strongwood Cottage','Smoke curls above the roof. Eldric’s forge burns beside your cottage.','The hearth is cold. Something remembers you.'],
     ['Nature','forest','Oldwood Forest','Sunlight cuts through the trees like ancestral steel.','Dead branches claw at a blood-red sky.'],
     ['Nature','mossy','Mossbound Stones','Green velvet softens the bones of the earth.','Black moss drinks from the cracks in the stone.'],
     ['Nature','rocks','Sentinel Rocks','Old stones keep a watch no warrior could outlast.','The stones lean inward, listening for your breath.'],
