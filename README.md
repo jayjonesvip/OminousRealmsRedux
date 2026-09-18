@@ -77,3 +77,7 @@ The interface takes its requested career-screen inspiration from [Cage Grind](ht
 Automated logic and rendered-template checks cover character setup, local generation, realm borders, damage and accuracy, crystal consumption, unconsciousness, loot uniqueness, leveling, dragon persistence, bribes, potions, digging, chests, forging, saving, recovery, and all eleven screens. These tests do not substitute for a real-device browser playtest.
 
 To rerun the included checks, use Node.js: `node --test tests/game.test.cjs`. Set `ASSET_AUDIT=1` to include the full rendered-image reference audit. No test dependencies need installing.
+
+## Search visibility
+
+The home page includes a canonical URL, descriptive metadata, Open Graph and Twitter previews, VideoGame/WebSite/WebPage JSON-LD, and a readable initial HTML fallback. The title screen links to the static, mobile-friendly how-to-play.html guide. robots.txt permits crawling and advertises sitemap.xml, which lists only the canonical home and guide URLs, not client-side game routes. After verifying the Domain property in Search Console, submit https://ominousrealms.com/sitemap.xml and request indexing for the home and guide pages. These files help discovery; indexing and rankings remain search-engine decisions. When adding public pages, update the sitemap and use a unique title, description and canonical URL.

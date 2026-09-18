@@ -180,3 +180,5 @@ body.in-game{min-height:100dvh}
 
 /* Enough ingots for the next enhancement, even while away from a forge. */
 .stat-cell.ready{background:linear-gradient(0deg,#d4b12618,transparent);box-shadow:inset 0 0 9px #dfbd6533,inset 0 0 0 1px #d5b46c88,0 0 9px #dfbd6526}
+
+.game-intro{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 18px}.game-links{text-align:center;font-size:12px;margin-top:16px;color:var(--muted)}.game-links a,.seo-intro a{color:var(--gold-light);text-underline-offset:3px}.seo-intro{padding-top:32px}.seo-intro p{margin-top:18px}
