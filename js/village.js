@@ -68,7 +68,7 @@ OR.village=(()=>{
     if(allVisited()){updateSpeech(b);S.log(names[b.subtype]+': '+farewell);}
     S.log(b.subtype==='tavern'?'The barkeep’s wisdom stays with you.':(b.subtype==='wizard-sanctuary'?'Realmfire enchanted. ':'')+'Received: '+rewards.map(r=>r.qty+' '+C.items[r.type].name).join(', ')+'.');S.save();return rewards;
   }
-  const visionWords='You carry their gifts now, but no road can choose your life for you. Trust your instincts. Be brave when you must, and wise enough to turn back when you should. Strongwood is more than its walls; it is the people who believe in you. Find your own way, my child. Protect them. Save our village from the shadow, and remember: you never walk alone.';
+  const visionWords='That gentle golden light upon your compass was me, my child. I have been watching over you, guiding you to those who could help. I will watch over you still. When that light returns, know that I am pointing the way—but the choice is always yours. Trust your instincts. Protect the people who believe in you. Save Strongwood from the shadow. You never walk alone.';
   const visionActive=()=>!!S.data?.village?.visionPending;
   function triggerVision(b){
     const v=S.data?.village;if(!allVisited()||v.visionSeen||['Home','Path','Landmark'].includes(b.elementType))return false;

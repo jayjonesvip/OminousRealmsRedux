@@ -92,3 +92,5 @@ The wizard unlocks Realmfire and grants one Magic Crystal; the herbalist grants 
 After all four village introductions and gifts are complete, the first move onto a non-Path, non-Landmark, non-Home cell triggers a one-time grandfather vision. Its pending/seen state survives reloads. Dismissing it reveals the unchanged coordinate encounter. It grants no additional loot.
 
 Village stops share Enter → dialogue → Accept → compass. Tavern wisdom now requires acceptance. A soft gold compass hint follows the saved trail to the earliest unfinished stop, and turns off when all introductions are complete.
+
+Narrative convention: the subtle gold compass glow represents the grandfather’s guidance. His vision reveals this connection. Reserve the same visual cue for future quest guidance; the current implementation only guides unfinished village introductions. No quest system or additional guidance triggers are enabled yet.
