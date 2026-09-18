@@ -2,7 +2,8 @@
 OR.ui=(()=>{
   const S=OR.state,C=OR.content,W=OR.world,A=OR.actions,B=OR.combat;
   const $=id=>document.getElementById(id);
-  let vitalitySnapshot=null,damageTimer=null,roundPhase=null,roundStartHealth=null,forgeFocus='armor';
+  let vitalitySnapshot=null,damageTimer=null,roundPhase=null,roundStartHealth=null,forgeFocus='armor',hudObserver=null;
+  function syncHudHeight(){const height=$('hud').getBoundingClientRect?.().height;if(height>0)$('stage').style?.setProperty('--hud-height',height+'px');}
   const visibleHealth=()=>combatBusy&&roundPhase==='player'&&roundStartHealth?roundStartHealth:S.data.hp;
   function damageFeedback(){
     const stage=$('stage');clearTimeout(damageTimer);stage.classList.remove('damage-taken');void stage.offsetWidth;stage.classList.add('damage-taken');
@@ -99,19 +100,21 @@ OR.ui=(()=>{
     const s=S.data,b=s.battle||roundPlayback;if(!b)return explore();
     const e=b.enemy,outer=!W.local(b.x,b.y),r=b.lastRound,hp=visibleHealth(),playerBeat=roundPhase==='player',pending=combatBusy&&playerBeat&&r?.received!==null;
     const shake=combatBusy&&r&&(playerBeat?r.dealt>0:r.received>0);
-    const actor=(enemy)=>{
+    const actor=(enemy,portrait=false)=>{
       const amount=enemy?(playerBeat?r?.dealt:null):(playerBeat?null:r?.received);
       const hitClass=combatBusy&&amount>0?(enemy?'struck-enemy':'struck-player'):'';
-      return '<div class="fighter '+(enemy?'enemy':'player')+'"><div class="fighter-art '+hitClass+'">'+
+      const wrapper='<div class="fighter '+(enemy?'enemy':'player')+'">';
+      if(portrait)return wrapper+'<div class="fighter-art '+hitClass+'">'+
         art(enemy?(e.id==='dragon'?'dragon-'+(outer?'outer':'village'):e.id):playerArt(),enemy?e.name:s.name,'cover')+
-        (combatBusy?impactBadge(amount,enemy,r?.magic):'')+'</div><div class="fighter-info">'+
+        (combatBusy?impactBadge(amount,enemy,r?.magic):'')+'</div></div>';
+      return wrapper+'<div class="fighter-info">'+
         eyebrow((enemy?'ENEMY':'YOU')+' · LVL '+(enemy?e.level:s.level))+'<h2>'+escape(enemy?e.name:s.name)+'</h2><span>'+
         (enemy?e.weapon:s.weapon.type)+' · '+(enemy?e.resistance:s.armor.resistance)+'% ARM</span>'+
         hpBar(enemy?e.hp:hp.current,enemy?e.maxHp:hp.max)+'<b>'+num(enemy?e.hp:hp.current)+' <small>/ '+num(enemy?e.maxHp:hp.max)+' HP</small></b></div></div>';
     };
     return '<section class="battle-screen '+(shake?'combat-impact':'')+'"><div class="battle-head">'+eyebrow('DEFEND YOUR REALM')+
       '<h1>STEEL MEETS SHADOW.</h1><div class="round-label"><span></span> ROUND '+String(combatBusy&&r?r.round:b.round).padStart(2,'0')+' <span></span></div></div>'+
-      '<div class="arena">'+actor(false)+'<span class="vs">VS</span>'+actor(true)+'</div><div class="battle-body">'+
+      '<div class="arena">'+actor(false,true)+'<span class="vs">VS</span>'+actor(true,true)+'</div><div class="battle-status" role="region" aria-label="Fighter health">'+actor(false)+actor(true)+'</div><div class="battle-body">'+
       (r?roundFeedback(r,pending):'<p class="combat-log" aria-live="polite">'+escape(b.log)+'</p>')+
       '<div class="section-label"><span>'+(combatBusy?(playerBeat?'YOUR ATTACK':'ENEMY RESPONSE'):'MAKE YOUR MOVE')+'</span>'+(S.qty('LuckyCoin')?'<span class="gold">LUCK +5% ACC</span>':'<span>'+(combatBusy?'STEEL IN MOTION':'YOUR TURN')+'</span>')+'</div><div class="moves">'+
       s.weapon.moves.map((m,i)=>'<button class="move '+(m.magic?'magic':'')+'" data-action="attack:'+i+'" '+(combatBusy||(m.magic&&!S.qty('MagicCrystal'))?'disabled':'')+'><span><strong>'+m.name.toUpperCase()+'</strong><small>'+(m.magic?(S.qty('MagicCrystal')?'CONSUMES 1 CRYSTAL':'MAGIC CRYSTAL REQUIRED'):m.description)+'</small></span><span class="move-stats"><b>'+(s.weapon.basePower+m.power)+'<small>PWR</small></b><b>'+Math.min(100,m.accuracy+(S.qty('LuckyCoin')?5:0))+'%<small>ACC</small></b></span></button>').join('')+
@@ -153,7 +156,7 @@ OR.ui=(()=>{
     if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
     typing=setInterval(()=>{el.textContent=full.slice(0,++pos);if(pos>=full.length)finish();},12);
   }
-  function render(keepScroll=false){if(S.syncRest().changed)S.save();if(typeFinish)typeFinish();const pos=window.scrollY;document.body.classList.toggle('in-game',!!S.data);document.body.classList.toggle('outer-world',!!S.data&&!W.local(S.data.x,S.data.y));const views={title,embark,explore,encounter:()=>explore(true),battle,aftermath,pack,forge,map,hero,journal};$('stage').innerHTML=(views[screen]||explore)()+(screen==='hero'?`<div class="page">${btn('RETURN TO TITLE','route:title','text')}</div>`:'');hud();typewriter();if(!keepScroll)window.scrollTo(0,0);else window.scrollTo(0,pos);}
+  function render(keepScroll=false){if(S.syncRest().changed)S.save();if(typeFinish)typeFinish();const pos=window.scrollY;document.body.classList.toggle('in-game',!!S.data);document.body.classList.toggle('outer-world',!!S.data&&!W.local(S.data.x,S.data.y));const views={title,embark,explore,encounter:()=>explore(true),battle,aftermath,pack,forge,map,hero,journal};$('stage').innerHTML=(views[screen]||explore)()+(screen==='hero'?`<div class="page">${btn('RETURN TO TITLE','route:title','text')}</div>`:'');hud();syncHudHeight();typewriter();if(!keepScroll)window.scrollTo(0,0);else window.scrollTo(0,pos);}
   function route(id,replace=false){clearTimeout(roundTimer);roundPlayback=null;combatBusy=false;roundPhase=null;roundStartHealth=null;const allowed=['title','embark','explore','encounter','battle','aftermath','pack','forge','map','hero','journal'];if(!allowed.includes(id))id=S.data?'explore':'title';if(!S.data&&!['title','embark'].includes(id))id='title';if(S.data&&id==='embark')id='explore';if(id==='battle'&&!S.data?.battle)id='explore';if(id==='aftermath'&&!S.data?.outcome)id='explore';screen=id;if(S.data){S.data.state=S.data.battle?'Battle':id==='encounter'?'Interacting':'Explore';S.save();}history[replace?'replaceState':'pushState'](null,'','#'+id);render();$('stage').focus({preventScroll:true});}
   function toast(text,kind='notice',detail=''){$('toast').className='toast-'+kind;$('toast').innerHTML='<strong>'+escape(text)+'</strong>'+(detail?'<span>'+escape(detail)+'</span>':'');$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),detail?5500:3300);}
   function confirmReset(){focusBefore=document.activeElement;$('modal').innerHTML=`${eyebrow('IRREVERSIBLE DECISION')}<h2 id="modal-title">RETIRE THIS WARRIOR?</h2><p>Your warrior, discovered world, pack, and journal will be erased.</p><p class="warning">THIS CANNOT BE UNDONE.</p>${btn('KEEP DEFENDING','cancel-modal','outline')}${btn('ERASE MY JOURNEY','confirm-reset','danger')}`;$('modal').showModal();$('modal').querySelector('button').focus();}
@@ -217,6 +220,9 @@ OR.ui=(()=>{
     const timer=$('rest-countdown');if(timer)timer.textContent=restCountdown();
     if(result.completed)toast('FULLY RESTED','reward','Your health is full. The road awaits.');
   }
-  function init(){W.rescueIfNeeded();clearInterval(restTimer);restTimer=setInterval(updateRest,1000);window.addEventListener('pagehide',()=>{if(S.data){S.syncRest();S.save();}});document.addEventListener('visibilitychange',updateRest);document.addEventListener('click',e=>{const target=e.target.closest('[data-action]');if(target&&!target.disabled)dispatch(target.dataset.action);});document.addEventListener('submit',e=>{if(e.target.id!=='name-form')return;e.preventDefault();S.create(new FormData(e.target).get('name'),chosen);W.current();S.save();route('explore',true);});window.addEventListener('popstate',()=>route(location.hash.slice(1),true));$('modal').addEventListener('close',()=>focusBefore?.focus());route(S.data?'explore':'title',true);}
+  function init(){
+    if(!hudObserver&&typeof ResizeObserver!=='undefined'){hudObserver=new ResizeObserver(syncHudHeight);hudObserver.observe($('hud'));}
+    window.addEventListener('resize',syncHudHeight);
+    W.rescueIfNeeded();clearInterval(restTimer);restTimer=setInterval(updateRest,1000);window.addEventListener('pagehide',()=>{if(S.data){S.syncRest();S.save();}});document.addEventListener('visibilitychange',updateRest);document.addEventListener('click',e=>{const target=e.target.closest('[data-action]');if(target&&!target.disabled)dispatch(target.dataset.action);});document.addEventListener('submit',e=>{if(e.target.id!=='name-form')return;e.preventDefault();S.create(new FormData(e.target).get('name'),chosen);W.current();S.save();route('explore',true);});window.addEventListener('popstate',()=>route(location.hash.slice(1),true));$('modal').addEventListener('close',()=>focusBefore?.focus());route(S.data?'explore':'title',true);}
   return {init,route,render,dispatch,icon,escape,get screen(){return screen;}};
 })();

@@ -24,6 +24,9 @@
 @keyframes damage-vignette{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){#stage.damage-taken>section{animation:none!important}.vitality-loss{opacity:1;transform:none}}
 .battle-screen{position:relative}
+.battle-status{position:sticky;top:var(--hud-height,calc(124px + env(safe-area-inset-top)));z-index:20;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;padding:0 12px 6px;background:var(--bg);box-shadow:0 5px 12px #0005}
+.battle-status .fighter{display:flex}
+.battle-status .fighter-info{width:100%}
 .battle-screen.combat-impact{animation:combat-shake .54s ease-out}
 .fighter-art{position:relative}
 .struck-enemy{animation:enemy-impact .55s ease-out}
