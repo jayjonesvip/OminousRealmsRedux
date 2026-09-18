@@ -6,9 +6,9 @@ OR.world=(()=>{
   const realm=(x,y)=>local(x,y)?'Strongwood Village':'The Outer Realm';
   const at=(x,y)=>S.data.blocks.find(b=>b.x===x&&b.y===y);
   function spawn(type,x,y){const candidates=Object.values(C.entities).filter(e=>e.type===type&&(e.id!=='villager'||local(x,y)));const e=C.pick(candidates);return {x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};}
-  function getOrCreateBlock(x,y,revisit=false){
+  function getOrCreateBlock(x,y){
     let b=at(x,y);
-    if(b){if(revisit&&b.elementType==='Nature'&&!b.cleared){const type=Math.random()<0.5?'Danger':local(x,y)?'Danger':'Enemy';Object.assign(b,spawn(type,x,y));}return b;}
+    if(b)return b;
     let type;
     if(x===0&&y===0)type='Home';
     else if(Math.max(Math.abs(x),Math.abs(y))===1)type='NPC';
@@ -54,7 +54,7 @@ OR.world=(()=>{
     if(s.hp.current<=1)return rescueIfNeeded()||false;
     s.homecoming=null;
     const wasLocal=local(s.x,s.y);s.x+=delta[0];s.y+=delta[1];s.direction=direction;s.steps++;s.state='Explore';
-    const b=getOrCreateBlock(s.x,s.y,true);b.resolved=false;
+    const b=getOrCreateBlock(s.x,s.y);b.resolved=false;
     if(wasLocal&&!local(s.x,s.y))S.log('THE VEIL BREAKS. Strongwood’s warmth dies behind you.');
     S.log(description(b));findHealing();S.syncRest();S.save();return b;
   }

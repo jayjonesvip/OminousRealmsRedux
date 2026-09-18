@@ -52,7 +52,23 @@ test('walking never grants extra potions when healthy or already carrying one',(
 test('walking cannot grant healing during battle and does not erase a dragon',()=>{const g=game();const b=g.place('Dragon','dragon',27,0);b.dragonHp=600;g.combat.start();g.state.data.hp.current=10;assert.equal(g.world.move('N'),false);assert.equal(g.state.qty('Potion'),0);g.combat.flee();g.place('Nature','forest',27,1);g.rng(.99);g.world.move('N');assert.equal(g.world.current().elementType,'Dragon');assert.equal(g.world.current().dragonHp,600);assert.equal(g.state.qty('Potion'),1);});
 test('mushrooms spawn in Strongwood and heal without leaving the village',()=>{const g=game();g.rng(.5);const b=g.world.getOrCreateBlock(5,5);assert.equal(b.elementType,'Food');assert.equal(b.subtype,'mushrooms');g.state.data.x=5;g.state.data.y=5;g.state.data.hp.current=1;g.actions.eat();assert.equal(g.state.data.hp.current,50);});
 test('walking pickup shows potion card and toast, then full healing clears the find',()=>{const g=game(new Map(),true);g.state.data.hp.current=10;g.ui.dispatch('move:N');assert.match(g.nodes.stage.innerHTML,/HEALING FOUND/);assert.match(g.nodes.stage.innerHTML,/DRINK POTION/);assert.match(g.nodes.toast.innerHTML,/POTION FOUND/);g.ui.dispatch('potion');assert.equal(g.state.data.hp.current,50);assert.equal(g.state.qty('Potion'),0);assert.equal(g.state.data.lastFind,null);assert.ok(!g.nodes.stage.innerHTML.includes('HEALING FOUND'));});
-test('Nature revisits become Danger locally and can become Enemy outside',()=>{const g=game();g.place('Nature','forest',3,3);g.rng(.9);assert.equal(g.world.getOrCreateBlock(3,3,true).elementType,'Danger');g.place('Nature','forest',27,0);assert.equal(g.world.getOrCreateBlock(27,0,true).elementType,'Enemy');});
+test('walking north then south preserves every discovered encounter across reloads without rerolling',()=>{
+  const content=game().content;
+  for(const e of Object.values(content.entities))for(const x of [3,30,-30]){
+    if(e.type==='Home'||(e.id==='villager'&&Math.abs(x)>25))continue;
+    const g=game(),b=g.place(e.type,e.id,x,3);
+    if(e.type==='Dragon'){b.dragonHp=321;b.dragonMaxHp=500;}
+    if(e.type==='BuriedItems'){b.digDepth=5;b.dug=2;}
+    const original={type:b.elementType,id:b.subtype,dragonHp:b.dragonHp,dug:b.dug};
+    g.place('Nature','forest-path',x,2);g.state.data.y=3;
+    g.ctx.Math.random=()=>{throw Error('Revisiting discovered ground must not roll a new encounter');};
+    for(let i=0;i<3;i++){
+      assert.ok(g.world.move('N'));assert.equal(g.world.current().subtype,'forest-path');
+      g.state.load();assert.ok(g.world.move('S'));g.state.load();
+      const current=g.world.current();assert.deepEqual({type:current.elementType,id:current.subtype,dragonHp:current.dragonHp,dug:current.dug},original);
+    }
+  }
+});
 test('damage honors power, armor, misses and Lucky Coin accuracy',()=>{const g=game();g.rng(.91);const m={power:5,accuracy:90};assert.equal(g.combat.damage(5,m,10),0);assert.equal(g.combat.damage(5,m,10,true),9);g.rng(.9999);assert.equal(g.combat.damage(5,{power:0,accuracy:100},0),5);});
 test('win clears coordinate, rewards once, and persists outcome',()=>{const g=game();g.rng(0);g.place('Danger','snake');g.combat.start();g.state.data.battle.enemy.hp=1;g.combat.attack(1);assert.equal(g.state.data.victories,1);assert.equal(g.world.current().elementType,'Nature');assert.equal(g.state.data.battle,null);assert.ok(g.state.data.outcome.win);const count=g.state.data.inventory.reduce((n,i)=>n+i.qty,0);assert.equal(count,1);g.state.load();assert.ok(g.state.data.outcome);g.combat.claim();g.combat.claim();assert.equal(g.state.data.inventory.reduce((n,i)=>n+i.qty,0),count);});
 test('unconsciousness floors health at 1 without erasing the warrior',()=>{const g=game();g.place('Enemy','ogre',27,0);g.combat.start();g.state.data.battle.enemy.basePower=1000;g.state.data.battle.enemy.hp=1000;g.rng(0);g.combat.attack(0);assert.equal(g.state.data.hp.current,1);assert.equal(g.state.data.outcome.win,false);assert.equal(g.state.data.victories,0);assert.equal(g.world.current().elementType,'Home');assert.equal(g.world.at(27,0).elementType,'Enemy');assert.equal(g.state.data.x,0);assert.equal(g.state.data.y,0);});
