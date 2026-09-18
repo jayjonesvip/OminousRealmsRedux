@@ -13,9 +13,9 @@ OR.world=(()=>{
     if(x===0&&y===0)type='Home';
     else if(Math.max(Math.abs(x),Math.abs(y))===1)type='NPC';
     else{
-      const types=Object.keys(C.weights).filter(t=>t!=='Home'&&(!local(x,y)||!C.outerOnly.includes(t)));
-      let roll=Math.random()*types.reduce((n,t)=>n+C.weights[t],0);
-      type=types.find(t=>(roll-=C.weights[t])<0)||'Nature';
+      const rates=C.encounterRates(local(x,y)),types=Object.keys(rates);
+      let roll=Math.random()*100;
+      type=types.find(t=>(roll-=rates[t])<0)||types[types.length-1];
     }
     b=spawn(type,x,y);S.data.blocks.push(b);return b;
   }

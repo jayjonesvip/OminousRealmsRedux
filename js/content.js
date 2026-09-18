@@ -76,8 +76,15 @@ OR.content = (() => {
   const entities = Object.fromEntries(entries.map(([type,id,name,village,outer])=>[id,{type,id,name,village,outer}]));
   const weights = {Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2};
   const outerOnly = ['Enemy','Dragon','LockedItem'];
+  // Reserve 33% for wilderness in either realm; split the remaining 67%
+  // using the existing relative weights of the eligible encounter types.
+  const encounterRates=isLocal=>{
+    const eligible=Object.entries(weights).filter(([type])=>type!=='Home'&&(!isLocal||!outerOnly.includes(type)));
+    const otherWeight=eligible.reduce((total,[type,weight])=>total+(type==='Nature'?0:weight),0);
+    return Object.fromEntries(eligible.map(([type,weight])=>[type,type==='Nature'?33:67*weight/otherWeight]));
+  };
   const random = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
   const pick = arr=>arr[random(0,arr.length-1)];
   const required = level=>5*Math.pow(1.5,level-1);
-  return {weapons,weapon,creatures,creature,items,entities,weights,outerOnly,random,pick,required};
+  return {weapons,weapon,creatures,creature,items,entities,weights,outerOnly,encounterRates,random,pick,required};
 })();

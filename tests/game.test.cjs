@@ -26,7 +26,7 @@ test('critical health finds a potion on the next step without replacing the tile
 test('low-health healing is guaranteed by three steps even on previously explored paths',()=>{const g=game();g.state.data.hp.current=25;g.rng(.99);g.world.move('N');assert.equal(g.state.qty('Potion'),0);g.state.load();g.world.move('S');assert.equal(g.state.qty('Potion'),0);g.world.move('N');assert.equal(g.state.qty('Potion'),1);assert.equal(g.state.data.healingSearchSteps,0);assert.equal(g.world.current().elementType,'NPC');});
 test('walking never grants extra potions when healthy or already carrying one',()=>{const g=game();g.rng(0);for(let i=0;i<8;i++)g.world.move('N');assert.equal(g.state.qty('Potion'),0);g.state.data.hp.current=10;g.state.add('Potion');for(let i=0;i<8;i++)g.world.move('S');assert.equal(g.state.qty('Potion'),1);assert.equal(g.state.data.lastFind,null);});
 test('walking cannot grant healing during battle and does not erase a dragon',()=>{const g=game();const b=g.place('Dragon','dragon',27,0);b.dragonHp=600;g.combat.start();g.state.data.hp.current=10;assert.equal(g.world.move('N'),false);assert.equal(g.state.qty('Potion'),0);g.combat.flee();g.place('Nature','forest',27,1);g.rng(.99);g.world.move('N');assert.equal(g.world.current().elementType,'Dragon');assert.equal(g.world.current().dragonHp,600);assert.equal(g.state.qty('Potion'),1);});
-test('mushrooms spawn in Strongwood and heal without leaving the village',()=>{const g=game();g.rng(.45);const b=g.world.getOrCreateBlock(5,5);assert.equal(b.elementType,'Food');assert.equal(b.subtype,'mushrooms');g.state.data.x=5;g.state.data.y=5;g.state.data.hp.current=1;g.actions.eat();assert.equal(g.state.data.hp.current,50);});
+test('mushrooms spawn in Strongwood and heal without leaving the village',()=>{const g=game();g.rng(.5);const b=g.world.getOrCreateBlock(5,5);assert.equal(b.elementType,'Food');assert.equal(b.subtype,'mushrooms');g.state.data.x=5;g.state.data.y=5;g.state.data.hp.current=1;g.actions.eat();assert.equal(g.state.data.hp.current,50);});
 test('walking pickup shows potion card and toast, then full healing clears the find',()=>{const g=game(new Map(),true);g.state.data.hp.current=10;g.ui.dispatch('move:N');assert.match(g.nodes.stage.innerHTML,/HEALING FOUND/);assert.match(g.nodes.stage.innerHTML,/DRINK POTION/);assert.match(g.nodes.toast.innerHTML,/POTION FOUND/);g.ui.dispatch('potion');assert.equal(g.state.data.hp.current,50);assert.equal(g.state.qty('Potion'),0);assert.equal(g.state.data.lastFind,null);assert.ok(!g.nodes.stage.innerHTML.includes('HEALING FOUND'));});
 test('Nature revisits become Danger locally and can become Enemy outside',()=>{const g=game();g.place('Nature','forest',3,3);g.rng(.9);assert.equal(g.world.getOrCreateBlock(3,3,true).elementType,'Danger');g.place('Nature','forest',27,0);assert.equal(g.world.getOrCreateBlock(27,0,true).elementType,'Enemy');});
 test('damage honors power, armor, misses and Lucky Coin accuracy',()=>{const g=game();g.rng(.91);const m={power:5,accuracy:90};assert.equal(g.combat.damage(5,m,10),0);assert.equal(g.combat.damage(5,m,10,true),9);g.rng(.9999);assert.equal(g.combat.damage(5,{power:0,accuracy:100},0),5);});
@@ -218,4 +218,23 @@ test('new rounds replace old notices and leaving battle cancels the pending enem
   g.ui.dispatch('attack:0');assert.equal(g.nodes['combat-toasts'].children.length,1);assert.match(g.nodes['combat-toasts'].innerHTML,/ROUND 2/);
   g.ui.route('pack');timers.flush();assert.equal(g.nodes['combat-toasts'].children.length,0);
   assert.equal([...timers.pending.values()].filter(t=>t.ms===5000).length,0);
+});
+
+
+test('new-coordinate wilderness is 33 percent in both realms with proportional remaining encounters',()=>{
+  for(const local of [true,false]){
+    const g=game(),rates=g.content.encounterRates(local);
+    assert.equal(rates.Nature,33);assert.ok(Math.abs(Object.values(rates).reduce((a,b)=>a+b,0)-100)<1e-10);
+    const others=Object.entries(rates).filter(([type])=>type!=='Nature');
+    const totalWeight=others.reduce((sum,[type])=>sum+g.content.weights[type],0);
+    for(const [type,rate] of others)assert.ok(Math.abs(rate-67*g.content.weights[type]/totalWeight)<1e-10,type);
+    assert.equal(Object.hasOwn(rates,'Home'),false);
+    for(const type of g.content.outerOnly)assert.equal(Object.hasOwn(rates,type),!local);
+    let start=0,i=0;
+    for(const [type,rate] of Object.entries(rates)){
+      g.rng((start+rate/2)/100);assert.equal(g.world.getOrCreateBlock(local?3:27,3+i++).elementType,type);start+=rate;
+    }
+    g.rng(.329999);assert.equal(g.world.getOrCreateBlock(local?4:28,3).elementType,'Nature');
+    g.rng(.33);assert.equal(g.world.getOrCreateBlock(local?4:28,4).elementType,'NPC');
+  }
 });
