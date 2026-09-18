@@ -141,6 +141,7 @@ test('walking north then south preserves every discovered encounter across reloa
   for(const e of Object.values(content.entities))for(const x of [3,30,-30]){
     if(e.type==='Home'||(e.id==='villager'&&Math.abs(x)>25))continue;
     const g=game(),b=g.place(e.type,e.id,x,3);
+    if(e.type==='Landmark')g.state.data.village.visits[e.id]=true;
     if(e.type==='Dragon'){b.dragonHp=321;b.dragonMaxHp=500;}
     if(e.type==='BuriedItems'){b.digDepth=5;b.dug=2;}
     const original={type:b.elementType,id:b.subtype,dragonHp:b.dragonHp,dug:b.dug};
@@ -610,5 +611,11 @@ test('grandfather appears once after all offerings on the next off-trail move, p
 });
 test('gold compass hint follows bends and revisits unfinished stops then disappears',()=>{
  const g=game(new Map(),true);assert.equal(g.village.trailHint(),'N');const r=g.state.data.village.routes[0];g.state.data.x=r.nodes[1].x;g.state.data.y=r.nodes[1].y;assert.equal(g.village.trailHint(),r.nodes[2].x>r.nodes[1].x?'E':'W');g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/trail-hint/);
- const last=g.state.data.village.routes.at(-1).nodes.at(-1);g.state.data.x=last.x;g.state.data.y=last.y;assert.equal(g.village.trailHint(),'S');for(const id of g.village.destinations)g.state.data.village.visits[id]=true;assert.equal(g.village.trailHint(),'');
+ const last=g.state.data.village.routes.at(-1).nodes.at(-1);g.state.data.x=last.x;g.state.data.y=last.y;assert.equal(g.village.trailHint(),'');g.state.data.village.visits['herbalist-cottage']=true;assert.equal(g.village.trailHint(),'S');for(const id of g.village.destinations)g.state.data.village.visits[id]=true;assert.equal(g.village.trailHint(),'');
+});
+test('unvisited landmarks require entry and acceptance before movement',()=>{
+ for(const id of ['village-forge','tavern','wizard-sanctuary','herbalist-cottage']){
+  const g=game(new Map(),true),n=g.state.data.village.routes.find(r=>r.destination===id).nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;g.ui.route('explore');assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);assert.match(g.nodes.stage.innerHTML,/ENTER THE/);assert.equal(g.world.move('N'),false);g.ui.dispatch('move:N');assert.equal(g.state.data.y,n.y);
+  g.ui.dispatch(id==='village-forge'?'forge:armor':'village:speak');assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);g.ui.dispatch('village:claim');assert.match(g.nodes.stage.innerHTML,/data-action="move:N"/);assert.ok(g.world.move('N'));
+ }
 });

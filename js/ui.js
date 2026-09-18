@@ -60,7 +60,7 @@ OR.ui=(()=>{
     return '<div class="puzzle-panel">'+eyebrow('INSCRIPTION · '+rule.name.toUpperCase())+'<p class="puzzle-clue">“'+escape(P.clue(b))+'”</p>'+controls+'</div>';
   }
   function landmarkActions(b){
-    if(b.subtype==='village-forge')return btn('ENTER THE FORGE '+icon('forge'),'forge:armor');
+    if(b.subtype==='village-forge')return activeDialogue(b)?(V.completed(b.subtype)?'':btn('ACCEPT INGOTS','village:claim')):btn('ENTER THE FORGE '+icon('forge'),'forge:armor');
     if(V.completed(b.subtype))return '';
     if(activeDialogue(b))return btn(b.subtype==='wizard-sanctuary'?'ACCEPT ENCHANTMENT':b.subtype==='tavern'?'ACCEPT WISDOM':'ACCEPT POTION','village:claim');
     return btn(b.subtype==='tavern'?'ENTER THE TAVERN':b.subtype==='wizard-sanctuary'?'ENTER THE SANCTUARY':'ENTER THE COTTAGE','village:speak');
@@ -186,6 +186,7 @@ OR.ui=(()=>{
     const s=S.data,atForge=A.atForge(),ready=A.canCraft(),home=W.current().subtype==='village-forge'||S.data.village?.legacy&&s.x===0&&s.y===0;
     const other=forgeFocus==='armor'?'weapon':'armor';
     const introduction=W.current().subtype==='village-forge'&&activeDialogue(W.current());
+    if(introduction)return explore(true);
     const notice=!atForge?'Visit a forge to enhance. Follow a village path to Eldric’s forge.':!ready?'Finish your battle or gather your rewards before upgrading.':'Metal ingots reinforce armor. Steel ingots enhance weapons.';
     return '<section class="page">'+sectionHead(atForge?'TEMPER YOUR LEGEND':'KNOW YOUR EQUIPMENT',atForge?(home?'ELDRIC’S FORGE.':'WAYFARER’S FORGE.'):'YOUR EQUIPMENT.')+
       (atForge?'<div class="forge-art">'+art(home?'forge-village':'forge-'+(W.local(s.x,s.y)?'village':'outer'),home?'Eldric at his home forge':'A permanent wayfarer forge','cover')+'</div>':'')+

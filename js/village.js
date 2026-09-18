@@ -83,7 +83,7 @@ OR.village=(()=>{
     const target=nodes.findIndex(n=>n.x===end.x&&n.y===end.y);if(current===target)return '';
     const next=nodes[current+(target>current?1:-1)];return next.x>S.data.x?'E':next.x<S.data.x?'W':next.y>S.data.y?'S':'N';
   }
-  function pendingGift(){const b=OR.world.current();return destinations.includes(b.subtype)&&!!b.dialogue&&!b.dialogue.dismissed&&!completed(b.subtype);}
+  function pendingGift(){const b=OR.world.current();return b.elementType==='Landmark'&&destinations.includes(b.subtype)&&!completed(b.subtype);}
   function empty(b){return completed(b.subtype)&&!(b.resolved&&b.dialogue&&!b.dialogue.dismissed);}
   function description(b){
     if(b.elementType==='Home'&&allVisited())return 'Your hearth is here whenever you need it. The path you choose from here is your own.';
