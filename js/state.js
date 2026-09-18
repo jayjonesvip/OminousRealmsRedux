@@ -20,6 +20,8 @@ OR.state = (() => {
       data.enchanted=typeof parsed.enchanted==='boolean'?parsed.enchanted:true;
       OR.village?.setup(true);
       for(const b of data.blocks)if(b.elementType==='Nature'&&b.subtype==='forest-path'){b.subtype='forest';}
+      // Unmarked graves belong beyond the Strongwood boundary.
+      for(const b of data.blocks)if(b.subtype==='grave'&&Math.abs(b.x)<=25&&Math.abs(b.y)<=25){b.elementType='Thing';b.subtype='figurine';}
       data.weapon.moves=OR.content.weapon(data.weapon.type).moves;
       data.armor.craftCost=data.armor.craftCost||data.armor.resistance;
       data.journal=data.journal.slice(-50);

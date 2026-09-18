@@ -140,7 +140,7 @@ test('walking pickup shows potion card and toast, then full healing clears the f
 test('walking north then south preserves every discovered encounter across reloads without rerolling',()=>{
   const content=game().content;
   for(const e of Object.values(content.entities))for(const x of [3,30,-30]){
-    if(e.type==='Home'||(e.id==='villager'&&Math.abs(x)>25))continue;
+    if(e.type==='Home'||(e.id==='villager'&&Math.abs(x)>25)||(e.id==='grave'&&Math.abs(x)<=25))continue;
     const g=game(),b=g.place(e.type,e.id,x,3);
     if(e.type==='Landmark')g.state.data.village.visits[e.id]=true;
     if(e.type==='Dragon'){b.dragonHp=321;b.dragonMaxHp=500;}
@@ -469,10 +469,11 @@ test('new-coordinate rates reserve quiet terrain, scarce NPCs and increased oute
   }
 });
 
-test('new scenery, animals and grave can spawn, render in both realms and survive a save',()=>{
+test('new scenery and animals spawn in both realms while graves stay outside Strongwood',()=>{
   const added={Nature:['dense-woodland','leafy-clearing','grassy-rise'],Animal:['boar','hedgehog','otter','marten'],Thing:['grave']};
   const g=game(new Map(),true);g.ui.init();
   for(const [type,ids] of Object.entries(added))for(const id of ids)for(const local of [true,false]){
+    if(id==='grave'&&local)continue;
     const pool=Object.values(g.content.entities).filter(e=>e.type===type);
     g.rng((pool.findIndex(e=>e.id===id)+.5)/pool.length);
     assert.equal(g.world.spawn(type,local?6:29,6).subtype,id);
@@ -622,4 +623,9 @@ test('unvisited landmarks require entry and acceptance before movement',()=>{
 });
 test('long dialogue pages before acceptance and preserves progress on reload',()=>{
  const g=game(new Map(),true),n=g.state.data.village.routes.find(r=>r.destination==='wizard-sanctuary').nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;g.ui.dispatch('village:speak');assert.match(g.nodes.stage.innerHTML,/data-action="next-dialogue"/);assert.doesNotMatch(g.nodes.stage.innerHTML,/ACCEPT ENCHANTMENT/);assert.match(g.nodes.stage.innerHTML,/dialogue-dock/);g.ui.dispatch('next-dialogue');assert.equal(g.world.current().dialogue.page,1);g.state.load();g.ui.route('explore');assert.equal(g.world.current().dialogue.page,1);finishDialogue(g);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="next-dialogue"/);assert.match(g.nodes.stage.innerHTML,/ACCEPT ENCHANTMENT/);assert.equal(g.state.data.enchanted,false);g.ui.dispatch('village:claim');assert.equal(g.state.data.enchanted,true);
+});
+test('graves never spawn in Strongwood and old local graves become figurines without moving coordinates',()=>{
+ const g=game();for(const [x,y] of [[0,0],[25,25],[-25,-25]])for(let i=0;i<100;i++){g.rng(i/100);assert.notEqual(g.world.spawn('Thing',x,y).subtype,'grave');}
+ for(const [x,y] of [[26,0],[-26,0],[0,26],[0,-26]]){g.rng(.999);assert.equal(g.world.spawn('Thing',x,y).subtype,'grave');}
+ g.place('Thing','grave',25,25);g.place('Thing','grave',26,25);g.state.save();g.state.load();assert.equal(g.world.at(25,25).subtype,'figurine');assert.equal(g.world.at(26,25).subtype,'grave');
 });
