@@ -43,7 +43,7 @@ OR.dialogue=(()=>{
         ['tip','A key opens a locked chest, then it is gone. Make the opening count.'],
         ['tip','A gem can buy your way out of a fight. Pride is a poor substitute for supplies.'],
         ['tip','Falling sends you home with one breath left. It does not empty your pack.'],
-        ['tip','You only recover by resting at home. Waiting out here will not mend a thing.'],
+        ['tip','Rest only restores health at home. Waiting out here will not mend a thing.'],
         ['tip','If you are badly hurt and have no potion, watch the path as you walk. Help can turn up.'],
         ['tip','The journal keeps recent events. Read it when the days start running together.'],
         ['rambling','That ruined doorway has moved since this morning. Or the morning has moved.'],
@@ -86,7 +86,7 @@ OR.dialogue=(()=>{
         ['tip','Rest at your cottage before another expedition. Home does more for wounds than stubbornness.'],
         ['tip','Your pack counts the ingots you have. An upgrade takes the amount shown, no promises accepted.'],
         ['tip','Armor cuts incoming damage. A little reinforcement can matter over several fights.'],
-        ['tip','The path can change when you revisit it. Yesterday was never a guarantee of today.'],
+        ['tip','Uncleared ground can turn dangerous on a return visit. A threat you defeat stays gone.'],
         ['rambling','My scarecrow faces east at dawn and west at dusk. I refuse to ask how.'],
         ['rambling','The cabbages have been discussing me. They go quiet when I water them.'],
         ['rambling','A worm brought me a pebble. Either we are friends now or I owe rent.'],
@@ -130,7 +130,7 @@ OR.dialogue=(()=>{
         ['angry','Try that on a thistle patch. It might actually be useful.'],
         ['angry','You nearly cut my seed bag! Have you any idea what a season costs?'],
         ['angry','I grow food. You apparently grow problems.'],
-        ['angry','Put the blade away before you frighten something with more sense than you.'],
+        ['angry','Put the weapon away before you frighten something with more sense than you.'],
         ['angry','If you need exercise, there is a field full of stones.'],
         ['angry','That swing had all the grace of a pig on ice.'],
         ['angry','My grandmother chased wolves with a rake. Do not test the family tradition.'],
@@ -196,7 +196,7 @@ OR.dialogue=(()=>{
       attacked:[
         ['angry','I know where an axe is going before the fool holding it does.'],
         ['angry','Trees stand still. I do not. Remember the distinction.'],
-        ['angry','Keep swinging like that and you will ruin the edge.'],
+        ['angry','Keep swinging like that and you will break something you need.'],
         ['angry','You want a fight? Find something that is not earning its supper.'],
         ['angry','That was close to my thumb. I am rather attached to my thumb.'],
         ['angry','I have ducked heavier branches than you.'],
@@ -221,7 +221,7 @@ OR.dialogue=(()=>{
         ['tip','Enemies can miss too. Watch their result before choosing your next move.'],
         ['tip','A Lucky Coin stays in your pack and steadies every attack. You do not spend it.'],
         ['tip','Look at the map when you lose your bearings. Your own position is marked.'],
-        ['tip','Wandering back onto a quiet path can reveal danger. Keep your eyes open on the return trip.'],
+        ['tip','A quiet path may hide a new threat when you return. Ground you clear in battle stays safe.'],
         ['tip','The stronger blow is not always the better finish. Sometimes you only need a little damage.'],
         ['rambling','A hare stared at me until I apologized. I still do not know what I did.'],
         ['rambling','That owl knows my business. I can tell by its disappointing little face.'],
@@ -247,7 +247,7 @@ OR.dialogue=(()=>{
         ['tip','A gem buys a victory through bribery. It is another tool, not a confession of weakness.'],
         ['tip','Check your potion before starting a fight. The enemy will not wait for a shopping trip.'],
         ['tip','You cannot upgrade gear during a fight. Spend those ingots before you draw steel.'],
-        ['tip','The gargoyle uses sword moves. Some are more accurate than others; none deserve your trust.'],
+        ['tip','The gargoyle fights with talons and heavy wings. Stone hide softens your blows.'],
         ['tip','Realmfire has perfect accuracy, but each use consumes a crystal. Make it matter.'],
         ['tip','Winning enough battles raises your level and restores your health. Watch your victory count.'],
         ['rambling','These tracks begin in the middle of the road. I dislike beginnings without explanations.'],
@@ -271,7 +271,7 @@ OR.dialogue=(()=>{
         ['angry','Lower it. You are not the only one here who knows where a throat is.'],
         ['angry','You could have walked past. That was the clever option.'],
         ['angry','Miss again somewhere else.'],
-        ['angry','Keep your blade. Find yourself some judgment.']
+        ['angry','Keep your weapon. Find yourself some judgment.']
       ]
     },
     elder:{

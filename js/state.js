@@ -16,6 +16,8 @@ OR.state = (() => {
       data.weapon.moves=OR.content.weapon(data.weapon.type).moves;
       data.armor.craftCost=data.armor.craftCost||data.armor.resistance;
       data.journal=data.journal.slice(-50);
+      // Retire ambiguous legacy banners without rewriting the journal history.
+      if(['Not every shadow needs your steel.','You leave it to the forest.','Another day. Another fight.'].includes(data.message))data.message='';
       // Older saves kept cleared encounters as resolved clearings without a flag.
       // Preserve that ground rather than allowing another threat to spawn there.
       for(const b of data.blocks)if(b.cleared===undefined&&b.elementType==='Nature'&&b.subtype==='clearing'&&b.resolved)b.cleared=true;

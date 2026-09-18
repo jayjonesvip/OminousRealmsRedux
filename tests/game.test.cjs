@@ -37,7 +37,7 @@ test('food heals wounded warrior but poisons a full warrior',()=>{const g=game()
 test('digging spends health per foot and rewards only a completed dig',()=>{const g=game();g.rng(0);g.place('BuriedItems','dig');g.actions.dig();assert.equal(g.world.current().digDepth,3);assert.equal(g.state.data.hp.current,49);assert.equal(g.state.data.inventory.length,0);g.actions.dig();g.actions.dig();assert.equal(g.state.data.hp.current,47);assert.equal(g.world.current().elementType,'Nature');assert.equal(g.state.data.inventory.length,0);assert.equal(g.state.data.foundLoot.rewards.length,1);g.actions.gatherLoot();assert.equal(g.state.data.inventory.length,1);});
 test('failed dig never rewards or kills',()=>{const g=game();g.place('BuriedItems','dig');g.rng(.99);g.state.data.hp.current=2;g.actions.dig();assert.equal(g.state.data.hp.current,1);assert.equal(g.state.data.inventory.length,0);assert.equal(g.actions.dig(),false);});
 test('chest requires and consumes key once',()=>{const g=game();g.place('LockedItem','chest',27,0);assert.equal(g.actions.unlock(),false);g.state.add('Key');g.rng(0);g.actions.unlock();assert.equal(g.state.qty('Key'),0);assert.equal(g.world.current().elementType,'Nature');assert.equal(g.actions.unlock(),false);});
-test('NPC attacks are dodged; talk resolves without damage',()=>{const g=game();g.place('NPC','villager');g.actions.talk(true);assert.equal(g.state.data.hp.current,50);assert.match(g.state.data.message,/sidestep/);assert.equal(g.world.current().resolved,true);});
+test('NPC attacks are dodged; talk resolves without damage',()=>{const g=game();g.place('NPC','villager');g.actions.talk(true);assert.equal(g.state.data.hp.current,50);assert.match(g.state.data.message,/move beyond your reach/);assert.equal(g.world.current().resolved,true);});
 test('upgrades work away from forges with exact increasing material costs',()=>{const g=game();g.state.add('MetalIngot',25);g.state.add('SteelIngot',20);g.place('Nature','forest');assert.equal(g.actions.craft('armor'),true);assert.equal(g.state.qty('MetalIngot'),15);assert.equal(g.actions.armorCost(),11);assert.equal(g.actions.craft('weapon'),true);assert.equal(g.state.qty('SteelIngot'),14);assert.equal(g.actions.weaponCost(),7);});
 test('potions heal fully and cannot be wasted at full health',()=>{const g=game();g.state.add('Potion',2);assert.equal(g.actions.potion(),false);g.state.data.hp.current=1;assert.equal(g.actions.potion(),true);assert.equal(g.state.data.hp.current,50);assert.equal(g.state.qty('Potion'),1);});
 test('injury biases Potion and unique relics never duplicate',()=>{const g=game();g.state.data.hp.current=20;g.rng(.2);assert.equal(g.state.loot(),'Potion');g.state.add('MagicCrystal');g.state.add('LuckyCoin');for(let i=0;i<101;i++){g.rng(i/101);assert.ok(!['MagicCrystal','LuckyCoin'].includes(g.state.loot()));}});
@@ -143,4 +143,53 @@ test('an existing creature battle sheds old equipment without losing health or p
   const saved=g.state.data.battle;assert.equal(saved.round,4);assert.equal(saved.enemy.hp,12);
   assert.equal(saved.enemy.weapon,null);assert.equal(saved.enemy.resistance,0);
   assert.deepEqual(Array.from(saved.enemy.moves,m=>m.name),['Wing Bash','Bite','Diving Bite']);
+});
+
+
+test('passing any NPC silently clears old narration and returns to directions without journal noise',()=>{
+  for(const id of ['villager','farmer','woodcutter','hunter','elder'])for(const x of [3,27]){
+    const g=game(new Map(),true);g.place('NPC',id,x,3);g.state.log('An earlier event.');
+    const count=g.state.data.journal.length;g.ui.dispatch('ignore');
+    assert.equal(g.state.data.message,'');assert.equal(g.state.data.journal.length,count);
+    assert.equal(g.world.current().resolved,true);assert.match(g.nodes.stage.innerHTML,/CHOOSE YOUR PATH/);
+    assert.doesNotMatch(g.nodes.stage.innerHTML,/recent-message|An earlier event|Another fight/);
+    g.state.load();g.ui.route('explore');assert.doesNotMatch(g.nodes.stage.innerHTML,/recent-message/);
+  }
+});
+
+test('old generic walking-away banners disappear on load while journal history stays intact',()=>{
+  for(const line of ['Not every shadow needs your steel.','You leave it to the forest.','Another day. Another fight.']){
+    const g=game(new Map(),true);g.place('NPC','elder');g.world.current().resolved=true;
+    g.state.log(line);g.state.save();g.state.load();g.ui.route('explore');
+    assert.equal(g.state.data.message,'');assert.equal(g.state.data.journal.at(-1),line);
+    assert.doesNotMatch(g.nodes.stage.innerHTML,/recent-message/);
+  }
+});
+
+test('walking-away narration reflects threats, untouched items, used forges and partial digs',()=>{
+  for(const [type,id,pattern] of [
+    ['Danger','bat',/You avoid Angry Bat. The threat remains here/],
+    ['Enemy','ogre',/You avoid Ironjaw Ogre. The threat remains here/],
+    ['Dragon','dragon',/You avoid Verdant Dragon. The threat remains here/],
+    ['Food','mushrooms',/mushrooms untouched/],['LockedItem','chest',/chest locked/],
+    ['BuriedItems','dig',/disturbed earth untouched/],['Craft','forge',/step away from the forge/]
+  ]){
+    const g=game();const b=g.place(type,id,27,3);g.actions.ignore();
+    assert.match(g.state.data.message,pattern);assert.equal(b.elementType,type);
+    assert.doesNotMatch(g.state.data.message,/Another day|Another fight|leave it to the forest|poison/i);
+  }
+  const g=game();g.place('BuriedItems','dig');g.rng(0);g.actions.dig();g.actions.ignore();
+  assert.match(g.state.data.message,/stop digging.*unfinished hole/);assert.equal(g.world.current().dug,1);
+  g.place('Craft','forge');g.state.add('SteelIngot',6);g.actions.craft('weapon');g.actions.ignore();
+  assert.match(g.state.data.message,/step away from the forge/);assert.equal(g.state.data.weapon.basePower,6);
+});
+
+test('weapon narration fits hammers and chest narration identifies the actual collected loot',()=>{
+  const g=game(new Map(),true);g.state.data.weapon=g.content.weapon('Hammer');g.place('NPC','elder');
+  g.actions.talk(true);assert.match(g.world.current().dialogue.narration,/beyond your reach/);
+  g.state.add('SteelIngot',6);g.actions.craft('weapon');assert.match(g.state.data.message,/hammer is reinforced/);
+  g.ui.route('forge');assert.match(g.nodes.stage.innerHTML,/REFORGE/);assert.doesNotMatch(g.nodes.stage.innerHTML,/RESHARPEN/);
+  g.place('LockedItem','chest',27,3);g.state.add('Key');g.rng(0);g.actions.unlock();
+  assert.equal(g.state.qty('Key'),0);assert.match(g.state.data.message,/unlock the chest.*Metal Ingot added to your pack/);
+  assert.equal(g.state.qty('MetalIngot'),1);
 });
