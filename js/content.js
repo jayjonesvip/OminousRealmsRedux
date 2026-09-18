@@ -100,6 +100,7 @@ OR.content = (() => {
   };
   const random = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
   const pick = arr=>arr[random(0,arr.length-1)];
-  const required = level=>5*Math.pow(1.5,level-1);
+  // Victories earned within this level, not a lifetime victory threshold.
+  const required = level=>Math.ceil(5*Math.pow(1.5,level-1));
   return {weapons,weapon,creatures,creature,items,entities,weights,outerOnly,encounterRates,random,pick,required};
 })();

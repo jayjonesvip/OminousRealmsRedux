@@ -34,6 +34,40 @@ test('win clears coordinate, rewards once, and persists outcome',()=>{const g=ga
 test('unconsciousness floors health at 1 without erasing the warrior',()=>{const g=game();g.place('Enemy','ogre',27,0);g.combat.start();g.state.data.battle.enemy.basePower=1000;g.state.data.battle.enemy.hp=1000;g.rng(0);g.combat.attack(0);assert.equal(g.state.data.hp.current,1);assert.equal(g.state.data.outcome.win,false);assert.equal(g.state.data.victories,0);assert.equal(g.world.current().elementType,'Home');assert.equal(g.world.at(27,0).elementType,'Enemy');assert.equal(g.state.data.x,0);assert.equal(g.state.data.y,0);});
 test('magic is locked without crystal and consumed on use',()=>{const g=game();g.place('Danger','skeleton');g.combat.start();assert.equal(g.combat.attack(3),false);g.state.add('MagicCrystal');g.rng(0);assert.ok(g.combat.attack(3));assert.equal(g.state.qty('MagicCrystal'),0);});
 test('level five-win threshold improves gear, max health, and heals',()=>{const g=game();g.state.data.victories=5;g.state.data.hp.current=12;assert.equal(g.combat.levelUp(),1);assert.equal(g.state.data.level,2);assert.equal(g.state.data.hp.max,58);assert.equal(g.state.data.hp.current,58);assert.equal(g.state.data.weapon.basePower,6);assert.equal(g.state.data.armor.resistance,11);assert.equal(g.combat.levelUp(),0);});
+test('each level consumes more new victories and carries excess wins forward once',()=>{
+  const g=game(),costs=[5,8,12,17,26,38];let total=0;
+  for(const [index,cost] of costs.entries()){
+    assert.equal(g.content.required(index+1),cost);
+    g.state.data.victories=total+cost-1;assert.equal(g.combat.levelUp(),0);assert.equal(g.state.levelProgress().remaining,1);
+    g.state.data.victories++;assert.equal(g.combat.levelUp(),1);total+=cost;
+    assert.equal(g.state.data.level,index+2);assert.equal(g.state.data.levelStartVictories,total);
+    assert.equal(g.state.levelProgress().earned,0);assert.equal(g.combat.levelUp(),0);
+    g.state.save();g.state.load();assert.equal(g.state.data.levelStartVictories,total);
+  }
+  const catchup=game();catchup.state.data.victories=15;assert.equal(catchup.combat.levelUp(),2);
+  assert.equal(catchup.state.data.level,3);assert.equal(catchup.state.levelProgress().earned,2);
+  assert.equal(catchup.state.levelProgress().remaining,10);assert.equal(catchup.state.data.victories,15);
+  assert.equal(catchup.combat.levelUp(),0);
+});
+test('legacy progression preserves level and earned wins across repeated loads',()=>{
+  const storage=new Map(),g=game(storage);g.state.data.level=3;g.state.data.victories=10;
+  g.state.data.hp={current:40,max:70.6};g.state.data.weapon.basePower=7;g.state.data.armor.resistance=12;
+  delete g.state.data.levelStartVictories;g.state.save();g.state.load();
+  assert.equal(g.state.data.level,3);assert.equal(g.state.data.levelStartVictories,8);
+  assert.equal(g.state.levelProgress().earned,2);assert.equal(g.state.levelProgress().remaining,10);
+  assert.equal(g.state.data.hp.max,70.6);assert.equal(g.state.data.weapon.basePower,7);assert.equal(g.state.data.armor.resistance,12);
+  assert.equal(g.combat.levelUp(),0);g.state.save();g.state.load();assert.equal(g.state.levelProgress().earned,2);
+  g.state.data.victories=20;assert.equal(g.combat.levelUp(),1);assert.equal(g.state.data.level,4);
+  assert.equal(g.state.data.levelStartVictories,20);assert.equal(g.state.levelProgress().remaining,17);
+});
+test('Hero progress and victory copy use current-level wins while keeping career victories',()=>{
+  const g=game(new Map(),true);g.state.data.victories=7;g.combat.levelUp();g.ui.init();g.ui.route('hero');
+  assert.match(g.nodes.stage.innerHTML,/2 \/ 8 WINS/);assert.match(g.nodes.stage.innerHTML,/width:25%/);
+  assert.match(g.nodes.stage.innerHTML,/<strong>7<\/strong><span>VICTORIES/);
+  g.place('Danger','snake');g.rng(0);g.combat.start();g.state.data.battle.enemy.hp=1;g.combat.attack(0);g.ui.route('aftermath');
+  assert.match(g.nodes.stage.innerHTML,/5 MORE WINS TO LEVEL 3/);
+  const e=g.combat.enemy(g.place('Enemy','ogre',27,0));assert.equal(e.maxHp,58);
+});
 test('dragon damage survives flee, revisits, and reload',()=>{const g=game();g.rng(0);const b=g.place('Dragon','dragon',27,0);b.dragonHp=500;g.combat.start();g.combat.attack(1);const hp=b.dragonHp;assert.ok(hp<500);g.combat.flee();g.state.load();g.combat.start();assert.equal(g.state.data.battle.enemy.hp,hp);assert.equal(g.state.data.battle.enemy.maxHp,500);});
 test('bribe costs one gem, wins and removes enemy',()=>{const g=game();g.place('Enemy','troll',27,0);g.combat.start();assert.equal(g.combat.bribe(),false);g.state.add('Gem');g.rng(0);assert.ok(g.combat.bribe());assert.equal(g.state.qty('Gem'),0);assert.equal(g.state.data.victories,1);assert.equal(g.world.current().elementType,'Nature');});
 test('dragon slain produces two large rewards and remains removed',()=>{const g=game();g.rng(0);const b=g.place('Dragon','dragon',27,0);b.dragonHp=1;g.combat.start();g.combat.attack(1);assert.equal(g.state.data.outcome.dragon,true);assert.equal(g.state.data.outcome.rewards.length,2);assert.ok(g.state.data.outcome.rewards.every(r=>r.qty>=3));assert.equal(g.world.current().dragonHp,null);});

@@ -11,7 +11,7 @@ OR.combat=(()=>{
     return {id:block.subtype,name:C.entities[block.subtype].name,level:S.data.level,hp:block.dragonHp||max,maxHp:max,basePower:base,resistance:armor,weapon:type,moves,...natural};
   }
   function start(){const s=S.data,b=W.current();if(s.battle||s.outcome||s.foundLoot||b.cleared||!['Danger','Enemy','Dragon'].includes(b.elementType))return false;const e=enemy(b);if(b.elementType==='Dragon')b.dragonMaxHp=e.maxHp;s.battle={enemyId:b.subtype,enemy:e,x:s.x,y:s.y,round:1,log:`${e.name} confronts you. Choose your opening.`};s.state='Battle';S.save();return true;}
-  function levelUp(){const s=S.data,old=s.level;while(s.victories>=C.required(s.level)){s.level++;s.hp.max+=1.2*s.victories+s.level;s.hp.current=s.hp.max;s.weapon.basePower++;s.armor.resistance=Math.min(95,s.armor.resistance+1);s.armor.craftCost=s.armor.resistance;}return s.level-old;}
+  function levelUp(){const s=S.data,old=s.level;while(S.levelProgress().remaining===0){const cost=C.required(s.level);s.levelStartVictories+=cost;s.level++;s.hp.max+=1.2*cost+s.level;s.hp.current=s.hp.max;s.weapon.basePower++;s.armor.resistance=Math.min(95,s.armor.resistance+1);s.armor.craftCost=s.armor.resistance;}return s.level-old;}
   function finish(win,bribed=false){
     const s=S.data,b=W.current(),isDragon=b.elementType==='Dragon',e=s.battle.enemy;
     let levels=0,rewards=[];
