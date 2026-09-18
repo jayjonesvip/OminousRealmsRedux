@@ -46,7 +46,7 @@
 .round-event>strong{font:600 24px/1.1 var(--display);white-space:nowrap}
 .round-event.hurt{background:#3e221dcc;color:#ff9c83}
 .round-event.miss{background:#202d37cc;color:#accde5}
-.round-event.magic-hit{background:#30243fcc;color:#d4a6ff}
+.round-event.hit,.round-event.magic-hit{background:#203b29cc;color:#b6efa4}
 #combat-toasts{position:fixed;top:calc(var(--hud-height,120px) + 8px);bottom:auto;left:50%;transform:translateX(-50%);width:calc(100% - 36px);max-width:394px;display:grid;gap:7px;z-index:80;pointer-events:none}
 .combat-toast{box-shadow:0 6px 25px #0009;animation:combat-toast-life 5s ease both}
 .combat-toast>span{min-width:0}
