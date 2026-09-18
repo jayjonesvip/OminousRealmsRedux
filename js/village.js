@@ -68,6 +68,7 @@ OR.village=(()=>{
     if(allVisited()){updateSpeech(b);S.log(names[b.subtype]+': '+farewell);}
     S.log((b.subtype==='wizard-sanctuary'?'Realmfire enchanted. ':'')+'Received: '+rewards.map(r=>r.qty+' '+C.items[r.type].name).join(', ')+'.');S.save();return rewards;
   }
+  function pendingGift(){const b=OR.world.current();return ['wizard-sanctuary','herbalist-cottage','village-forge'].includes(b.subtype)&&!!b.dialogue&&!b.dialogue.dismissed&&!completed(b.subtype);}
   function empty(b){return completed(b.subtype)&&!(b.resolved&&b.dialogue&&!b.dialogue.dismissed);}
   function description(b){
     if(b.elementType==='Home'&&allVisited())return 'Your hearth is here whenever you need it. The path you choose from here is your own.';
@@ -78,5 +79,5 @@ OR.village=(()=>{
     if(!empty(b))return C.entities[b.subtype].village;
     return {'wizard-sanctuary':'The wizard has departed. The sanctuary is quiet; his enchantment remains.',tavern:'The tavern is quiet. The barkeep is away.','herbalist-cottage':'The herbalist is gathering beyond the village. Her cottage stands quiet.'}[b.subtype];
   }
-  return {setup,template,connections,completed,speak,claim,empty,description,destinations,reminder,allVisited};
+  return {setup,template,connections,completed,speak,claim,empty,description,destinations,reminder,allVisited,pendingGift};
 })();

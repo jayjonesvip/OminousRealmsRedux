@@ -594,3 +594,10 @@ test('the last introduction gives a farewell in any order and persists completio
 test('out of order landmark visits point toward remaining people rather than beyond the trail',()=>{
   const g=game(),n=g.state.data.village.routes.at(-1).nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;g.village.speak();assert.match(g.world.current().dialogue.text,/south to Eldric/);g.village.claim();assert.equal(g.village.allVisited(),false);
 });
+test('gift acceptance reveals the compass for wizard herbalist and forge',()=>{
+  for(const id of ['wizard-sanctuary','herbalist-cottage','village-forge']){
+    const g=game(new Map(),true),n=g.state.data.village.routes.find(r=>r.destination===id).nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;
+    g.ui.dispatch(id==='village-forge'?'forge:armor':'village:speak');assert.equal(g.village.pendingGift(),true);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);
+    g.ui.dispatch('move:N');assert.equal(g.state.data.y,n.y);g.ui.dispatch('village:claim');assert.equal(g.village.pendingGift(),false);assert.match(g.nodes.stage.innerHTML,/data-action="move:N"/);g.ui.dispatch('move:N');assert.equal(g.state.data.y,n.y-1);
+  }
+});
