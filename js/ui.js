@@ -43,7 +43,7 @@ OR.ui=(()=>{
   }
   function scene(b,encounter=false){
     const e=C.entities[b.subtype],local=W.local(b.x,b.y),talking=activeDialogue(b),s=S.data;
-    const recent=b.resolved&&!b.dialogue&&!s.homecoming&&!s.battle&&!s.outcome&&s.message?'<p class="recent-message" role="status">'+escape(s.message)+'</p>':'';
+    const recent=b.resolved&&!b.dialogue&&!s.homecoming&&!s.battle&&!s.outcome&&!s.foundLoot&&s.message?'<p class="recent-message" role="status">'+escape(s.message)+'</p>':'';
     return '<div class="scene '+(encounter?'encounter-scene ':'')+(talking?'has-dialogue ':'')+(local?'village':'outer')+'">'+art(asset(b),e.name,'cover eager','fetchpriority="high"')+
       '<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">'+(talking?'IN CONVERSATION':encounter?'ENCOUNTER':b.elementType==='Home'?'THE PLACE YOU DEFEND':W.border(b.x,b.y)?'BEYOND THE VEIL':'THE JOURNEY CONTINUES')+'</span><span class="region-badge">'+(local?'VILLAGE':'OUTER REALM')+'</span>'+recent+'</div><div class="scene-copy">'+
       eyebrow(b.elementType==='Nature'?'WILDERNESS':b.elementType.replace(/([a-z])([A-Z])/g,'$1 $2').toUpperCase())+'<h1>'+escape(e.name.toUpperCase())+'</h1>'+
@@ -79,7 +79,7 @@ OR.ui=(()=>{
     return '<div class="healing-find">'+art('item-potion','A crimson healing potion')+'<div>'+eyebrow('HEALING FOUND')+'<h2>ONE MORE CHANCE.</h2><p>+1 Potion in your pack. Restore all your health.</p></div>'+btn('DRINK POTION · FULL HEAL','potion')+'</div>';
   }
   function explore(encounter=false){const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft'].includes(b.elementType)&&!b.resolved;
-    const suspended=s.battle?`<div class="resume-banner">${eyebrow('UNFINISHED BUSINESS')}<h2>THE FIGHT ISN’T OVER.</h2>${btn('RESUME BATTLE '+icon('battle'),'route:battle','danger')}</div>`:s.outcome?`<div class="resume-banner">${eyebrow('THE DUST HAS SETTLED')}<h2>${s.outcome.win?'VICTORY IS YOURS.':'YOU STILL BREATHE.'}</h2>${btn(s.outcome.win?'VIEW REWARDS':'RECOVER','route:aftermath',s.outcome.win?'primary':'outline')}</div>`:'';
+    const suspended=s.battle?`<div class="resume-banner">${eyebrow('UNFINISHED BUSINESS')}<h2>THE FIGHT ISN’T OVER.</h2>${btn('RESUME BATTLE '+icon('battle'),'route:battle','danger')}</div>`:s.outcome?`<div class="resume-banner">${eyebrow('THE DUST HAS SETTLED')}<h2>${s.outcome.win?'VICTORY IS YOURS.':'YOU STILL BREATHE.'}</h2>${btn(s.outcome.win?'VIEW REWARDS':'RECOVER','route:aftermath',s.outcome.win?'primary':'outline')}</div>`:s.foundLoot?discoveryLoot():'';
     return `<section>${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${suspended||`${activeDialogue(b)?`<div class="tile-actions">${btn('END CONVERSATION '+icon('arrow'),'end-conversation','outline')}</div>`:interactive?`<div class="tile-actions">${encounter||['NPC','Danger','Enemy','Dragon'].includes(b.elementType)?tileActions(b):btn('INVESTIGATE '+icon('arrow'),'route:encounter')+btn('KEEP WALKING','ignore','outline')}</div>`:compass()}`}<div class="utility-row"><button class="text-button" data-action="route:journal">${icon('journal')} JOURNAL</button><span>${s.blocks.length} PLACES DISCOVERED</span></div></div></section>`;
   }
   function roundFeedback(r,pending=false){
@@ -119,6 +119,10 @@ OR.ui=(()=>{
   function rewardList(rewards){
     const totals=new Map();for(const r of rewards||[])if(C.items[r.type])totals.set(r.type,(totals.get(r.type)||0)+r.qty);
     return [...totals].map(([type,qty])=>({type,qty}));
+  }
+  function discoveryLoot(){
+    const rewards=rewardList(S.data.foundLoot.rewards);
+    return '<div class="discovery-loot" role="region" aria-label="Unearthed treasure">'+eyebrow('THE EARTH GIVES WAY')+'<h2>TREASURE UNEARTHED.</h2><p>Brush off the soil. Here is what you found.</p><div class="reward-list">'+rewards.map(r=>'<div class="reward-item">'+art(C.items[r.type].art,C.items[r.type].name)+'<span>'+C.items[r.type].name+'</span><strong>+'+r.qty+'</strong></div>').join('')+'</div>'+btn('GATHER LOOT '+icon('pack'),'gather-loot')+'</div>';
   }
   function aftermath(){
     const s=S.data,o=s.outcome;if(!o)return explore();
@@ -168,6 +172,7 @@ OR.ui=(()=>{
     if(key==='potion'){if(A.potion())toast('HEALTH RESTORED','reward');render(true);return;}
     if(S.data.outcome&&!['claim','recover'].includes(key)){route('aftermath');return;}
     if(S.data.battle&&!['attack','flee','bribe'].includes(key)){route('battle');return;}
+    if(S.data.foundLoot&&key!=='gather-loot'){route('explore');return;}
     switch(key){
       case 'move':if(W.move(value)){route('explore');if(S.data.lastFind)toast('POTION FOUND','reward','+1 Potion in your pack · Use HEAL to recover.');}break;
       case 'talk':if(A.talk())route('encounter');break;
@@ -176,7 +181,8 @@ OR.ui=(()=>{
       case 'end-conversation':if(activeDialogue(W.current())){W.current().dialogue.dismissed=true;S.save();route('explore');}break;
       case 'ignore':A.ignore();route('explore');break;
       case 'eat':{const before=S.data.hp.current;const eaten=A.eat();route('explore');const lost=before-S.data.hp.current;if(eaten&&lost>0)toast('POISONED · −'+num(lost)+' HP','danger','The mushrooms were poisonous. Your vitality has dropped.');else if(eaten)toast('HEALTH RESTORED','reward','The mushrooms mend your wounds.');break;}
-      case 'dig':A.dig();if(W.current().elementType!=='BuriedItems'||W.current().resolved)route('explore');else{toast(S.data.message);render(true);}break;
+      case 'dig':A.dig();if(S.data.foundLoot){clearTimeout(toastTimer);$('toast').classList.remove('show');}if(W.current().elementType!=='BuriedItems'||W.current().resolved)route('explore');else{toast(S.data.message);render(true);}break;
+      case 'gather-loot':{const rewards=A.gatherLoot();if(rewards){route('explore');toast('LOOT GATHERED','reward',rewardList(rewards).map(r=>'+'+r.qty+' '+C.items[r.type].name).join(' · ')+' · Added to your pack.');}break;}
       case 'unlock':if(A.unlock())route('explore');break;
       case 'forge':forgeFocus=value==='weapon'?'weapon':'armor';route('forge');document.getElementById('forge-'+value)?.scrollIntoView({block:'center',behavior:'smooth'});break;
       case 'craft':if(A.craft(value)){forgeFocus=value;toast(value==='armor'?'ARMOR REINFORCED':'WEAPON ENHANCED');render(true);}break;

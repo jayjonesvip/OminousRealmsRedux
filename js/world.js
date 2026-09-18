@@ -48,7 +48,7 @@ OR.world=(()=>{
     }
   }
   function move(direction){
-    const s=S.data;if(!s||s.battle||s.outcome)return false;
+    const s=S.data;if(!s||s.battle||s.outcome||s.foundLoot)return false;
     const delta={N:[0,-1],S:[0,1],E:[1,0],W:[-1,0]}[direction];if(!delta)return false;
     S.syncRest();
     if(s.hp.current<=1)return rescueIfNeeded()||false;

@@ -4,7 +4,7 @@ OR.state = (() => {
   const REST_DURATION = 10 * 60 * 1000;
   let data = null;
   let storageError = '';
-  const fresh = (name='Warrior',type='Sword')=>({version:1,name:name.trim().slice(0,24)||'Warrior',x:0,y:0,direction:'N',state:'Explore',hp:{current:50,max:50},level:1,victories:0,armor:{resistance:10,craftCost:10},weapon:OR.content.weapon(type),inventory:[],message:'Your father’s iron. Your own legend.',journal:[],blocks:[],battle:null,outcome:null,steps:0,healingSearchSteps:0,lastFind:null,rest:null});
+  const fresh = (name='Warrior',type='Sword')=>({version:1,name:name.trim().slice(0,24)||'Warrior',x:0,y:0,direction:'N',state:'Explore',hp:{current:50,max:50},level:1,victories:0,armor:{resistance:10,craftCost:10},weapon:OR.content.weapon(type),inventory:[],message:'Your father’s iron. Your own legend.',journal:[],blocks:[],battle:null,outcome:null,foundLoot:null,steps:0,healingSearchSteps:0,lastFind:null,rest:null});
   const valid = s=>s && s.version===1 && typeof s.name==='string' && Number.isInteger(s.x) && Number.isInteger(s.y) && s.hp && Number.isFinite(s.hp.current) && Number.isFinite(s.hp.max) && s.hp.max>=1 && s.hp.current>=1 && s.hp.current<=s.hp.max && Number.isInteger(s.level) && s.level>=1 && Number.isFinite(s.victories) && s.victories>=0 && s.armor && Number.isFinite(s.armor.resistance) && s.armor.resistance>=0 && s.armor.resistance<=95 && s.weapon && OR.content.weapons[s.weapon.type] && Number.isFinite(s.weapon.basePower) && s.weapon.basePower>=1 && Array.isArray(s.inventory) && s.inventory.every(i=>OR.content.items[i.type] && Number.isInteger(i.qty) && i.qty>=0) && Array.isArray(s.blocks) && s.blocks.every(b=>Number.isInteger(b.x)&&Number.isInteger(b.y)&&OR.content.entities[b.subtype]&&OR.content.weights[b.elementType]) && Array.isArray(s.journal) && s.journal.every(j=>typeof j==='string');
   function load() {
     try {
@@ -16,6 +16,7 @@ OR.state = (() => {
       data.weapon.moves=OR.content.weapon(data.weapon.type).moves;
       data.armor.craftCost=data.armor.craftCost||data.armor.resistance;
       data.journal=data.journal.slice(-50);
+      if(data.foundLoot&&(data.foundLoot.source!=='dig'||!Array.isArray(data.foundLoot.rewards)||!data.foundLoot.rewards.length||!data.foundLoot.rewards.every(r=>r&&OR.content.items[r.type]&&Number.isSafeInteger(r.qty)&&r.qty>0)))data.foundLoot=null;
       if (data.battle && (!data.battle.enemy || !Number.isFinite(data.battle.enemy.hp) || !Array.isArray(data.battle.enemy.moves))) data.battle=null;
       syncRest();
       return data;

@@ -21,6 +21,7 @@ Browser storage belongs to the current browser and origin. A file opened directl
 - Combat reveals your result first, pauses for 950 ms, then reveals the enemy response for 950 ms. Vitality updates with the enemy response; actions stay locked until the sequence finishes. Both sides roll accuracy independently.
 - WPN and ARM in the HUD open the matching gear upgrade anywhere outside combat, using the same ingot costs. Forge locations are optional stops. Upgrade screens offer a direct switch to the other upgrade and a Keep Walking button; returning preserves the current encounter.
 - All health loss animates Vitality with a red pulse, an HP-loss label, and a draining bar. Poisoned mushrooms add a red screen flash, shake, and explicit Poisoned toast; reduced-motion preferences disable animation.
+- Completed digs show an illustrated Treasure Unearthed result with item quantities and a Gather Loot button. Finds persist across reloads; gathering adds them to the pack once and shows an itemized toast. Exhaustion grants no treasure.
 - Visible item rewards and an itemized claim toast. Defeats show a separate Wake at Home flow with no loot or collection button.
 - Five NPC types each have 25 Strongwood lines, 25 Outer Realm lines, and 10 attack responses: 300 unique messages. Every realm pool mixes everyday life, gameplay tips, ramblings, and irritated replies. Each encounter represents a different person. Random selection excludes the previous line for that type/context across saves, and the Elder always replies.
 - NPC replies type inside speech bubbles beneath the speaker’s name; tap to reveal, then End Conversation to resume walking. Terrain descriptions appear immediately.
@@ -48,7 +49,7 @@ The scripts use a small `OR` namespace and deferred classic scripts so `index.ht
 | js/app.js | Load and boot |
 | css/game.css | Responsive layout, typography, palettes and controls |
 
-The supplied brief is the rules source; no original C# source was attached. Unspecified rarity values are assigned in `content.js`. Armor craft cost starts at resistance and advances with each upgrade. Resistance is capped at 95% to keep high-level damage positive. NPCs cannot be harmed. Rewards enter the pack immediately when awarded; Claim Rewards dismisses the persistent result.
+The supplied brief is the rules source; no original C# source was attached. Unspecified rarity values are assigned in `content.js`. Armor craft cost starts at resistance and advances with each upgrade. Resistance is capped at 95% to keep high-level damage positive. NPCs cannot be harmed. Battle rewards enter the pack immediately when awarded; Claim Rewards dismisses the persistent result. Digging rewards remain in a saved find until Gather Loot adds them to the pack.
 
 ## Artwork and typography
 
