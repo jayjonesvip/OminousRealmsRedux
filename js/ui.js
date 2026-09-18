@@ -226,10 +226,10 @@ OR.ui=(()=>{
     if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
     typing=setInterval(()=>{el.textContent=full.slice(0,++pos);if(pos>=full.length)finish();},12);
   }
-  let exploreDockObserver=null;
+  let exploreDockObserver=null,previousDockHeight=null;
   function mountExploreDock(){
     exploreDockObserver?.disconnect();
-    const view=$('stage').querySelector?.('.exploration-view');if(!view)return;
+    const view=$('stage').querySelector?.('.exploration-view');if(!view){previousDockHeight=null;return;}
     let compassBlock=view.querySelector('.compass-block');
     if(!compassBlock){const holder=document.createElement('div');holder.innerHTML=compass();compassBlock=holder.firstElementChild;}
     const dock=document.createElement('div');dock.className='explore-dock';
@@ -239,8 +239,17 @@ OR.ui=(()=>{
     else if(tile){while(tile.firstChild)actions.appendChild(tile.firstChild);tile.remove();}
     dock.appendChild(compassBlock);if(actions.children.length)dock.appendChild(actions);
     view.appendChild(dock);
-    const measure=()=>{const nav=$('nav').getBoundingClientRect().height;dock.style.setProperty('--nav-height',nav+'px');view.style.paddingBottom=(dock.getBoundingClientRect().height+16)+'px';};
-    measure();if(typeof ResizeObserver!=='undefined'){exploreDockObserver=new ResizeObserver(measure);exploreDockObserver.observe(dock);exploreDockObserver.observe($('nav'));}
+    let reservedHeight=previousDockHeight||0;
+    const measure=()=>{const nav=$('nav').getBoundingClientRect().height;dock.style.setProperty('--nav-height',nav+'px');view.style.paddingBottom=(Math.max(reservedHeight,dock.getBoundingClientRect().height)+16)+'px';};
+    measure();
+    const height=dock.getBoundingClientRect().height,delta=height-(previousDockHeight??height);
+    previousDockHeight=height;
+    if(Math.abs(delta)>1&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&dock.animate){
+      const animation=dock.animate([{transform:'translate(-50%, '+delta+'px)'},{transform:'translate(-50%, 0px)'}],{duration:240,easing:'cubic-bezier(.22,1,.36,1)'});
+      animation.onfinish=()=>{reservedHeight=0;if(dock.isConnected)measure();};
+    }
+    if(Math.abs(delta)<=1||matchMedia('(prefers-reduced-motion: reduce)').matches){reservedHeight=0;measure();}
+    if(typeof ResizeObserver!=='undefined'){exploreDockObserver=new ResizeObserver(measure);exploreDockObserver.observe(dock);exploreDockObserver.observe($('nav'));}
   }
   function render(keepScroll=false){if(S.syncRest().changed)S.save();if(typeFinish)typeFinish();const pos=window.scrollY;document.body.classList.toggle('in-game',!!S.data);document.body.classList.toggle('outer-world',!!S.data&&!W.local(S.data.x,S.data.y));const views={title,embark,explore,encounter:()=>explore(true),battle,aftermath,pack,forge,map,hero,journal};$('stage').innerHTML=(views[screen]||explore)()+(screen==='hero'?`<div class="page">${btn('RETURN TO TITLE','route:title','text')}</div>`:'');hud();syncHudHeight();mountExploreDock();typewriter();if(!keepScroll)window.scrollTo(0,0);else window.scrollTo(0,pos);}
   function route(id,replace=false,keepCombatToasts=false){if(!keepCombatToasts)clearCombatToasts();clearTimeout(roundTimer);roundPlayback=null;combatBusy=false;roundPhase=null;roundStartHealth=null;const allowed=['title','embark','explore','encounter','battle','aftermath','pack','forge','map','hero','journal'];if(!allowed.includes(id))id=S.data?'explore':'title';if(!S.data&&!['title','embark'].includes(id))id='title';if(S.data&&id==='embark')id='explore';if(id==='battle'&&!S.data?.battle)id='explore';if(id==='aftermath'&&!S.data?.outcome)id='explore';screen=id;if(S.data){S.data.state=S.data.battle?'Battle':id==='encounter'?'Interacting':'Explore';S.save();}history[replace?'replaceState':'pushState'](null,'','#'+id);render();$('stage').focus({preventScroll:true});if(id==='battle'&&S.data.battle&&!S.data.battle.lastRound)combatToast('opening','CHOOSE YOUR OPENING',S.data.battle.enemy.name+' awaits your move. · ROUND '+S.data.battle.round);}
