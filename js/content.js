@@ -1,12 +1,12 @@
 'use strict';
 window.OR = window.OR || {};
 OR.content = (() => {
-  const move = (name, power, accuracy, description, magic = false) => ({name,power,accuracy,description,magic});
+  const move = (name, power, accuracy, description, magic = false, stagger = false) => ({name,power,accuracy,description,magic,stagger});
   const weapons = {
-    Sword: {pitch:'Balanced steel. Unbroken resolve.',moves:[move('Slash',6,92,'A clean cut through the dark.'),move('Cleave',12,72,'Commit your weight to the blade.')]},
-    Axe: {pitch:'Heavy blows. Nothing left standing.',moves:[move('Chop',9,83,'Let the edge do the talking.'),move('Execution',17,58,'One swing. Everything behind it.')]},
-    Hammer: {pitch:'Break armor. Shatter the silence.',moves:[move('Crush',11,78,'Iron answers iron.'),move('Earthshaker',20,50,'A blow that shakes the ground.')]},
-    Knife: {pitch:'Quick hands. A thousand small endings.',moves:[move('Stab',4,99,'Find the gap.'),move('Backstab',10,85,'Strike before the shadow moves.')]}
+    Sword: {pitch:'Balanced steel. Unbroken resolve.',moves:[move('Slash',6,92,'A clean cut through the dark.'),move('Cleave',12,72,'Commit your weight. A landed blow staggers.',false,true)]},
+    Axe: {pitch:'Heavy blows. Nothing left standing.',moves:[move('Chop',9,83,'Let the edge do the talking.'),move('Execution',17,58,'One swing. Staggers if it lands.',false,true)]},
+    Hammer: {pitch:'Break armor. Shatter the silence.',moves:[move('Crush',11,78,'Iron answers iron.'),move('Earthshaker',20,50,'Shakes the ground. Staggers if it lands.',false,true)]},
+    Knife: {pitch:'Quick hands. A thousand small endings.',moves:[move('Stab',4,99,'Find the gap.'),move('Backstab',10,85,'Strike first. A landed blow staggers.',false,true)]}
   };
   const weapon = type => ({type,basePower:5,moves:[move('Tackle',0,99,'Shoulder first. No hesitation.'),...weapons[type].moves.map(m=>({...m})),move('Realmfire',25,100,'Burn a magic crystal. Scorch the veil.',true)]});
   const creatures = {

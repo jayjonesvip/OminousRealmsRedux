@@ -29,9 +29,13 @@ OR.combat=(()=>{
     if(move.magic)S.add('MagicCrystal',-1);
     const b=s.battle,e=b.enemy,hit=damage(s.weapon.basePower,move,e.resistance,S.qty('LuckyCoin')>0);
     e.hp=Math.max(0,e.hp-hit);let line=hit?`${move.name} lands for ${fmt(hit)}.`:`${move.name} misses.`;
-    b.lastRound={round:b.round,move:move.name,magic:!!move.magic,dealt:hit,received:null,reply:null};
+    b.lastRound={round:b.round,move:move.name,magic:!!move.magic,dealt:hit,received:null,reply:null,stagger:false};
     if(W.current().elementType==='Dragon')W.current().dragonHp=e.hp;
     if(e.hp<=0){b.log=line;S.log(line);return finish(true);}
+    if(hit&&move.stagger){
+      line+=` ${e.name} staggers. No counter.`;
+      b.lastRound.stagger=true;b.log=line;b.round++;S.log(line);S.save();return true;
+    }
     const response=C.pick(e.moves),hurt=damage(e.basePower,response,s.armor.resistance);
     s.hp.current=Math.max(1,s.hp.current-hurt);line+=hurt?` ${e.name}: ${response.name}, ${fmt(hurt)} damage.`:` ${e.name} misses ${response.name}.`;
     b.lastRound.received=hurt;b.lastRound.reply=response.name;
