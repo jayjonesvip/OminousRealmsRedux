@@ -47,12 +47,12 @@
 .round-event.hurt{background:#3e221dcc;color:#ff9c83}
 .round-event.miss{background:#202d37cc;color:#accde5}
 .round-event.magic-hit{background:#30243fcc;color:#d4a6ff}
-#combat-toasts{position:fixed;bottom:calc(83px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:calc(100% - 36px);max-width:394px;display:grid;gap:7px;z-index:80;pointer-events:none}
+#combat-toasts{position:fixed;top:calc(var(--hud-height,120px) + 8px);bottom:auto;left:50%;transform:translateX(-50%);width:calc(100% - 36px);max-width:394px;display:grid;gap:7px;z-index:80;pointer-events:none}
 .combat-toast{box-shadow:0 6px 25px #0009;animation:combat-toast-life 5s ease both}
 .combat-toast>span{min-width:0}
 .combat-toast>strong{flex-shrink:0}
 .combat-toast.opening{background:#25291ecc;color:#e5d8a9}
-@keyframes combat-toast-life{0%{opacity:0;transform:translateY(10px)}5%,88%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-6px)}}
+@keyframes combat-toast-life{0%{opacity:0;transform:translateY(-10px)}5%,88%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-6px)}}
 .defeat .result-title h1{color:#ed8a75}
 .defeat .result-title .eyebrow{color:#e5a290}
 .defeat-notice{padding:18px;margin:22px 0;border:1px solid #864535;background:#351e17}
@@ -65,7 +65,7 @@
 .reward-item img{width:60px;height:60px;object-fit:cover;border:1px solid #545b37}
 .reward-item>span{font:500 21px/1.2 var(--display);flex:1}
 .reward-item>strong{font:600 34px/1 var(--display);color:#e8ce82}
-#toast{width:calc(100% - 36px);max-width:394px;border:1px solid #ead696;padding:15px 18px}
+#toast{top:calc(var(--hud-height,120px) + 8px);bottom:auto;transform:translate(-50%,-12px);width:calc(100% - 36px);max-width:394px;border:1px solid #ead696;padding:15px 18px}
 #toast>strong{display:block;font:600 18px/1.3 var(--display);letter-spacing:1px}
 #toast>span{display:block;font:400 15px/1.5 var(--body);letter-spacing:0;margin-top:7px}
 #toast.toast-reward{background:#24341ccc;color:#f0dfa7;border-color:#a5b36a;border-left:5px solid #bfd180}
@@ -137,6 +137,12 @@ body.in-game{min-height:100dvh}
 /* Bound the art independently of its intrinsic size and the controls below it.
    svh also keeps browser toolbar changes from stretching the portrait. */
 .exploration-view>.scene:not(.has-dialogue){height:clamp(240px,calc(100svh - 410px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),355px)}
+.exploration-view.has-encounter-actions>.scene:not(.has-dialogue){height:clamp(180px,calc(100svh - 480px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),355px)}
+.exploration-view.extended-actions>.scene:not(.has-dialogue){height:clamp(170px,calc(100svh - 520px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),315px)}
+.compass-block>.tile-actions{margin:10px 0 0}
+.compass-block>.tile-actions>.button-pair{margin-top:0}
+.compass-block>.tile-actions .button-pair>.btn{padding-inline:8px;font-size:15px;letter-spacing:.8px}
+.compass-block>.tile-actions>.fine,.compass-block>.tile-actions>.warning,.compass-block>.tile-actions>.dig-progress{margin:0 0 10px}
 .exploration-view>.scene>.cover{position:absolute;inset:0}
 /* These ground-level subjects sit lower in their portrait illustrations. */
 .scene>.cover:is([src*="/boar-"],[src*="/hedgehog-"],[src*="/otter-"],[src*="/marten-"],[src*="/grave-"]){object-position:center bottom}
@@ -155,8 +161,7 @@ body.in-game{min-height:100dvh}
 
 .round-event.pending{background:#242521cc;color:#b6b6a5;border-left-color:#68695b}
 
-/* Outcome messages sit beneath the scene heading, above the artwork. */
+/* Keep the journey heading clear; outcome messages use the toast layer. */
 .scene-top{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:9px;row-gap:12px}
-.scene-top .recent-message{grid-column:1/-1;margin:0;padding:9px 12px;border-left:2px solid var(--gold);background:linear-gradient(90deg,#10110fe8,#10110fa6);color:#e4e5d7;font-size:14px;line-height:1.5;text-shadow:0 1px 3px #000}
 
 .discovery-loot{padding:20px 0 6px}.discovery-loot h2{font-size:30px;margin:10px 0;color:var(--gold)}.discovery-loot>p{font-size:15px;color:var(--muted);margin-bottom:18px}.discovery-loot>.btn{margin-top:20px}

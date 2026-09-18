@@ -3,7 +3,7 @@ OR.ui=(()=>{
   const S=OR.state,C=OR.content,W=OR.world,A=OR.actions,B=OR.combat;
   const $=id=>document.getElementById(id);
   let vitalitySnapshot=null,damageTimer=null,roundPhase=null,roundStartHealth=null,forgeFocus='armor',hudObserver=null;
-  function syncHudHeight(){const height=$('hud').getBoundingClientRect?.().height;if(height>0)$('stage').style?.setProperty('--hud-height',height+'px');}
+  function syncHudHeight(){const height=$('hud').getBoundingClientRect?.().height;if(height>0)for(const id of ['stage','toast','combat-toasts'])$(id).style?.setProperty('--hud-height',height+'px');}
   const visibleHealth=()=>combatBusy&&roundPhase==='player'&&roundStartHealth?roundStartHealth:S.data.hp;
   function damageFeedback(){
     const stage=$('stage');clearTimeout(damageTimer);stage.classList.remove('damage-taken');void stage.offsetWidth;stage.classList.add('damage-taken');
@@ -32,7 +32,7 @@ OR.ui=(()=>{
     if(step===1)return `${progress}<section class="onboard">${sectionHead('02 / YOUR WEAPON','CHOOSE YOUR EDGE.','Four paths. One defender.')}<div class="weapons">${Object.entries(C.weapons).map(([type,w])=>`<button class="weapon-option ${chosen===type?'selected':''}" data-action="choose:${type}" aria-pressed="${chosen===type}">${art('weapon-'+type.toLowerCase(),type)}<span class="weapon-info"><strong>${type.toUpperCase()}</strong><span>${w.pitch}</span><small>${w.moves[0].name.toUpperCase()} · +${w.moves[0].power} PWR · ${w.moves[0].accuracy}% ACC</small></span><span class="selection-dot"></span></button>`).join('')}</div>${btn('TAKE THE '+chosen.toUpperCase()+' '+icon('arrow'),'accept-weapon')}<p class="fine">Every weapon includes Tackle and crystal-powered Realmfire.</p></section>`;
     return `${progress}<section class="onboard">${sectionHead('03 / YOUR LEGEND','A NAME TO REMEMBER.')}<div class="portrait-plate name-portrait">${art('warrior-'+chosen.toLowerCase(),'Your chosen warrior','cover')}<div class="plate-caption">${eyebrow('STRONGWOOD’S NEW DEFENDER')}<h2>YOUR STORY BEGINS.</h2></div></div><form id="name-form"><label for="warrior-name" class="eyebrow">WARRIOR NAME <span>OPTIONAL</span></label><input id="warrior-name" name="name" autocomplete="off" maxlength="24" placeholder="Warrior"><p class="fine">Iron armor. ${chosen}. A village worth defending.</p><button class="btn primary" type="submit">NEXT · ENTER STRONGWOOD ${icon('arrow')}</button></form><p class="fine centered">Your name and weapon are sealed when you embark.</p></section>`;
   }
-  function compass(){return `<div class="compass-block"><div class="section-label"><span>CHOOSE YOUR PATH</span><span>${S.data.steps} STEPS</span></div><div class="compass">${['W','N','S','E'].map(d=>`<button class="direction dir-${d} ${S.data.direction===d?'last':''}" data-action="move:${d}" ${S.data.hp.current<=1?'disabled':''} aria-label="Move ${ {N:'north',S:'south',E:'east',W:'west'}[d]}">${icon({N:'north',S:'south',E:'east',W:'west'}[d])}<span>${{N:'NORTH',S:'SOUTH',E:'EAST',W:'WEST'}[d]}</span></button>`).join('')}</div></div>`;}
+  function compass(actions=''){return `<div class="compass-block"><div class="section-label"><span>CHOOSE YOUR PATH</span><span>${S.data.steps} STEPS</span></div><div class="compass">${['W','N','S','E'].map(d=>`<button class="direction dir-${d} ${S.data.direction===d?'last':''}" data-action="move:${d}" ${S.data.hp.current<=1?'disabled':''} aria-label="Move ${ {N:'north',S:'south',E:'east',W:'west'}[d]}">${icon({N:'north',S:'south',E:'east',W:'west'}[d])}<span>${{N:'NORTH',S:'SOUTH',E:'EAST',W:'WEST'}[d]}</span></button>`).join('')}</div>${actions?`<div class="tile-actions">${actions}</div>`:''}</div>`;}
   const activeDialogue=b=>b.elementType==='NPC'&&b.resolved&&b.dialogue&&!b.dialogue.dismissed;
   function speechBubble(b){
     const d=b.dialogue,speaker=C.entities[b.subtype].name;
@@ -43,22 +43,21 @@ OR.ui=(()=>{
       (d.spoken?'<span class="sr-only" role="status" aria-live="polite">'+escape(speaker+' says: '+d.text)+'</span><button class="speech-skip" data-action="skip-dialogue">TAP TO REVEAL REPLY</button>':'')+'</div>';
   }
   function scene(b,encounter=false){
-    const e=C.entities[b.subtype],local=W.local(b.x,b.y),talking=activeDialogue(b),s=S.data;
-    const recent=b.resolved&&!b.dialogue&&!s.homecoming&&!s.battle&&!s.outcome&&!s.foundLoot&&s.message?'<p class="recent-message" role="status">'+escape(s.message)+'</p>':'';
+    const e=C.entities[b.subtype],local=W.local(b.x,b.y),talking=activeDialogue(b);
     return '<div class="scene '+(encounter?'encounter-scene ':'')+(talking?'has-dialogue ':'')+(local?'village':'outer')+'">'+art(asset(b),e.name,'cover eager','fetchpriority="high"')+
-      '<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">'+(talking?'IN CONVERSATION':encounter?'ENCOUNTER':b.elementType==='Home'?'THE PLACE YOU DEFEND':W.border(b.x,b.y)?'BEYOND THE VEIL':'THE JOURNEY CONTINUES')+'</span><span class="region-badge">'+(local?'VILLAGE':'OUTER REALM')+'</span>'+recent+'</div><div class="scene-copy">'+
+      '<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">'+(talking?'IN CONVERSATION':encounter?'ENCOUNTER':b.elementType==='Home'?'THE PLACE YOU DEFEND':W.border(b.x,b.y)?'BEYOND THE VEIL':'THE JOURNEY CONTINUES')+'</span><span class="region-badge">'+(local?'VILLAGE':'OUTER REALM')+'</span></div><div class="scene-copy">'+
       eyebrow(b.elementType==='Nature'?'WILDERNESS':b.elementType.replace(/([a-z])([A-Z])/g,'$1 $2').toUpperCase())+'<h1>'+escape(e.name.toUpperCase())+'</h1>'+
       (talking?speechBubble(b):'<p>'+escape(W.description(b))+'</p>')+'</div></div>';
   }
   function tileActions(b){switch(b.elementType){
-    case 'NPC':return btn('SPEAK','talk')+`<div class="button-pair">${btn('ATTACK','npc-attack','outline')}${btn('KEEP WALKING','ignore','outline')}</div>`;
+    case 'NPC':return '<div class="button-pair">'+btn('SPEAK','talk')+btn('ATTACK','npc-attack','outline')+'</div>';
     case 'Danger':
-    case 'Enemy':return btn('ENTER BATTLE '+icon('battle'),'fight','danger')+btn('KEEP WALKING','ignore','outline');
-    case 'Dragon':return `<div class="warning">ANCIENT THREAT · ${num(b.dragonHp)} HP REMAINING</div>`+btn('ENTER BATTLE '+icon('battle'),'fight','danger')+btn('KEEP WALKING','ignore','outline');
-    case 'Food':return btn('EAT MUSHROOMS','eat')+btn('IGNORE','ignore','outline');
-    case 'BuriedItems':return `${b.digDepth?`<p class="dig-progress">${b.dug} / ${b.digDepth} FEET · 1–2 HP PER FOOT</p>`:'<p class="fine">Buried 3–6 feet deep. Each foot costs 1–2 health.</p>'}`+btn(b.digDepth?'DIG ANOTHER FOOT':'BREAK GROUND','dig','primary',S.data.hp.current<=1?'disabled':'')+btn('IGNORE','ignore','outline');
-    case 'LockedItem':return btn(`UNLOCK · ${S.qty('Key')?'USE 1 KEY':'KEY REQUIRED'}`,'unlock','primary',!S.qty('Key')?'disabled':'')+btn('IGNORE','ignore','outline');
-    case 'Craft':return btn('ENHANCE ARMOR '+icon('shield'),'forge:armor')+btn('ENHANCE WEAPON '+icon('battle'),'forge:weapon','outline')+btn('KEEP WALKING','ignore','outline');
+    case 'Enemy':return btn('ENTER BATTLE '+icon('battle'),'fight','danger');
+    case 'Dragon':return '<div class="warning">ANCIENT THREAT · '+num(b.dragonHp)+' HP REMAINING</div>'+btn('ENTER BATTLE '+icon('battle'),'fight','danger');
+    case 'Food':return btn('EAT MUSHROOMS','eat');
+    case 'BuriedItems':return (b.digDepth?'<p class="dig-progress">'+b.dug+' / '+b.digDepth+' FEET · 1–2 HP PER FOOT</p>':'<p class="fine">Buried 3–6 feet deep. Each foot costs 1–2 health.</p>')+btn(b.digDepth?'DIG ANOTHER FOOT':'BREAK GROUND','dig','primary',S.data.hp.current<=1?'disabled':'');
+    case 'LockedItem':return btn('UNLOCK · '+(S.qty('Key')?'USE 1 KEY':'KEY REQUIRED'),'unlock','primary',!S.qty('Key')?'disabled':'');
+    case 'Craft':return '<div class="button-pair">'+btn('ENHANCE ARMOR','forge:armor')+btn('ENHANCE WEAPON','forge:weapon','outline')+'</div>';
     default:return '';
   }}
   function restCountdown(){
@@ -82,13 +81,14 @@ OR.ui=(()=>{
   function explore(encounter=false){const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft'].includes(b.elementType)&&!b.resolved;
     const suspended=s.battle?`<div class="resume-banner">${eyebrow('UNFINISHED BUSINESS')}<h2>THE FIGHT ISN’T OVER.</h2>${btn('RESUME BATTLE '+icon('battle'),'route:battle','danger')}</div>`:s.outcome?`<div class="resume-banner">${eyebrow('THE DUST HAS SETTLED')}<h2>${s.outcome.win?'VICTORY IS YOURS.':'YOU STILL BREATHE.'}</h2>${btn(s.outcome.win?'VIEW REWARDS':'RECOVER','route:aftermath',s.outcome.win?'primary':'outline')}</div>`:s.foundLoot?discoveryLoot():'';
     const walking=!interactive&&!activeDialogue(b)&&!suspended&&!S.restStatus()&&!healingFind();
-    return `<section class="exploration-view${walking?' walking-view':''}">${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${suspended||`${activeDialogue(b)?`<div class="tile-actions">${btn('END CONVERSATION '+icon('arrow'),'end-conversation','outline')}</div>`:interactive?`<div class="tile-actions">${encounter||['NPC','Danger','Enemy','Dragon'].includes(b.elementType)?tileActions(b):btn('INVESTIGATE '+icon('arrow'),'route:encounter')+btn('KEEP WALKING','ignore','outline')}</div>`:compass()}`}<div class="utility-row"><button class="text-button" data-action="route:journal">${icon('journal')} JOURNAL</button><span>${s.blocks.length} PLACES DISCOVERED</span></div></div></section>`;
+    const prompts=activeDialogue(b)?btn('END CONVERSATION','end-conversation','outline'):interactive?tileActions(b):'';
+    return `<section class="exploration-view${walking?' walking-view':''}${prompts?' has-encounter-actions':''}${['Dragon','BuriedItems'].includes(b.elementType)?' extended-actions':''}">${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${suspended||compass(prompts)}<div class="utility-row"><button class="text-button" data-action="route:journal">${icon('journal')} JOURNAL</button><span>${s.blocks.length} PLACES DISCOVERED</span></div></div></section>`;
   }
   let combatToasts=[];
   function clearCombatToasts(){for(const entry of combatToasts){clearTimeout(entry.timer);entry.node.remove();}combatToasts=[];}
   function combatToast(kind,title,detail,value=''){
     clearTimeout(toastTimer);$('toast').classList.remove('show');
-    // Keep the latest pair visible without covering the pinned health cards.
+    // Keep the latest pair stacked below the HUD; notices never take page space.
     while(combatToasts.length>=2){const oldest=combatToasts.shift();clearTimeout(oldest.timer);oldest.node.remove();}
     const node=document.createElement('div');node.className='round-event '+kind+' combat-toast';
     node.innerHTML='<span><b>'+escape(title)+'</b><small>'+escape(detail)+'</small></span>'+(value?'<strong>'+escape(value)+'</strong>':'');
@@ -188,16 +188,23 @@ OR.ui=(()=>{
     if(S.data.battle&&!['attack','flee','bribe'].includes(key)){route('battle');return;}
     if(S.data.foundLoot&&key!=='gather-loot'){route('explore');return;}
     switch(key){
-      case 'move':if(W.move(value)){route('explore');if(S.data.lastFind)toast('POTION FOUND','reward','+1 Potion in your pack · Use HEAL to recover.');}break;
+      case 'move':{
+        const b=W.current();let notice='';
+        if(['N','S','E','W'].includes(value)&&S.data.hp.current>1&&['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft'].includes(b.elementType)&&(!b.resolved||activeDialogue(b))){
+          if(A.ignore())notice=S.data.message;
+        }
+        if(W.move(value)){route('explore');if(S.data.lastFind)toast('POTION FOUND','reward','+1 Potion in your pack · Use HEAL to recover.');else if(notice)toast(notice);}
+        break;
+      }
       case 'talk':if(A.talk())route('encounter');break;
       case 'npc-attack':if(A.talk(true))route('encounter');break;
       case 'skip-dialogue':if(typeFinish)typeFinish();break;
       case 'end-conversation':if(activeDialogue(W.current())){W.current().dialogue.dismissed=true;S.save();route('explore');}break;
-      case 'ignore':A.ignore();route('explore');break;
+      case 'ignore':{const ignored=A.ignore(),notice=S.data.message;route('explore');if(ignored&&notice)toast(notice);break;}
       case 'eat':{const before=S.data.hp.current;const eaten=A.eat();route('explore');const lost=before-S.data.hp.current;if(eaten&&lost>0)toast('POISONED · −'+num(lost)+' HP','danger','The mushrooms were poisonous. Your vitality has dropped.');else if(eaten)toast('HEALTH RESTORED','reward','The mushrooms mend your wounds.');break;}
-      case 'dig':A.dig();if(S.data.foundLoot){clearTimeout(toastTimer);$('toast').classList.remove('show');}if(W.current().elementType!=='BuriedItems'||W.current().resolved)route('explore');else{toast(S.data.message);render(true);}break;
+      case 'dig':A.dig();if(S.data.foundLoot){clearTimeout(toastTimer);$('toast').classList.remove('show');}if(W.current().elementType!=='BuriedItems'||W.current().resolved){route('explore');if(!S.data.foundLoot)toast(S.data.message,'danger');}else{toast(S.data.message);render(true);}break;
       case 'gather-loot':{const rewards=A.gatherLoot();if(rewards){route('explore');toast('LOOT GATHERED','reward',rewardList(rewards).map(r=>'+'+r.qty+' '+C.items[r.type].name).join(' · ')+' · Added to your pack.');}break;}
-      case 'unlock':if(A.unlock())route('explore');break;
+      case 'unlock':if(A.unlock()){route('explore');toast('CHEST OPENED','reward',S.data.message);}break;
       case 'forge':forgeFocus=value==='weapon'?'weapon':'armor';route('forge');document.getElementById('forge-'+value)?.scrollIntoView({block:'center',behavior:'smooth'});break;
       case 'craft':if(A.craft(value)){forgeFocus=value;toast(value==='armor'?'ARMOR REINFORCED':'WEAPON ENHANCED');render(true);}break;
       case 'fight':if(B.start())route('battle');break;
@@ -213,7 +220,7 @@ OR.ui=(()=>{
         },950);
         break;
       }
-      case 'flee':if(B.flee())route('explore');break;
+      case 'flee':if(B.flee()){route('explore');toast(S.data.message);}break;
       case 'bribe':if(B.bribe())route('aftermath');break;
       case 'claim':case 'recover':{
         const result=S.data.outcome;if(!result)break;
