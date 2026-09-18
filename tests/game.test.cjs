@@ -221,20 +221,38 @@ test('new rounds replace old notices and leaving battle cancels the pending enem
 });
 
 
-test('new-coordinate wilderness is 33 percent in both realms with proportional remaining encounters',()=>{
+test('new-coordinate rates reserve quiet terrain, scarce NPCs and increased outer threats',()=>{
   for(const local of [true,false]){
     const g=game(),rates=g.content.encounterRates(local);
-    assert.equal(rates.Nature,33);assert.ok(Math.abs(Object.values(rates).reduce((a,b)=>a+b,0)-100)<1e-10);
-    const others=Object.entries(rates).filter(([type])=>type!=='Nature');
+    assert.equal(rates.Nature,40);assert.equal(rates.NPC,local?10:5);
+    assert.ok(Math.abs(Object.values(rates).reduce((a,b)=>a+b,0)-100)<1e-10);
+    const threats=['Danger','Enemy','Dragon'];
+    if(!local){assert.ok(Math.abs(threats.reduce((sum,type)=>sum+rates[type],0)-20)<1e-10);assert.equal(rates.Danger,rates.Enemy);assert.equal(rates.Danger,4*rates.Dragon);}
+    const others=Object.entries(rates).filter(([type])=>type!=='Nature'&&type!=='NPC'&&(local||!threats.includes(type)));
     const totalWeight=others.reduce((sum,[type])=>sum+g.content.weights[type],0);
-    for(const [type,rate] of others)assert.ok(Math.abs(rate-67*g.content.weights[type]/totalWeight)<1e-10,type);
+    for(const [type,rate] of others)assert.ok(Math.abs(rate-(local?50:35)*g.content.weights[type]/totalWeight)<1e-10,type);
     assert.equal(Object.hasOwn(rates,'Home'),false);
     for(const type of g.content.outerOnly)assert.equal(Object.hasOwn(rates,type),!local);
     let start=0,i=0;
     for(const [type,rate] of Object.entries(rates)){
       g.rng((start+rate/2)/100);assert.equal(g.world.getOrCreateBlock(local?3:27,3+i++).elementType,type);start+=rate;
     }
-    g.rng(.329999);assert.equal(g.world.getOrCreateBlock(local?4:28,3).elementType,'Nature');
-    g.rng(.33);assert.equal(g.world.getOrCreateBlock(local?4:28,4).elementType,'NPC');
+    g.rng(.399999);assert.equal(g.world.getOrCreateBlock(local?4:28,3).elementType,'Nature');
+    g.rng(.4);assert.equal(g.world.getOrCreateBlock(local?4:28,4).elementType,'NPC');
+    g.rng(local?.5:.45);assert.equal(g.world.getOrCreateBlock(local?4:28,5).elementType,'Food');
+  }
+});
+
+test('new scenery, animals and grave can spawn, render in both realms and survive a save',()=>{
+  const added={Nature:['forest-path','dense-woodland','leafy-clearing','grassy-rise'],Animal:['boar','hedgehog','otter','marten'],Thing:['grave']};
+  const g=game(new Map(),true);g.ui.init();
+  for(const [type,ids] of Object.entries(added))for(const id of ids)for(const local of [true,false]){
+    const pool=Object.values(g.content.entities).filter(e=>e.type===type);
+    g.rng((pool.findIndex(e=>e.id===id)+.5)/pool.length);
+    assert.equal(g.world.spawn(type,local?6:29,6).subtype,id);
+    g.place(type,id,local?6:29,6);g.ui.route('explore');
+    assert.match(g.nodes.stage.innerHTML,new RegExp('assets/'+id+'-'+(local?'village':'outer')+'\\.png'));
+    g.state.save();g.state.load();assert.equal(g.world.current().subtype,id);
+    assert.equal(g.world.current().elementType,type);
   }
 });

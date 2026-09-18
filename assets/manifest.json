@@ -344,5 +344,50 @@
     "outer": "woodcutter-outer.png",
     "village": "woodcutter-village.png",
     "file": "woodcutter-village.png"
+  },
+  "forest-path": {
+    "outer": "forest-path-outer.png",
+    "village": "forest-path-village.png",
+    "file": "forest-path-village.png"
+  },
+  "dense-woodland": {
+    "outer": "dense-woodland-outer.png",
+    "village": "dense-woodland-village.png",
+    "file": "dense-woodland-village.png"
+  },
+  "leafy-clearing": {
+    "outer": "leafy-clearing-outer.png",
+    "village": "leafy-clearing-village.png",
+    "file": "leafy-clearing-village.png"
+  },
+  "grassy-rise": {
+    "outer": "grassy-rise-outer.png",
+    "village": "grassy-rise-village.png",
+    "file": "grassy-rise-village.png"
+  },
+  "boar": {
+    "outer": "boar-outer.png",
+    "village": "boar-village.png",
+    "file": "boar-village.png"
+  },
+  "hedgehog": {
+    "outer": "hedgehog-outer.png",
+    "village": "hedgehog-village.png",
+    "file": "hedgehog-village.png"
+  },
+  "otter": {
+    "outer": "otter-outer.png",
+    "village": "otter-village.png",
+    "file": "otter-village.png"
+  },
+  "marten": {
+    "outer": "marten-outer.png",
+    "village": "marten-village.png",
+    "file": "marten-village.png"
+  },
+  "grave": {
+    "outer": "grave-outer.png",
+    "village": "grave-village.png",
+    "file": "grave-village.png"
   }
 }

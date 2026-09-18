@@ -41,6 +41,10 @@ OR.content = (() => {
     ['Nature','waterfall','Veilfall','Falling water drowns the distant clang of the forge.','Red mist rises where the black water breaks.'],
     ['Nature','glade','Whispering Glade','A shaft of light finds a place the world forgot.','A shaft of crimson finds a place the world abandoned.'],
     ['Nature','marshland','Reedwater Marsh','Reeds rustle around the slow, dark water.','Bubbles rise from a pool with no bottom.'],
+    ['Nature','forest-path','Forest Path','A narrow trail winds between familiar trees.','A narrow trail winds between blackened trees.'],
+    ['Nature','dense-woodland','Dense Woodland','Closely packed trunks crowd the path.','Bare trunks stand close together in the red mist.'],
+    ['Nature','leafy-clearing','Leafy Clearing','Fallen leaves carpet a small opening in the woods.','Brittle leaves gather beneath a thin layer of ash.'],
+    ['Nature','grassy-rise','Grassy Rise','A gentle slope breaks through the trees.','Dry grass clings to a low rise in the ashen ground.'],
     ['NPC','villager','Strongwood Villager','A familiar face pauses on the forest road.','A hollow-eyed traveler blocks the ashen road.'],
     ['NPC','farmer','The Farmer','Earth-stained hands lift in greeting.','A farmer tills a field where nothing should grow.'],
     ['NPC','woodcutter','The Woodcutter','An axe rests against a freshly cut stump.','The woodcutter swings at a tree that bleeds.'],
@@ -56,6 +60,10 @@ OR.content = (() => {
     ['Animal','frog','Marsh Frog','A small frog guards its kingdom of moss.','A frog croaks beside water dark as iron.'],
     ['Animal','badger','Forest Badger','A badger digs with stubborn, honest purpose.','A badger claws at a shallow grave.'],
     ['Animal','lynx','Silent Lynx','Two bright eyes study you from the undergrowth.','A lynx melts into the smoke between dead trees.'],
+    ['Animal','boar','Wild Boar','A boar roots through fallen leaves, snorting at your approach.','An ash-dusted boar noses through the roots of a dead tree.'],
+    ['Animal','hedgehog','Hedgehog','A hedgehog rustles beside a rotting log, then draws into its spines.','A small hedgehog huddles beside a blackened log.'],
+    ['Animal','otter','River Otter','An otter slips over wet stones with a silver fish in its jaws.','An otter carries a pale fish along the dark water.'],
+    ['Animal','marten','Pine Marten','A marten watches from a low branch, its golden throat bright against the bark.','A marten grips a bare branch, its golden throat dulled with ash.'],
     ['Danger','snake','Briar Snake','A coiled serpent claims the path ahead.','A scaled shadow uncoils in the ash.'],
     ['Danger','skeleton','Restless Skeleton','Old bones rise where no grave should be.','Rusted iron hangs from a soldier long past death.'],
     ['Danger','spider','Thornback Spider','Silken threads shiver across the path.','A many-legged shape descends through red fog.'],
@@ -65,6 +73,7 @@ OR.content = (() => {
     ['Thing','scroll','Ancient Scroll','Faded ink remembers an older Strongwood.','The writing shifts when you look away.'],
     ['Thing','lantern','Rusted Lantern','A lantern waits for a flame and a traveler.','The empty lantern glows without a wick.'],
     ['Thing','figurine','Wooden Figurine','A small wooden guardian has lost its owner.','A carved face bears a freshly cut smile.'],
+    ['Thing','grave','Unmarked Grave','A crooked wooden marker stands over settled earth.','A nameless wooden marker leans above an ash-covered mound.'],
     ['Enemy','ogre','Ironjaw Ogre','The trees shake under a heavy tread.','A crude axe drags a long scar through the ash.'],
     ['Enemy','troll','Angry Troll','A hulking shape stirs beyond the trees.','The troll lifts its hammer. The ground goes still.'],
     ['Enemy','gargoyle','Gravewing Gargoyle','Stone wings stir in the fading light.','A stone sentinel unfolds its broken wings.'],
@@ -76,12 +85,18 @@ OR.content = (() => {
   const entities = Object.fromEntries(entries.map(([type,id,name,village,outer])=>[id,{type,id,name,village,outer}]));
   const weights = {Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2};
   const outerOnly = ['Enemy','Dragon','LockedItem'];
-  // Reserve 33% for wilderness in either realm; split the remaining 67%
-  // using the existing relative weights of the eligible encounter types.
+  // New coordinates: quiet terrain and scarce travelers in both realms.
+  // Outside, reserve 20% for threats; preserve relative weights within each pool.
   const encounterRates=isLocal=>{
     const eligible=Object.entries(weights).filter(([type])=>type!=='Home'&&(!isLocal||!outerOnly.includes(type)));
-    const otherWeight=eligible.reduce((total,[type,weight])=>total+(type==='Nature'?0:weight),0);
-    return Object.fromEntries(eligible.map(([type,weight])=>[type,type==='Nature'?33:67*weight/otherWeight]));
+    const threats=['Danger','Enemy','Dragon'];
+    const inPool=type=>type!=='Nature'&&type!=='NPC'&&(isLocal||!threats.includes(type));
+    const poolWeight=eligible.reduce((total,[type,weight])=>total+(inPool(type)?weight:0),0);
+    const threatWeight=threats.reduce((total,type)=>total+weights[type],0);
+    return Object.fromEntries(eligible.map(([type,weight])=>[type,
+      type==='Nature'?40:type==='NPC'?(isLocal?10:5):
+      !isLocal&&threats.includes(type)?20*weight/threatWeight:(isLocal?50:35)*weight/poolWeight
+    ]));
   };
   const random = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
   const pick = arr=>arr[random(0,arr.length-1)];

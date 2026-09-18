@@ -138,6 +138,8 @@ body.in-game{min-height:100dvh}
    svh also keeps browser toolbar changes from stretching the portrait. */
 .exploration-view>.scene:not(.has-dialogue){height:clamp(240px,calc(100svh - 410px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),355px)}
 .exploration-view>.scene>.cover{position:absolute;inset:0}
+/* These ground-level subjects sit lower in their portrait illustrations. */
+.scene>.cover:is([src*="/boar-"],[src*="/hedgehog-"],[src*="/otter-"],[src*="/marten-"],[src*="/grave-"]){object-position:center bottom}
 .exploration-view>.explore-body{padding-top:4px;padding-bottom:8px}
 .exploration-view .compass-block .section-label{margin:10px 0}
 .exploration-view .utility-row{margin-top:10px;padding-top:7px}
