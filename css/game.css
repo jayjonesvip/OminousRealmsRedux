@@ -195,3 +195,6 @@ body.in-game{min-height:100dvh}
 
 .vision-scene .scene-copy{padding-top:250px;}.vision-scene>.cover{object-position:center top;}
 .exploration-view>.vision-scene.has-dialogue{height:auto;min-height:0;flex:none;}.vision-scene .scene-copy{position:relative;inset:auto;padding:250px 23px 16px;}
+
+/* Dialogue grows downward; its controls stay above the bottom navigation. */
+.exploration-view>.scene.has-dialogue{height:auto;min-height:0;flex:none;}.exploration-view>.scene.has-dialogue .scene-copy{position:relative;inset:auto;padding:180px 23px 16px;}.exploration-view:has(.dialogue-dock){padding-bottom:90px;}.dialogue-dock{position:fixed;left:50%;transform:translateX(-50%);bottom:var(--nav-height,84px);width:min(430px,100%);z-index:29;padding:10px 22px;background:#10110ff5;border-top:1px solid var(--line);}.dialogue-dock .btn{margin:0;width:100%;}.dialogue-page{display:block;font:12px var(--display);color:#656950;text-align:right;}.exploration-view>.vision-scene.has-dialogue .scene-copy{padding-top:250px;}

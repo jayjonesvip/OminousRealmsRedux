@@ -3,7 +3,7 @@ OR.ui=(()=>{
   const S=OR.state,C=OR.content,W=OR.world,A=OR.actions,B=OR.combat,P=OR.puzzles,V=OR.village;
   const $=id=>document.getElementById(id);
   let vitalitySnapshot=null,damageTimer=null,roundPhase=null,roundStartHealth=null,forgeFocus='armor',forgeSingle=false,hudObserver=null;
-  function syncHudHeight(){const height=$('hud').getBoundingClientRect?.().height;if(height>0)for(const id of ['stage','toast','combat-toasts'])$(id).style?.setProperty('--hud-height',height+'px');}
+  function syncHudHeight(){const navHeight=$('nav').getBoundingClientRect?.().height;if(navHeight>0)$('stage').style?.setProperty('--nav-height',navHeight+'px');const height=$('hud').getBoundingClientRect?.().height;if(height>0)for(const id of ['stage','toast','combat-toasts'])$(id).style?.setProperty('--hud-height',height+'px');}
   const visibleHealth=()=>combatBusy&&roundPhase==='player'&&roundStartHealth?roundStartHealth:S.data.hp;
   function damageFeedback(){
     const stage=$('stage');clearTimeout(damageTimer);stage.classList.remove('damage-taken');void stage.offsetWidth;stage.classList.add('damage-taken');
@@ -34,13 +34,22 @@ OR.ui=(()=>{
   }
   function compass(actions=''){if(V.pendingGift())return actions?'<div class="tile-actions">'+actions+'</div>':'';return `<div class="compass-block"><div class="section-label"><span>CHOOSE YOUR PATH</span><span>${S.data.steps} STEPS</span></div><div class="compass">${['W','N','S','E'].map(d=>`<button class="direction dir-${d} ${V.trailHint()===d?'trail-hint':''}" data-action="move:${d}" ${S.data.hp.current<=1?'disabled':''} aria-label="Move ${ {N:'north',S:'south',E:'east',W:'west'}[d]}">${V.trailHint()===d?'<span class="sr-only">Follow the village trail. </span>':''}${icon({N:'north',S:'south',E:'east',W:'west'}[d])}<span>${{N:'NORTH',S:'SOUTH',E:'EAST',W:'WEST'}[d]}</span></button>`).join('')}</div>${actions?`<div class="tile-actions">${actions}</div>`:''}</div>`;}
   const activeDialogue=b=>['NPC','Landmark'].includes(b.elementType)&&b.resolved&&b.dialogue&&!b.dialogue.dismissed;
+  let dialogueToAdvance=null;
+  function dialoguePages(text){
+    const words=text.split(/\s+/),pages=[],count=Math.max(1,Math.ceil(text.length/280));
+    for(let remaining=count;remaining>0;remaining--){const take=Math.ceil(words.length/remaining);pages.push(words.splice(0,take).join(' '));}
+    return pages;
+  }
+  const moreDialogue=d=>d&&((d.page||0)<dialoguePages(d.text).length-1);
+  const dialogueDock=html=>'<div class="dialogue-dock">'+html+'</div>';
+  function acceptControl(b,label){return moreDialogue(b.dialogue)?'':dialogueDock(btn(label,'village:claim'));}
   function speechBubble(b){
-    const d=b.dialogue,speaker=d.speaker||C.entities[b.subtype].name;
+    const d=b.dialogue,speaker=d.speaker||C.entities[b.subtype].name,pages=dialoguePages(d.text),page=Math.min(d.page||0,pages.length-1),text=pages[page];dialogueToAdvance=d;
     return '<div class="speech-bubble '+(d.spoken?'':'silent')+'" data-dialogue>'+
       '<div class="speech-speaker">'+escape(speaker.toUpperCase())+' <span>· '+(d.spoken?'SPEAKING':'NO REPLY')+'</span></div>'+
       (d.narration?'<div class="speech-narration">'+escape(d.narration)+'</div>':'')+
-      '<p class="speech-text" '+(d.spoken?'data-typewriter aria-hidden="true"':'')+'>'+escape(d.text)+'</p>'+
-      (d.spoken?'<span class="sr-only" role="status" aria-live="polite">'+escape(speaker+' says: '+d.text)+'</span><button class="speech-skip" data-action="skip-dialogue">TAP TO REVEAL REPLY</button>':'')+'</div>';
+      '<p class="speech-text" '+(d.spoken?'data-typewriter aria-hidden="true"':'')+'>'+escape(text)+'</p>'+
+      (d.spoken?'<span class="sr-only" role="status" aria-live="polite">'+escape(speaker+' says: '+text)+'</span><button class="speech-skip" data-action="skip-dialogue">TAP TO REVEAL REPLY</button>':'')+(pages.length>1?'<span class="dialogue-page">'+(page+1)+' / '+pages.length+'</span>':'')+'</div>'+(page<pages.length-1?dialogueDock(btn('NEXT '+icon('arrow'),'next-dialogue')):'');
   }
   function scene(b,encounter=false){
     const e=C.entities[b.subtype],local=W.local(b.x,b.y),talking=activeDialogue(b);
@@ -60,9 +69,9 @@ OR.ui=(()=>{
     return '<div class="puzzle-panel">'+eyebrow('INSCRIPTION · '+rule.name.toUpperCase())+'<p class="puzzle-clue">“'+escape(P.clue(b))+'”</p>'+controls+'</div>';
   }
   function landmarkActions(b){
-    if(b.subtype==='village-forge')return activeDialogue(b)?(V.completed(b.subtype)?'':btn('ACCEPT INGOTS','village:claim')):btn('ENTER THE FORGE '+icon('forge'),'forge:armor');
+    if(b.subtype==='village-forge')return activeDialogue(b)?(V.completed(b.subtype)?'':acceptControl(b,'ACCEPT INGOTS')):btn('ENTER THE FORGE '+icon('forge'),'forge:armor');
     if(V.completed(b.subtype))return '';
-    if(activeDialogue(b))return btn(b.subtype==='wizard-sanctuary'?'ACCEPT ENCHANTMENT':b.subtype==='tavern'?'ACCEPT WISDOM':'ACCEPT POTION','village:claim');
+    if(activeDialogue(b))return acceptControl(b,b.subtype==='wizard-sanctuary'?'ACCEPT ENCHANTMENT':b.subtype==='tavern'?'ACCEPT WISDOM':'ACCEPT POTION');
     return btn(b.subtype==='tavern'?'ENTER THE TAVERN':b.subtype==='wizard-sanctuary'?'ENTER THE SANCTUARY':'ENTER THE COTTAGE','village:speak');
   }
   function tileActions(b){switch(b.elementType){
@@ -98,8 +107,9 @@ OR.ui=(()=>{
     return '<div class="healing-find">'+art('item-potion','A crimson healing potion')+'<div>'+eyebrow('HEALING FOUND')+'<h2>ONE MORE CHANCE.</h2><p>+1 Potion in your pack. Restore all your health.</p></div>'+btn('DRINK POTION · FULL HEAL','potion')+'</div>';
   }
   function grandfatherVision(){
-    const speech=speechBubble({dialogue:{text:'“'+V.visionWords+'”',speaker:'YOUR GRANDFATHER',spoken:true}});
-    return '<section class="exploration-view has-encounter-actions"><div class="scene encounter-scene has-dialogue village vision-scene">'+art('grandfather-vision','A spectral vision of your grandfather in Strongwood','cover eager','fetchpriority="high"')+'<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">A FAMILIAR VOICE</span><span class="region-badge">VISION</span></div><div class="scene-copy">'+eyebrow('BLOOD REMEMBERS')+'<h1>YOUR GRANDFATHER</h1>'+speech+'</div></div><div class="explore-body">'+btn('FOLLOW YOUR INSTINCTS','village:vision')+'</div></section>';
+    const dialogue=S.data.village.visionDialogue||(S.data.village.visionDialogue={text:'“'+V.visionWords+'”',speaker:'YOUR GRANDFATHER',spoken:true});
+    const speech=speechBubble({dialogue});
+    return '<section class="exploration-view has-encounter-actions"><div class="scene encounter-scene has-dialogue village vision-scene">'+art('grandfather-vision','A spectral vision of your grandfather in Strongwood','cover eager','fetchpriority="high"')+'<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">A FAMILIAR VOICE</span><span class="region-badge">VISION</span></div><div class="scene-copy">'+eyebrow('BLOOD REMEMBERS')+'<h1>YOUR GRANDFATHER</h1>'+speech+'</div></div><div class="explore-body">'+(moreDialogue(dialogue)?'':dialogueDock(btn('FOLLOW YOUR INSTINCTS','village:vision')))+'</div></section>';
   }
   function explore(encounter=false){if(V.visionActive())return grandfatherVision();const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle','Landmark'].includes(b.elementType)&&!b.resolved;
     const suspended=s.battle?`<div class="resume-banner">${eyebrow('UNFINISHED BUSINESS')}<h2>THE FIGHT ISN’T OVER.</h2>${btn('RESUME BATTLE '+icon('battle'),'route:battle','danger')}</div>`:s.outcome?`<div class="resume-banner">${eyebrow('THE DUST HAS SETTLED')}<h2>${s.outcome.win?'VICTORY IS YOURS.':'YOU STILL BREATHE.'}</h2>${btn(s.outcome.win?'VIEW REWARDS':'RECOVER','route:aftermath',s.outcome.win?'primary':'outline')}</div>`:s.foundLoot?discoveryLoot():'';
@@ -257,6 +267,7 @@ OR.ui=(()=>{
       }
       case 'talk':if(A.talk())route('encounter');break;
       case 'npc-attack':if(A.talk(true))route('encounter');break;
+      case 'next-dialogue':if(dialogueToAdvance&&moreDialogue(dialogueToAdvance)){dialogueToAdvance.page=(dialogueToAdvance.page||0)+1;S.save();render(true);}break;
       case 'skip-dialogue':if(typeFinish)typeFinish();break;
       case 'ignore':{const ignored=A.ignore(),notice=S.data.message;route('explore');if(ignored&&notice)toast(notice);break;}
       case 'eat':{const before=S.data.hp.current;const eaten=A.eat();route('explore');const lost=before-S.data.hp.current;if(eaten&&lost>0)toast('POISONED · −'+num(lost)+' HP','danger','The mushrooms were poisonous. Your vitality has dropped.');else if(eaten)toast('HEALTH RESTORED','reward','The mushrooms mend your wounds.');break;}
