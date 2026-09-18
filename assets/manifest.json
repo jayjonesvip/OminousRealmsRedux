@@ -419,5 +419,8 @@
     "file": "herbalist-cottage-village.png",
     "village": "herbalist-cottage-village.png",
     "empty": "herbalist-cottage-village-empty.png"
+  },
+  "grandfather-vision": {
+    "file": "grandfather-vision.png"
   }
 }

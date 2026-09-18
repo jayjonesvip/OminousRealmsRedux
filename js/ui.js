@@ -32,7 +32,7 @@ OR.ui=(()=>{
     if(step===1)return `${progress}<section class="onboard">${sectionHead('02 / YOUR WEAPON','CHOOSE YOUR EDGE.','Four paths. One defender.')}<div class="weapons">${Object.entries(C.weapons).map(([type,w])=>`<button class="weapon-option ${chosen===type?'selected':''}" data-action="choose:${type}" aria-pressed="${chosen===type}">${art('weapon-'+type.toLowerCase(),type)}<span class="weapon-info"><strong>${type.toUpperCase()}</strong><span>${w.pitch}</span><small>${w.moves[0].name.toUpperCase()} · +${w.moves[0].power} PWR · ${w.moves[0].accuracy}% ACC</small></span><span class="selection-dot"></span></button>`).join('')}</div>${btn('TAKE THE '+chosen.toUpperCase()+' '+icon('arrow'),'accept-weapon')}<p class="fine">Every weapon includes Tackle. Seek the village wizard to awaken crystal-powered Realmfire.</p></section>`;
     return `${progress}<section class="onboard">${sectionHead('03 / YOUR LEGEND','A NAME TO REMEMBER.')}<div class="portrait-plate name-portrait">${art('warrior-'+chosen.toLowerCase(),'Your chosen warrior','cover')}<div class="plate-caption">${eyebrow('STRONGWOOD’S NEW DEFENDER')}<h2>YOUR STORY BEGINS.</h2></div></div><form id="name-form"><label for="warrior-name" class="eyebrow">WARRIOR NAME <span>OPTIONAL</span></label><input id="warrior-name" name="name" autocomplete="off" maxlength="24" placeholder="Warrior"><p class="fine">Iron armor. ${chosen}. A village worth defending.</p><button class="btn primary" type="submit">NEXT · ENTER STRONGWOOD ${icon('arrow')}</button></form><p class="fine centered">Your name and weapon are sealed when you embark.</p></section>`;
   }
-  function compass(actions=''){if(V.pendingGift())return actions?'<div class="tile-actions">'+actions+'</div>':'';return `<div class="compass-block"><div class="section-label"><span>CHOOSE YOUR PATH</span><span>${S.data.steps} STEPS</span></div><div class="compass">${['W','N','S','E'].map(d=>`<button class="direction dir-${d} ${S.data.direction===d?'last':''}" data-action="move:${d}" ${S.data.hp.current<=1?'disabled':''} aria-label="Move ${ {N:'north',S:'south',E:'east',W:'west'}[d]}">${icon({N:'north',S:'south',E:'east',W:'west'}[d])}<span>${{N:'NORTH',S:'SOUTH',E:'EAST',W:'WEST'}[d]}</span></button>`).join('')}</div>${actions?`<div class="tile-actions">${actions}</div>`:''}</div>`;}
+  function compass(actions=''){if(V.pendingGift())return actions?'<div class="tile-actions">'+actions+'</div>':'';return `<div class="compass-block"><div class="section-label"><span>CHOOSE YOUR PATH</span><span>${S.data.steps} STEPS</span></div><div class="compass">${['W','N','S','E'].map(d=>`<button class="direction dir-${d} ${V.trailHint()===d?'trail-hint':S.data.direction===d?'last':''}" data-action="move:${d}" ${S.data.hp.current<=1?'disabled':''} aria-label="Move ${ {N:'north',S:'south',E:'east',W:'west'}[d]}">${V.trailHint()===d?'<span class="sr-only">Follow the village trail. </span>':''}${icon({N:'north',S:'south',E:'east',W:'west'}[d])}<span>${{N:'NORTH',S:'SOUTH',E:'EAST',W:'WEST'}[d]}</span></button>`).join('')}</div>${actions?`<div class="tile-actions">${actions}</div>`:''}</div>`;}
   const activeDialogue=b=>['NPC','Landmark'].includes(b.elementType)&&b.resolved&&b.dialogue&&!b.dialogue.dismissed;
   function speechBubble(b){
     const d=b.dialogue,speaker=d.speaker||C.entities[b.subtype].name;
@@ -62,8 +62,8 @@ OR.ui=(()=>{
   function landmarkActions(b){
     if(b.subtype==='village-forge')return btn('ENTER THE FORGE '+icon('forge'),'forge:armor');
     if(V.completed(b.subtype))return '';
-    if(activeDialogue(b))return btn(b.subtype==='wizard-sanctuary'?'ACCEPT ENCHANTMENT':'ACCEPT POTION','village:claim');
-    return btn('SPEAK','village:speak');
+    if(activeDialogue(b))return btn(b.subtype==='wizard-sanctuary'?'ACCEPT ENCHANTMENT':b.subtype==='tavern'?'ACCEPT WISDOM':'ACCEPT POTION','village:claim');
+    return btn(b.subtype==='tavern'?'ENTER THE TAVERN':b.subtype==='wizard-sanctuary'?'ENTER THE SANCTUARY':'ENTER THE COTTAGE','village:speak');
   }
   function tileActions(b){switch(b.elementType){
     case 'Puzzle':return puzzleActions(b);
@@ -97,7 +97,11 @@ OR.ui=(()=>{
     if(!s.lastFind||s.lastFind.x!==s.x||s.lastFind.y!==s.y||!S.qty('Potion')||s.hp.current>=s.hp.max)return '';
     return '<div class="healing-find">'+art('item-potion','A crimson healing potion')+'<div>'+eyebrow('HEALING FOUND')+'<h2>ONE MORE CHANCE.</h2><p>+1 Potion in your pack. Restore all your health.</p></div>'+btn('DRINK POTION · FULL HEAL','potion')+'</div>';
   }
-  function explore(encounter=false){const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle','Landmark'].includes(b.elementType)&&!b.resolved;
+  function grandfatherVision(){
+    const speech=speechBubble({dialogue:{text:'“'+V.visionWords+'”',speaker:'YOUR GRANDFATHER',spoken:true}});
+    return '<section class="exploration-view has-encounter-actions"><div class="scene encounter-scene has-dialogue village vision-scene">'+art('grandfather-vision','A spectral vision of your grandfather in Strongwood','cover eager','fetchpriority="high"')+'<div class="scene-shade"></div><div class="scene-top"><span class="scene-label">A FAMILIAR VOICE</span><span class="region-badge">VISION</span></div><div class="scene-copy">'+eyebrow('BLOOD REMEMBERS')+'<h1>YOUR GRANDFATHER</h1>'+speech+'</div></div><div class="explore-body">'+btn('FOLLOW YOUR INSTINCTS','village:vision')+'</div></section>';
+  }
+  function explore(encounter=false){if(V.visionActive())return grandfatherVision();const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle','Landmark'].includes(b.elementType)&&!b.resolved;
     const suspended=s.battle?`<div class="resume-banner">${eyebrow('UNFINISHED BUSINESS')}<h2>THE FIGHT ISN’T OVER.</h2>${btn('RESUME BATTLE '+icon('battle'),'route:battle','danger')}</div>`:s.outcome?`<div class="resume-banner">${eyebrow('THE DUST HAS SETTLED')}<h2>${s.outcome.win?'VICTORY IS YOURS.':'YOU STILL BREATHE.'}</h2>${btn(s.outcome.win?'VIEW REWARDS':'RECOVER','route:aftermath',s.outcome.win?'primary':'outline')}</div>`:s.foundLoot?discoveryLoot():'';
     const walking=!interactive&&!activeDialogue(b)&&!suspended&&!S.restStatus()&&!healingFind();
     const prompts=['Home','Landmark'].includes(b.elementType)?tileActions(b):interactive?tileActions(b):'';
@@ -243,7 +247,7 @@ OR.ui=(()=>{
         if(W.move(value)){route('explore');if(S.data.lastFind)toast('POTION FOUND','reward','+1 Potion in your pack · Use HEAL to recover.');else if(notice)toast(notice);}
         break;
       }
-      case 'village':{if(value==='speak'){if(V.speak())route('encounter');}else if(value==='claim'){const rewards=V.claim();if(rewards){render(true);toast(W.current().subtype==='wizard-sanctuary'?'WEAPON ENCHANTED':'GIFT RECEIVED','reward',rewardList(rewards).map(r=>'+'+r.qty+' '+C.items[r.type].name).join(' · '));}}break;}
+      case 'village':{if(value==='vision'){if(V.dismissVision())route('explore');}else if(value==='speak'){if(V.speak())route('encounter');}else if(value==='claim'){const rewards=V.claim();if(rewards){render(true);toast(W.current().subtype==='wizard-sanctuary'?'WEAPON ENCHANTED':W.current().subtype==='tavern'?'WISDOM RECEIVED':'GIFT RECEIVED','reward',(rewards.length?rewardList(rewards).map(r=>'+'+r.qty+' '+C.items[r.type].name).join(' · '):'The barkeep’s advice stays with you.'));}}break;}
       case 'puzzle':{
         const [verb,arg]=value.split('-'),result=P.act(verb,arg);if(!result)break;
         render(true);if(!result.quiet&&!result.entered)toast(result.title,result.kind,result.detail);

@@ -132,6 +132,10 @@
         "id": "dragon-outer",
         "prompt": "Use case: stylized-concept. Asset type: single character portrait for the dark fantasy game OMINOUS REALMS. Style: dark fantasy oil painting, slightly grainy cinematic texture, strong readable silhouette, charcoal black, cream and antique gold palette. Portrait 3:4 composition, dark vignette, restrained detail, no text, lettering, watermark, borders, or UI. Input image is identity and composition reference. Preserve this exact forest dragon's anatomy, bark-like branching horns, curled tail and seated pose. Transform it into its corrupted outer-realm form: charcoal ash scales with faint ember-red fissures, dim crimson eyes, dead hanging vines. Replace verdant forest with blackened ash woods and drifting red fog, eerie cream rim light. Retain painterly texture, readable silhouette and full portrait composition. No fire breath, no extra characters.",
         "filename": "dragon-outer.png"
+      },
+      {
+        "id": "grandfather-vision",
+        "prompt": "Mode: built-in image generation.\nOutput: grandfather-vision.png\n\nUse case: stylized-concept. Asset type: portrait encounter artwork for Ominous Realms, a cinematic realistic dark fantasy browser RPG. Create a benevolent spectral vision of the player's late grandfather standing in Strongwood's ancient forest just beyond a village trail. An elderly rugged man with weathered kind face, grey beard, simple old wool cloak over modest worn iron armor, no weapon raised. His body is subtly translucent and dissolves into pale silver-blue mist below the waist, restrained warm golden light around his face. Mossy trunks, deep green foliage, muted golden shafts of light in the background. Solemn, intimate, encouraging rather than frightening. One person only, centered upper body and face with comfortable headroom, portrait 1024x1536, lower portion softly dark for game dialogue overlay. Rich natural textures matching realistic medieval forest artwork. No text, UI, lettering, watermark, modern objects or other characters.\n"
       }
     ],
     "scenery": [

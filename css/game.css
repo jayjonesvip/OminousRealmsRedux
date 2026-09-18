@@ -190,3 +190,8 @@ body.in-game{min-height:100dvh}
 .map-legend .outer-realm{background:#42222e;border:1px solid #603343}
 
 .map-cell.path,.map-legend .path{background:#46402b;color:#e2c580}.map-cell.landmark,.map-legend .landmark{background:#6c603b;color:#ffe6a8}.map-trail{position:absolute;inset:0;pointer-events:none;opacity:.65}.map-trail i{position:absolute;background:#c3a05c}.trail-N,.trail-S{width:3px;left:calc(50% - 1.5px);height:50%}.trail-N{top:0}.trail-S{bottom:0}.trail-E,.trail-W{height:3px;top:calc(50% - 1.5px);width:50%}.trail-E{right:0}.trail-W{left:0}.map-cell .forge-marker{position:relative;z-index:1}
+
+.direction.trail-hint{border-color:var(--gold,#d3b46b);color:var(--gold,#d3b46b);box-shadow:0 0 10px #d3b46b55,inset 0 0 12px #d3b46b22;}
+
+.vision-scene .scene-copy{padding-top:250px;}.vision-scene>.cover{object-position:center top;}
+.exploration-view>.vision-scene.has-dialogue{height:auto;min-height:0;flex:none;}.vision-scene .scene-copy{position:relative;inset:auto;padding:250px 23px 16px;}

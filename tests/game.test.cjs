@@ -559,7 +559,7 @@ test('the wizard unlocks magic once and changes to empty artwork after departure
   g.place('Danger','snake',20,20);g.combat.start();g.rng(0);assert.ok(g.combat.attack(3));assert.equal(g.state.qty('MagicCrystal'),1);
 });
 test('the barkeep gives wisdom once and herbalist gifts one potion across revisits',()=>{
-  for(const id of ['tavern','herbalist-cottage']){const g=game(new Map(),true),end=g.state.data.village.routes.find(r=>r.destination===id).nodes.at(-1);g.state.data.x=end.x;g.state.data.y=end.y;g.ui.route('explore');assert.equal(g.village.claim(),false);g.ui.dispatch('village:speak');assert.match(g.nodes.stage.innerHTML,/SPEAKING/);if(id==='herbalist-cottage'){assert.match(g.nodes.stage.innerHTML,/ACCEPT POTION/);g.ui.dispatch('village:claim');assert.equal(g.state.qty('Potion'),1);assert.match(g.nodes.toast.innerHTML,/GIFT RECEIVED/);}else assert.equal(g.state.data.inventory.length,0);
+  for(const id of ['tavern','herbalist-cottage']){const g=game(new Map(),true),end=g.state.data.village.routes.find(r=>r.destination===id).nodes.at(-1);g.state.data.x=end.x;g.state.data.y=end.y;g.ui.route('explore');assert.equal(g.village.claim(),false);g.ui.dispatch('village:speak');assert.match(g.nodes.stage.innerHTML,/SPEAKING/);if(id==='herbalist-cottage'){assert.match(g.nodes.stage.innerHTML,/ACCEPT POTION/);g.ui.dispatch('village:claim');assert.equal(g.state.qty('Potion'),1);assert.match(g.nodes.toast.innerHTML,/GIFT RECEIVED/);}else {assert.match(g.nodes.stage.innerHTML,/ACCEPT WISDOM/);g.ui.dispatch('village:claim');assert.equal(g.state.data.inventory.length,0);}
     g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');assert.match(g.nodes.stage.innerHTML,new RegExp(id+'-village-empty.png'));assert.equal(g.village.speak(),false);assert.equal(g.village.claim(),false);assert.equal(g.state.qty('Potion'),id==='tavern'?0:1);
   }
 });
@@ -585,7 +585,7 @@ test('the last introduction gives a farewell in any order and persists completio
   for(const last of ['village-forge','tavern','wizard-sanctuary','herbalist-cottage']){
     const g=game(new Map(),true);for(const id of g.village.destinations)if(id!==last)g.state.data.village.visits[id]=true;
     const n=g.state.data.village.routes.find(r=>r.destination===last).nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;g.village.speak();
-    if(last!=='tavern'){assert.equal(g.village.allVisited(),false);g.village.claim();}
+    assert.equal(g.village.allVisited(),false);g.village.claim();
     assert.ok(g.village.allVisited());assert.match(g.world.current().dialogue.text,/path you choose from here is your own/);
     g.ui.route(last==='village-forge'?'forge':'explore');assert.match(g.nodes.stage.innerHTML,/path you choose from here is your own/);
     g.state.save();g.state.load();assert.ok(g.village.allVisited());assert.equal(g.village.reminder('elder'),'');
@@ -600,4 +600,15 @@ test('gift acceptance reveals the compass for wizard herbalist and forge',()=>{
     g.ui.dispatch(id==='village-forge'?'forge:armor':'village:speak');assert.equal(g.village.pendingGift(),true);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);
     g.ui.dispatch('move:N');assert.equal(g.state.data.y,n.y);g.ui.dispatch('village:claim');assert.equal(g.village.pendingGift(),false);assert.match(g.nodes.stage.innerHTML,/data-action="move:N"/);g.ui.dispatch('move:N');assert.equal(g.state.data.y,n.y-1);
   }
+});
+test('grandfather appears once after all offerings on the next off-trail move, preserving the encounter',()=>{
+  const g=game(new Map(),true);g.state.data.x=10;g.state.data.y=10;g.world.move('N');assert.equal(g.village.visionActive(),false);
+  for(const id of g.village.destinations)g.state.data.village.visits[id]=true;
+  g.state.data.x=0;g.state.data.y=0;g.world.move('N');assert.equal(g.village.visionActive(),false);
+  g.state.data.x=10;g.state.data.y=10;const enemy=g.world.getOrCreateBlock(11,10);Object.assign(enemy,{elementType:'Enemy',subtype:'ogre'});g.world.move('E');assert.equal(g.village.visionActive(),true);assert.equal(g.world.current(),enemy);g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/grandfather-vision.png/);assert.doesNotMatch(g.nodes.stage.innerHTML,/ENTER BATTLE/);
+  g.state.save();g.state.load();assert.equal(g.village.visionActive(),true);assert.equal(g.world.move('N'),false);g.ui.dispatch('village:vision');assert.match(g.nodes.stage.innerHTML,/ENTER BATTLE/);assert.equal(g.world.current().subtype,'ogre');g.ui.dispatch('move:N');assert.equal(g.village.visionActive(),false);g.state.load();assert.equal(g.state.data.village.visionSeen,true);g.world.move('S');assert.equal(g.village.visionActive(),false);
+});
+test('gold compass hint follows bends and revisits unfinished stops then disappears',()=>{
+ const g=game(new Map(),true);assert.equal(g.village.trailHint(),'N');const r=g.state.data.village.routes[0];g.state.data.x=r.nodes[1].x;g.state.data.y=r.nodes[1].y;assert.equal(g.village.trailHint(),r.nodes[2].x>r.nodes[1].x?'E':'W');g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/trail-hint/);
+ const last=g.state.data.village.routes.at(-1).nodes.at(-1);g.state.data.x=last.x;g.state.data.y=last.y;assert.equal(g.village.trailHint(),'S');for(const id of g.village.destinations)g.state.data.village.visits[id]=true;assert.equal(g.village.trailHint(),'');
 });

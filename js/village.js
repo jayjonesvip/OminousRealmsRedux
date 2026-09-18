@@ -42,7 +42,7 @@ OR.village=(()=>{
   function guidance(id){
     if(allVisited())return farewell;
     const next=destinations.find(d=>d!==id&&!completed(d));
-    if(!next)return 'Accept this gift when you are ready. You have reached the last of your village introductions.';
+    if(!next)return 'Take these words with you when you are ready. You have reached the last of your village introductions.';
     const direction=destinations.indexOf(next)>destinations.indexOf(id)?'north':'south';
     return 'Keep following the cobblestone path '+direction+' to '+C.entities[next].name+'. '+{'village-forge':'The road is easier with good iron at your side.',tavern:'There are still folk along that trail worth listening to.','wizard-sanctuary':'Peace begins with the help we offer one another.','herbalist-cottage':'Let the others prepare you before you wander farther.'}[id];
   }
@@ -56,19 +56,34 @@ OR.village=(()=>{
   }
   function speak(){
     const s=S.data,b=OR.world.current();if(!s.village||s.battle||s.outcome||s.foundLoot||b.elementType!=='Landmark'||completed(b.subtype))return false;
-    if(b.subtype==='tavern')s.village.visits.tavern=true;
+
     updateSpeech(b);b.resolved=true;
     S.log(names[b.subtype]+': '+words[b.subtype]+' '+guidance(b.subtype));S.save();return true;
   }
   function claim(){
-    const s=S.data,b=OR.world.current();if(!s.village||s.battle||s.outcome||s.foundLoot||b.elementType!=='Landmark'||!b.dialogue||b.dialogue.dismissed||completed(b.subtype)||b.subtype==='tavern')return false;
-    const rewards=b.subtype==='wizard-sanctuary'?[{type:'MagicCrystal',qty:1}]:b.subtype==='village-forge'?[{type:'MetalIngot',qty:1},{type:'SteelIngot',qty:1}]:[{type:'Potion',qty:1}];
+    const s=S.data,b=OR.world.current();if(!s.village||s.battle||s.outcome||s.foundLoot||b.elementType!=='Landmark'||!b.dialogue||b.dialogue.dismissed||completed(b.subtype))return false;
+    const rewards=b.subtype==='tavern'?[]:b.subtype==='wizard-sanctuary'?[{type:'MagicCrystal',qty:1}]:b.subtype==='village-forge'?[{type:'MetalIngot',qty:1},{type:'SteelIngot',qty:1}]:[{type:'Potion',qty:1}];
     s.village.visits[b.subtype]=true;if(b.subtype==='wizard-sanctuary')s.enchanted=true;
     for(const r of rewards)S.add(r.type,r.qty);
     if(allVisited()){updateSpeech(b);S.log(names[b.subtype]+': '+farewell);}
-    S.log((b.subtype==='wizard-sanctuary'?'Realmfire enchanted. ':'')+'Received: '+rewards.map(r=>r.qty+' '+C.items[r.type].name).join(', ')+'.');S.save();return rewards;
+    S.log(b.subtype==='tavern'?'The barkeep’s wisdom stays with you.':(b.subtype==='wizard-sanctuary'?'Realmfire enchanted. ':'')+'Received: '+rewards.map(r=>r.qty+' '+C.items[r.type].name).join(', ')+'.');S.save();return rewards;
   }
-  function pendingGift(){const b=OR.world.current();return ['wizard-sanctuary','herbalist-cottage','village-forge'].includes(b.subtype)&&!!b.dialogue&&!b.dialogue.dismissed&&!completed(b.subtype);}
+  const visionWords='You carry their gifts now, but no road can choose your life for you. Trust your instincts. Be brave when you must, and wise enough to turn back when you should. Strongwood is more than its walls; it is the people who believe in you. Find your own way, my child. Protect them. Save our village from the shadow, and remember: you never walk alone.';
+  const visionActive=()=>!!S.data?.village?.visionPending;
+  function triggerVision(b){
+    const v=S.data?.village;if(!allVisited()||v.visionSeen||['Home','Path','Landmark'].includes(b.elementType))return false;
+    v.visionSeen=true;v.visionPending=true;S.log('A vision of your grandfather appears. “'+visionWords+'”');return true;
+  }
+  function dismissVision(){if(!visionActive())return false;S.data.village.visionPending=false;S.save();return true;}
+  function trailHint(){
+    if(!active()||allVisited()||pendingGift())return '';
+    const nodes=S.data.village.routes.flatMap((r,i)=>i?r.nodes.slice(1):r.nodes);
+    const current=nodes.findIndex(n=>n.x===S.data.x&&n.y===S.data.y),end=S.data.village.routes.find(r=>r.destination===nextStop())?.nodes.at(-1);
+    if(current<0||!end)return '';
+    const target=nodes.findIndex(n=>n.x===end.x&&n.y===end.y);if(current===target)return '';
+    const next=nodes[current+(target>current?1:-1)];return next.x>S.data.x?'E':next.x<S.data.x?'W':next.y>S.data.y?'S':'N';
+  }
+  function pendingGift(){const b=OR.world.current();return destinations.includes(b.subtype)&&!!b.dialogue&&!b.dialogue.dismissed&&!completed(b.subtype);}
   function empty(b){return completed(b.subtype)&&!(b.resolved&&b.dialogue&&!b.dialogue.dismissed);}
   function description(b){
     if(b.elementType==='Home'&&allVisited())return 'Your hearth is here whenever you need it. The path you choose from here is your own.';
@@ -79,5 +94,5 @@ OR.village=(()=>{
     if(!empty(b))return C.entities[b.subtype].village;
     return {'wizard-sanctuary':'The wizard has departed. The sanctuary is quiet; his enchantment remains.',tavern:'The tavern is quiet. The barkeep is away.','herbalist-cottage':'The herbalist is gathering beyond the village. Her cottage stands quiet.'}[b.subtype];
   }
-  return {setup,template,connections,completed,speak,claim,empty,description,destinations,reminder,allVisited,pendingGift};
+  return {setup,template,connections,completed,speak,claim,empty,description,destinations,reminder,allVisited,pendingGift,visionWords,visionActive,triggerVision,dismissVision,trailHint};
 })();
