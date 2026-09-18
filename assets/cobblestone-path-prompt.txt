@@ -1,0 +1,4 @@
+Mode: built-in image generation, edit.
+Edit target/output: forest-path-village.png
+
+Use case: precise-object-edit. Edit target: the supplied Strongwood forest path game artwork. Replace only the dirt walking trail with a continuous winding medieval cobblestone footpath: irregular worn grey-brown stones, subtle moss between joints, leaf litter and weathered edges, clearly human-laid and visible from the foreground into the distance. Preserve the surrounding trees, foliage, rocks, golden forest light, cinematic realistic dark-fantasy style, camera framing and portrait composition. No people, animals, buildings, signs, text or UI. This is the safe village trail connecting landmarks in Ominous Realms.

@@ -404,5 +404,20 @@
     "village": "puzzle-levers-village.png",
     "outer": "puzzle-levers-outer.png",
     "file": "puzzle-levers-village.png"
+  },
+  "wizard-sanctuary": {
+    "file": "wizard-sanctuary-village.png",
+    "village": "wizard-sanctuary-village.png",
+    "empty": "wizard-sanctuary-village-empty.png"
+  },
+  "tavern": {
+    "file": "tavern-village.png",
+    "village": "tavern-village.png",
+    "empty": "tavern-village-empty.png"
+  },
+  "herbalist-cottage": {
+    "file": "herbalist-cottage-village.png",
+    "village": "herbalist-cottage-village.png",
+    "empty": "herbalist-cottage-village-empty.png"
   }
 }

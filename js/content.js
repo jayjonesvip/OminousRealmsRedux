@@ -29,7 +29,7 @@ OR.content = (() => {
     RustyNail:{name:'Rusty Nail',art:'item-nail',group:'REMNANTS',note:'Even the old world had loose ends.'}
   };
   const entries = [
-    ['Home','home','Strongwood Cottage','Smoke curls above the roof. Eldric’s forge burns beside your cottage.','The hearth is cold. Something remembers you.'],
+    ['Home','home','Strongwood Cottage','Smoke curls above the roof. A cobblestone path leads north toward Eldric’s forge.','The hearth is cold. Something remembers you.'],
     ['Nature','forest','Oldwood Forest','Sunlight cuts through the trees like ancestral steel.','Dead branches claw at a blood-red sky.'],
     ['Nature','mossy','Mossbound Stones','Green velvet softens the bones of the earth.','Black moss drinks from the cracks in the stone.'],
     ['Nature','rocks','Sentinel Rocks','Old stones keep a watch no warrior could outlast.','The stones lean inward, listening for your breath.'],
@@ -41,7 +41,7 @@ OR.content = (() => {
     ['Nature','waterfall','Veilfall','Falling water drowns the distant clang of the forge.','Red mist rises where the black water breaks.'],
     ['Nature','glade','Whispering Glade','A shaft of light finds a place the world forgot.','A shaft of crimson finds a place the world abandoned.'],
     ['Nature','marshland','Reedwater Marsh','Reeds rustle around the slow, dark water.','Bubbles rise from a pool with no bottom.'],
-    ['Nature','forest-path','Forest Path','A narrow trail winds between familiar trees.','A narrow trail winds between blackened trees.'],
+    ['Path','forest-path','Village Path','A narrow trail winds between familiar trees.','A narrow trail winds between blackened trees.'],
     ['Nature','dense-woodland','Dense Woodland','Closely packed trunks crowd the path.','Bare trunks stand close together in the red mist.'],
     ['Nature','leafy-clearing','Leafy Clearing','Fallen leaves carpet a small opening in the woods.','Brittle leaves gather beneath a thin layer of ash.'],
     ['Nature','grassy-rise','Grassy Rise','A gentle slope breaks through the trees.','Dry grass clings to a low rise in the ashen ground.'],
@@ -81,17 +81,21 @@ OR.content = (() => {
     ['LockedItem','chest','Ironbound Chest','Old iron guards a forgotten promise.','A locked chest waits among the bones.'],
     ['BuriedItems','dig','Disturbed Earth','Something lies below the freshly turned soil.','The ash has been moved. Someone left in a hurry.'],
     ['Craft','forge','Wayfarer’s Forge','Warm iron. A steady flame. Make yourself stronger.','A lonely forge still burns against the dark.'],
+    ['Landmark','wizard-sanctuary','Wizard’s Sanctuary','A wizard waits beside an ancient rune stone, seeking peace for Strongwood.','A quiet sanctuary.'],
+    ['Landmark','tavern','The Lantern Tavern','A warm hearth and a thoughtful barkeep offer a pause from the road.','A quiet tavern.'],
+    ['Landmark','village-forge','Eldric’s Forge','Eldric tends the fire. Bring ingots from your travels.','A village forge.'],
+    ['Landmark','herbalist-cottage','Herbalist’s Cottage','Drying herbs frame the doorway. The herbalist has something for your journey.','A quiet cottage.'],
     ['Puzzle','puzzle-plate','The Weighted Gate','An empty plate guards a cave sealed in old stone.','A cold offering plate waits before a sealed hollow.'],
     ['Puzzle','puzzle-runes','The Turning Stones','Three carved wheels bar a forgotten woodland chamber.','Three stone wheels hold a vault against the dark.'],
     ['Puzzle','puzzle-levers','The Silent Mechanism','Three levers stand watch over an ancient vault.','Three rusted levers wait beneath watchful stone beasts.']
   ];
   const entities = Object.fromEntries(entries.map(([type,id,name,village,outer])=>[id,{type,id,name,village,outer}]));
-  const weights = {Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1};
+  const weights = {Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1,Path:1,Landmark:1};
   const outerOnly = ['Enemy','Dragon','LockedItem'];
   // New coordinates: quiet terrain and scarce travelers in both realms.
   // Outside, reserve 20% for threats; preserve relative weights within each pool.
   const encounterRates=isLocal=>{
-    const eligible=Object.entries(weights).filter(([type])=>type!=='Home'&&(!isLocal||!outerOnly.includes(type)));
+    const eligible=Object.entries(weights).filter(([type])=>!['Home','Path','Landmark'].includes(type)&&(!isLocal||!outerOnly.includes(type)));
     const threats=['Danger','Enemy','Dragon'];
     const inPool=type=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&(isLocal||!threats.includes(type));
     const poolWeight=eligible.reduce((total,[type,weight])=>total+(inPool(type)?weight:0),0);

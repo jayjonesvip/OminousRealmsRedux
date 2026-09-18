@@ -9,6 +9,7 @@ OR.world=(()=>{
   function getOrCreateBlock(x,y){
     let b=at(x,y);
     if(b)return b;
+    const village=OR.village?.template(x,y);if(village){S.data.blocks.push(village);return village;}
     let type;
     if(x===0&&y===0)type='Home';
     else if(Math.max(Math.abs(x),Math.abs(y))===1)type='NPC';
@@ -58,7 +59,7 @@ OR.world=(()=>{
     if(wasLocal&&!local(s.x,s.y))S.log('THE VEIL BREAKS. Strongwood’s warmth dies behind you.');
     S.log(description(b));findHealing();S.syncRest();S.save();return b;
   }
-  function description(b=current()){return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
+  function description(b=current()){const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
   const coords=(x,y)=>x===0&&y===0?'HOME · 0 / 0':`${Math.abs(x)}${x<0?'W':'E'} ${Math.abs(y)}${y<0?'N':'S'}`;
   return {local,border,realm,at,spawn,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
 })();

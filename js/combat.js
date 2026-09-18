@@ -25,7 +25,7 @@ OR.combat=(()=>{
   }
   const fmt=n=>Number(n.toFixed(1));
   function attack(index){
-    const s=S.data;if(!s?.battle)return false;const move=s.weapon.moves[index];if(!move||(move.magic&&!S.qty('MagicCrystal')))return false;
+    const s=S.data;if(!s?.battle)return false;const move=s.weapon.moves[index];if(!move||(move.magic&&(!s.enchanted||!S.qty('MagicCrystal'))))return false;
     if(move.magic)S.add('MagicCrystal',-1);
     const b=s.battle,e=b.enemy,hit=damage(s.weapon.basePower,move,e.resistance,S.qty('LuckyCoin')>0);
     e.hp=Math.max(0,e.hp-hit);let line=hit?`${move.name} lands for ${fmt(hit)}.`:`${move.name} misses.`;

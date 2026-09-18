@@ -4,7 +4,7 @@ OR.state = (() => {
   const REST_DURATION = 10 * 60 * 1000;
   let data = null;
   let storageError = '';
-  const fresh = (name='Warrior',type='Sword')=>({version:1,name:name.trim().slice(0,24)||'Warrior',x:0,y:0,direction:'N',state:'Explore',hp:{current:50,max:50},level:1,victories:0,levelStartVictories:0,armor:{resistance:10,craftCost:10},weapon:OR.content.weapon(type),inventory:[],message:'Your father’s iron. Your own legend.',journal:[],blocks:[],battle:null,outcome:null,foundLoot:null,steps:0,healingSearchSteps:0,lastFind:null,rest:null});
+  const fresh = (name='Warrior',type='Sword')=>({version:1,enchanted:false,name:name.trim().slice(0,24)||'Warrior',x:0,y:0,direction:'N',state:'Explore',hp:{current:50,max:50},level:1,victories:0,levelStartVictories:0,armor:{resistance:10,craftCost:10},weapon:OR.content.weapon(type),inventory:[],message:'Your father’s iron. Your own legend.',journal:[],blocks:[],battle:null,outcome:null,foundLoot:null,steps:0,healingSearchSteps:0,lastFind:null,rest:null});
   const valid = s=>s && s.version===1 && typeof s.name==='string' && Number.isInteger(s.x) && Number.isInteger(s.y) && s.hp && Number.isFinite(s.hp.current) && Number.isFinite(s.hp.max) && s.hp.max>=1 && s.hp.current>=1 && s.hp.current<=s.hp.max && Number.isInteger(s.level) && s.level>=1 && Number.isFinite(s.victories) && s.victories>=0 && s.armor && Number.isFinite(s.armor.resistance) && s.armor.resistance>=0 && s.armor.resistance<=95 && s.weapon && OR.content.weapons[s.weapon.type] && Number.isFinite(s.weapon.basePower) && s.weapon.basePower>=1 && Array.isArray(s.inventory) && s.inventory.every(i=>OR.content.items[i.type] && Number.isInteger(i.qty) && i.qty>=0) && Array.isArray(s.blocks) && s.blocks.every(b=>Number.isInteger(b.x)&&Number.isInteger(b.y)&&OR.content.entities[b.subtype]&&OR.content.weights[b.elementType]) && Array.isArray(s.journal) && s.journal.every(j=>typeof j==='string');
   function load() {
     try {
@@ -17,6 +17,9 @@ OR.state = (() => {
       // level and its earned wins when adopting the per-level progression.
       if(!Number.isInteger(parsed.levelStartVictories)||parsed.levelStartVictories<0||parsed.levelStartVictories>data.victories)
         data.levelStartVictories=Math.min(data.victories,data.level>1?OR.content.required(data.level-1):0);
+      data.enchanted=typeof parsed.enchanted==='boolean'?parsed.enchanted:true;
+      OR.village?.setup(true);
+      for(const b of data.blocks)if(b.elementType==='Nature'&&b.subtype==='forest-path'){b.subtype='forest';}
       data.weapon.moves=OR.content.weapon(data.weapon.type).moves;
       data.armor.craftCost=data.armor.craftCost||data.armor.resistance;
       data.journal=data.journal.slice(-50);
@@ -43,7 +46,7 @@ OR.state = (() => {
     try {localStorage.setItem(KEY,JSON.stringify(data));storageError='';return true;}
     catch (_) {storageError='Storage is full or blocked. Keep this tab open; progress is not saved.';return false;}
   }
-  function create(name,type) {data=fresh(name,type);log('Eldric placed ancestral iron in your hands. Strongwood has a defender.');save();return data;}
+  function create(name,type) {data=fresh(name,type);OR.village?.setup();log('Eldric placed ancestral iron in your hands. Strongwood has a defender.');save();return data;}
   function reset() {try {localStorage.removeItem(KEY);}catch (_){storageError='Could not erase the save. Enable device storage and try again.';return false;}data=null;return true;}
   function qty(type) {return data?.inventory.find(i=>i.type===type)?.qty||0;}
   function levelProgress() {const required=OR.content.required(data.level),earned=Math.max(0,data.victories-data.levelStartVictories);return {required,earned,remaining:Math.max(0,required-earned),percent:Math.min(100,earned/required*100)};}
