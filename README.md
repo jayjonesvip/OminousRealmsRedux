@@ -15,7 +15,7 @@ Browser storage belongs to the current browser and origin. A file opened directl
 ## What’s included
 
 - Eleven screens: Title, Embark, Explore, Encounter, Battle, Aftermath, Pack, Forge, Map, Hero, Journal.
-- Sticky two-row HUD and five-button navigation; centered 430px mobile layout.
+- Sticky two-row HUD and five-button navigation; centered 430px mobile layout. Exploration uses a compact row of four equal direction buttons, with scene height adapting to the viewport. Conversations, rewards, and longer messages retain room to scroll.
 - Four weapons, armor, accuracy, magic crystals, lucky coins, bribes, fleeing, and unconsciousness at 1 HP.
 - Screen shake and portrait impacts; gold hits, purple magic, red incoming damage, and blue misses. Reduced-motion preferences disable shake.
 - Combat reveals your result first, pauses for 950 ms, then reveals the enemy response for 950 ms. Vitality updates with the enemy response; actions stay locked until the sequence finishes. Both sides roll accuracy independently.
