@@ -177,3 +177,6 @@ body.in-game{min-height:100dvh}
 .fighter.fighter-pulse{border-color:var(--impact-color);animation:fighter-border-pulse .9s ease-out both}
 @keyframes fighter-border-pulse{0%{box-shadow:inset 0 0 0 0 var(--impact-color)}20%,45%{box-shadow:inset 0 0 0 3px var(--impact-color),0 0 12px -3px var(--impact-color)}100%{box-shadow:inset 0 0 0 0 var(--impact-color)}}
 @media(prefers-reduced-motion:reduce){.fighter.fighter-pulse{animation:none;box-shadow:inset 0 0 0 2px var(--impact-color)}}
+
+/* Enough ingots for the next enhancement, even while away from a forge. */
+.stat-cell.ready{background:linear-gradient(0deg,#d4b12618,transparent);box-shadow:inset 0 0 9px #dfbd6533,inset 0 0 0 1px #d5b46c88,0 0 9px #dfbd6526}

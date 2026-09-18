@@ -244,7 +244,7 @@ test('NPC dialogue selects by role and realm, reaches every line, and saves with
 test('HUD equipment details preserve encounters and cannot enhance away from a forge',()=>{
   const g=game(new Map(),true),b=g.place('Enemy','ogre',27,0);g.state.add('SteelIngot',60);g.ui.route('explore');
   assert.match(g.nodes.hud.innerHTML,/aria-label="Weapon details"/);assert.match(g.nodes.hud.innerHTML,/aria-label="Armor details"/);
-  assert.doesNotMatch(g.nodes.hud.innerHTML,/stat-cell ready/);
+  assert.match(g.nodes.hud.innerHTML,/stat-cell ready/);
   for(const type of ['weapon','armor']){g.ui.dispatch('forge:'+type);assert.equal(g.ui.screen,'forge');assert.match(g.nodes.stage.innerHTML,/Visit a forge to enhance/);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="craft:/);}
   g.ui.dispatch('craft:weapon');assert.equal(g.state.data.weapon.basePower,5);assert.equal(g.state.qty('SteelIngot'),60);
   g.ui.dispatch('route:explore');assert.equal(b.resolved,false);assert.match(g.nodes.stage.innerHTML,/ENTER BATTLE/);
@@ -491,3 +491,5 @@ test('puzzles respect battle, result, found-loot and recovery guards without cha
   g.state.data.hp.current=1;assert.equal(g.puzzles.act('offer','MetalIngot'),false);assert.equal(g.state.qty('MetalIngot'),2);assert.equal(b.puzzle.offered,0);
   g.state.data.hp.current=50;g.place('Nature','forest');assert.equal(g.puzzles.act('enter'),false);
 });
+
+test('HUD opens one equipment card while the forge keeps both and affordability glow tracks ingots',()=>{const g=game(new Map(),true);g.place('Craft','forge');g.state.add('MetalIngot',10);g.state.add('SteelIngot',6);g.ui.route('explore');assert.equal((g.nodes.hud.innerHTML.match(/stat-cell ready/g)||[]).length,2);for(const type of ['armor','weapon']){g.ui.dispatch('equipment:'+type);assert.match(g.nodes.stage.innerHTML,new RegExp('id="forge-'+type+'"'));assert.doesNotMatch(g.nodes.stage.innerHTML,new RegExp('id="forge-'+(type==='armor'?'weapon':'armor')+'"'));assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="forge:/);}g.ui.dispatch('craft:weapon');assert.equal((g.nodes.hud.innerHTML.match(/stat-cell ready/g)||[]).length,1);g.ui.dispatch('forge:armor');assert.match(g.nodes.stage.innerHTML,/id="forge-armor"/);assert.match(g.nodes.stage.innerHTML,/id="forge-weapon"/);g.state.data.armor.resistance=95;g.ui.render();assert.doesNotMatch(g.nodes.hud.innerHTML,/stat-cell ready/);});
