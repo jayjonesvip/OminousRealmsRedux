@@ -122,8 +122,8 @@ OR.ui=(()=>{
     const e=b.enemy,outer=!W.local(b.x,b.y),r=b.lastRound,hp=visibleHealth(),playerBeat=roundPhase==='player';
     const shake=combatBusy&&r&&(playerBeat?r.dealt>0:r.received>0);
     const actor=(enemy,portrait=false)=>{
-      const amount=enemy?(playerBeat?r?.dealt:null):(playerBeat?null:r?.received);
-      const borderClass=combatBusy&&amount!==null&&amount!==undefined?' fighter-pulse '+(amount>0?(enemy?'border-hit':'border-hurt'):'border-miss'):'';
+      const amount=playerBeat?r?.dealt:r?.received,attacking=enemy?!playerBeat:playerBeat;
+      const borderClass=combatBusy&&amount!==null&&amount!==undefined&&(amount>0||attacking)?' fighter-pulse '+(amount>0?(attacking?'border-hit':'border-hurt'):'border-miss'):'';
       const wrapper='<div class="fighter '+(enemy?'enemy':'player')+borderClass+'">';
       if(portrait)return wrapper+'<div class="fighter-art">'+
         art(enemy?(e.id==='dragon'?'dragon-'+(outer?'outer':'village'):e.id):playerArt(),enemy?e.name:s.name,'cover')+
