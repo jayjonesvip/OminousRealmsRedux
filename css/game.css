@@ -141,6 +141,7 @@ body.in-game{min-height:100dvh}
 .exploration-view.extended-actions>.scene:not(.has-dialogue){height:clamp(170px,calc(100svh - 520px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),315px)}
 .compass-block>.tile-actions{margin:10px 0 0}
 .equipment-hint{grid-column:1/-1;font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+.inventory-entry>.btn{margin:10px 0 16px}
 .map-legend .craft{background:#d18d49}.map-legend .home{background:#d6b76d}
 .map-cell.craft{color:#21160e}.map-cell .forge-marker{width:16px;height:16px;stroke-width:1.8}.map-legend .forge-marker{width:13px;height:13px;color:var(--gold)}
 .compass-block>.tile-actions>.button-pair{margin-top:0}
