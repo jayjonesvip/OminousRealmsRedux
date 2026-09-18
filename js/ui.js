@@ -69,7 +69,7 @@ OR.ui=(()=>{
     case 'Food':return btn('EAT MUSHROOMS','eat');
     case 'BuriedItems':return (b.digDepth?'<p class="dig-progress">'+b.dug+' '+(b.dug===1?'FOOT':'FEET')+' DUG · 1–2 HP PER FOOT</p>':'<p class="fine">The depth is unknown. Each foot costs 1–2 health.</p>')+btn(b.digDepth?'DIG ANOTHER FOOT':'BREAK GROUND','dig','primary',S.data.hp.current<=1?'disabled':'');
     case 'LockedItem':return btn('UNLOCK · '+(S.qty('Key')?'USE 1 KEY':'KEY REQUIRED'),'unlock','primary',!S.qty('Key')?'disabled':'');
-    case 'Craft':return '<div class="button-pair">'+btn('ENHANCE ARMOR','forge:armor')+btn('ENHANCE WEAPON','forge:weapon','outline')+'</div>';
+    case 'Craft':return btn('ENTER THE FORGE '+icon('forge'),'forge:armor');
     default:return '';
   }}
   function restCountdown(){
@@ -182,7 +182,7 @@ OR.ui=(()=>{
           '<div>'+eyebrow(ar?'ANCESTRAL IRON':s.weapon.type.toUpperCase())+'<h2>'+(atForge?(ar?'REINFORCE.':s.weapon.type==='Hammer'?'REFORGE.':'RESHARPEN.'):(ar?'YOUR ARMOR.':'YOUR WEAPON.'))+'</h2><p>'+current+'</p>'+
           '<span class="fine">'+(mastered?'Maximum resistance reached.':'Next: '+next+'<br>'+available+' / '+cost+' '+(ar?'Metal':'Steel')+' Ingots')+'</span></div>'+
           (atForge?btn(mastered?'ARMOR MASTERED':'ENHANCE '+type.toUpperCase(),'craft:'+type,'primary',!ready||available<cost||mastered?'disabled':''):'<p class="equipment-hint">Visit a forge to enhance.</p>')+'</div>';
-      }).join('')+(atForge&&!forgeSingle?btn('ENHANCE '+other.toUpperCase(),'forge:'+other,'outline'):'')+
+      }).join('')+
       (s.battle?btn('BACK TO BATTLE','route:battle','outline'):s.outcome?btn('VIEW BATTLE RESULT','route:aftermath','outline'):'')+'</section>';
   }
   function map(){const s=S.data,colors={Home:'home',NPC:'npc',Nature:'nature',Animal:'nature',Food:'food',Danger:'danger',Thing:'thing',Enemy:'danger',Dragon:'dragon',LockedItem:'treasure',BuriedItems:'treasure',Craft:'craft',Puzzle:'puzzle'};let grid='';for(let dy=-5;dy<=5;dy++)for(let dx=-5;dx<=5;dx++){const x=s.x+dx,y=s.y+dy,b=W.at(x,y),self=dx===0&&dy===0;grid+=`<button role="gridcell" class="map-cell ${b?colors[b.elementType]:'fog'} ${self?'you':''} ${W.border(x,y)?'border-cell':''} ${!W.local(x,y)?'outer-cell':''}" data-action="tile:${x},${y}" aria-label="${x}, ${y}: ${b?escape(b.elementType==='Home'?'Strongwood Cottage · Eldric’s forge':C.entities[b.subtype].name):'Unexplored'}${self?', your location':''}">${b&&['Home','Craft'].includes(b.elementType)?icon('battle','forge-marker'):b?.elementType==='Puzzle'?(b.puzzle?.solved?'◇':'?'):self?'◆':''}</button>`;}
