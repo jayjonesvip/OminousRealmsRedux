@@ -96,3 +96,4 @@ Village stops share Enter → dialogue → Accept → compass. Tavern wisdom now
 Narrative convention: the subtle gold compass glow represents the grandfather’s guidance. His vision reveals this connection. Reserve the same visual cue for future quest guidance; the current implementation only guides unfinished village introductions. No quest system or additional guidance triggers are enabled yet.
 
 Dialogue is divided into balanced pages when longer than roughly 280 characters. Next and final acceptance controls are fixed above the measured bottom navigation; text flows downward with space below it. Conversation page progress is saved.
+`nExplore uses one fixed dock above bottom navigation: always-visible compass, then contextual action controls. Movement locks disable compass buttons. Dock height is measured to reserve scroll space for dialogue, including smaller mobile viewports. The Explore Journal button is removed.
