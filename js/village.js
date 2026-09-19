@@ -1,7 +1,7 @@
 'use strict';
 OR.village=(()=>{
   const C=OR.content,S=OR.state;
-  const destinations=['village-forge','tavern','wizard-sanctuary','herbalist-cottage'];
+  const destinations=['village-forge','wizard-sanctuary','herbalist-cottage'];
   const names={'wizard-sanctuary':'The Wizard',tavern:'The Barkeep','village-forge':'Eldric','herbalist-cottage':'The Herbalist'};
   const words={
     'wizard-sanctuary':'Strongwood deserves a quieter age. Let me bind Realmfire to your weapon. A Magic Crystal will awaken it for one strike; the enchantment itself will remain. Take this crystal, and use that power to bring peace home.',
@@ -18,8 +18,20 @@ OR.village=(()=>{
     }
     return routes;
   }
+  function retireTavern(s){
+    const routes=s.village.routes||[],i=routes.findIndex(r=>r.destination==='tavern');
+    if(i<0)return false;
+    const retired=routes[i],next=routes[i+1];
+    if(next)next.nodes=retired.nodes.concat(next.nodes.slice(1));
+    routes.splice(i,1);delete s.village.visits.tavern;
+    for(const b of s.blocks){
+      if(b.subtype==='tavern'){b.elementType='Path';b.subtype='forest-path';b.resolved=false;delete b.dialogue;}
+      else if(b.elementType==='Landmark'&&b.dialogue&&!completed(b.subtype))updateSpeech(b);
+    }
+    s.village.version=2;return true;
+  }
   function setup(legacy=false){
-    const s=S.data;if(!s||s.village)return false;
+    const s=S.data;if(!s)return false;if(s.village){return retireTavern(s);}
     if(legacy){s.village={version:1,legacy:true,routes:[],visits:{}};s.enchanted=true;return true;}
     s.village={version:1,routes:makeRoutes(),visits:{}};
     return true;
@@ -55,13 +67,13 @@ OR.village=(()=>{
     b.dialogue={text:'“'+words[b.subtype]+' '+guidance(b.subtype)+'”',spoken:true,speaker:names[b.subtype],dismissed:false};
   }
   function speak(){
-    const s=S.data,b=OR.world.current();if(!s.village||s.battle||s.outcome||s.foundLoot||b.elementType!=='Landmark'||completed(b.subtype))return false;
+    const s=S.data,b=OR.world.current();if(!s.village||s.battle||s.outcome||s.foundLoot||b.elementType!=='Landmark'||!destinations.includes(b.subtype)||completed(b.subtype))return false;
 
     updateSpeech(b);b.resolved=true;
     S.log(names[b.subtype]+': '+words[b.subtype]+' '+guidance(b.subtype));S.save();return true;
   }
   function claim(){
-    const s=S.data,b=OR.world.current();if(!s.village||s.battle||s.outcome||s.foundLoot||b.elementType!=='Landmark'||!b.dialogue||b.dialogue.dismissed||completed(b.subtype))return false;
+    const s=S.data,b=OR.world.current();if(!s.village||s.battle||s.outcome||s.foundLoot||b.elementType!=='Landmark'||!destinations.includes(b.subtype)||!b.dialogue||b.dialogue.dismissed||completed(b.subtype))return false;
     const rewards=b.subtype==='tavern'?[]:b.subtype==='wizard-sanctuary'?[{type:'MagicCrystal',qty:1}]:b.subtype==='village-forge'?[{type:'MetalIngot',qty:1},{type:'SteelIngot',qty:1}]:[{type:'Potion',qty:1}];
     s.village.visits[b.subtype]=true;if(b.subtype==='wizard-sanctuary')s.enchanted=true;
     for(const r of rewards)S.add(r.type,r.qty);

@@ -76,7 +76,7 @@ OR.ui=(()=>{
   }
   function tileActions(b){switch(b.elementType){
     case 'Puzzle':return P.ensure(b).claimed?'':btn('SOLVE PUZZLE','route:puzzle');
-    case 'Home':return V.allVisited()?'<p class="fine">Strongwood has helped you prepare. The path ahead is yours to choose.</p>':S.data.village?.legacy?btn('ELDRIC’S FORGE '+icon('forge'),'forge:armor'):'<p class="fine">Start north. Follow the cobblestones to Eldric’s forge, then onward to the tavern, wizard and herbalist.</p>';
+    case 'Home':return V.allVisited()?'<p class="fine">Strongwood has helped you prepare. The path ahead is yours to choose.</p>':S.data.village?.legacy?btn('ELDRIC’S FORGE '+icon('forge'),'forge:armor'):'<p class="fine">Start north. Follow the cobblestones to Eldric’s forge, then onward to the wizard and herbalist.</p>';
     case 'Landmark':return landmarkActions(b);
     case 'NPC':return '<div class="button-pair">'+btn('SPEAK','talk')+btn('ATTACK','npc-attack','outline')+'</div>';
     case 'Danger':

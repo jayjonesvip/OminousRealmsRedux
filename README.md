@@ -103,3 +103,5 @@ Explore scene metadata (category, title, description) is measured as the first s
 Digging shares the dedicated interaction layout with puzzles. Explore offers Dig or Resume Digging; Stop Digging preserves progress and returns to Explore. Unclaimed digging loot resumes on reload, and gathering it returns to Explore. Ordinary walking screens fit the dynamic viewport without surplus bottom scroll.
 
 Village introductions and the grandfather vision use the shared interaction page. Accepting an offering returns immediately to Explore with a result toast; completed introductions cannot be reopened. Ordinary NPCs and mushrooms remain on Explore.
+
+The active village trail now visits the forge, wizard and herbalist. The tavern is retired; its occupied and empty assets are reserved for future use. Existing saves retain landmark coordinates, with the old tavern converted into a safe path tile.
