@@ -2,7 +2,7 @@
 OR.world=(()=>{
   const C=OR.content,S=OR.state;
   const local=(x,y)=>Math.abs(x)<=25&&Math.abs(y)<=25;
-  const border=(x,y)=>Math.abs(x)===26||Math.abs(y)===26;
+  const border=(x,y)=>Math.max(Math.abs(x),Math.abs(y))===26;
   const realm=(x,y)=>local(x,y)?'Strongwood Village':'The Outer Realm';
   const at=(x,y)=>S.data.blocks.find(b=>b.x===x&&b.y===y);
   const outerPeople=['hunter','exile','gravekeeper','hermit'];
@@ -15,9 +15,16 @@ OR.world=(()=>{
       else seen.add(b.subtype);
     }
   }
-  function spawn(type,x,y){let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&(e.id!=='grave'||!local(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
+  function spawn(type,x,y){if(border(x,y))return borderBlock(x,y);let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&(e.id!=='grave'||!local(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
+  function borderBlock(x,y,b){
+    if(!b)b={x,y};
+    for(const key of Object.keys(b))if(!['x','y'].includes(key))delete b[key];
+    return Object.assign(b,{elementType:'Border',subtype:'outer-realm-border',resolved:true});
+  }
+  function migrateBorders(){for(const b of S.data.blocks)if(border(b.x,b.y))borderBlock(b.x,b.y,b);}
   function getOrCreateBlock(x,y){
     let b=at(x,y);
+    if(border(x,y)){if(b?.elementType==='Border')return b;const crossing=borderBlock(x,y,b);if(!b)S.data.blocks.push(crossing);return crossing;}
     if(b)return b;
     const village=OR.village?.template(x,y);if(village){S.data.blocks.push(village);return village;}
     const quest=OR.quests?.roll(x,y);if(quest){S.data.blocks.push(quest);return quest;}
@@ -72,5 +79,5 @@ OR.world=(()=>{
   }
   function description(b=current()){const quest=OR.quests?.description(b);if(quest)return quest;const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
   const coords=(x,y)=>x===0&&y===0?'HOME · 0 / 0':`${Math.abs(x)}${x<0?'W':'E'} ${Math.abs(y)}${y<0?'N':'S'}`;
-  return {local,border,realm,at,spawn,npcCandidates,migrateNpcs,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
+  return {local,border,realm,at,spawn,npcCandidates,migrateNpcs,migrateBorders,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
 })();

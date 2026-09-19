@@ -30,6 +30,7 @@ OR.content = (() => {
     RustyNail:{name:'Rusty Nail',art:'item-nail',group:'REMNANTS',note:'Even the old world had loose ends.'}
   };
   const entries = [
+    ['Border','outer-realm-border','The Veil','A rotten fence divides quiet woodland from scorched earth.','A rotten fence divides quiet woodland from scorched earth.'],
     ['Quest','grandfather-echo','A Familiar Voice','Your grandfather waits.','Your grandfather’s voice reaches through the veil.'],
     ['Thing','empty-chest','Empty Chest','An old chest stands empty.','An abandoned chest holds only ash.'],
     ['Home','home','Strongwood Cottage','Smoke curls above the roof. A cobblestone path leads north toward the Lantern Tavern.','The hearth is cold. Something remembers you.'],
@@ -96,12 +97,12 @@ OR.content = (() => {
     ['Puzzle','puzzle-levers','The Silent Mechanism','Three levers stand watch over an ancient vault.','Three rusted levers wait beneath watchful stone beasts.']
   ];
   const entities = Object.fromEntries(entries.map(([type,id,name,village,outer])=>[id,{type,id,name,village,outer}]));
-  const weights = {Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1,Path:1,Landmark:1,Quest:1};
+  const weights = {Border:1,Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1,Path:1,Landmark:1,Quest:1};
   const outerOnly = ['Enemy','Dragon','LockedItem'];
   // New coordinates: quiet terrain and scarce travelers in both realms.
   // Outside, reserve 20% for threats; preserve relative weights within each pool.
   const encounterRates=isLocal=>{
-    const eligible=Object.entries(weights).filter(([type])=>!['Home','Path','Landmark','Quest','LockedItem'].includes(type)&&(!isLocal||!outerOnly.includes(type)));
+    const eligible=Object.entries(weights).filter(([type])=>!['Border','Home','Path','Landmark','Quest','LockedItem'].includes(type)&&(!isLocal||!outerOnly.includes(type)));
     const threats=['Danger','Enemy','Dragon'];
     const inPool=type=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&(isLocal||!threats.includes(type));
     const poolWeight=eligible.reduce((total,[type,weight])=>total+(inPool(type)?weight:0),0);

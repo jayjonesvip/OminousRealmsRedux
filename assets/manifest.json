@@ -437,5 +437,8 @@
   "hermit": {
     "file": "hermit-outer.png",
     "outer": "hermit-outer.png"
+  },
+  "outer-realm-border": {
+    "file": "outer-realm-border.png"
   }
 }

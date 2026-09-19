@@ -85,7 +85,7 @@ OR.village=(()=>{
   const visionWords='That gentle golden light upon your compass was me, my child. I have been watching over you, guiding you to those who could help. I will watch over you still. When that light returns, know that I am pointing the way—but the choice is always yours. Grow stronger, and venture deeper beyond the veil. When you are ready, listen for my voice. There are things I left unfinished—tasks that could help our village. I will ask for your help, but the choice to accept will be yours. Trust your instincts. Protect the people who believe in you. Save Strongwood from the shadow. You never walk alone.';
   const visionActive=()=>!!S.data?.village?.visionPending;
   function triggerVision(b){
-    const v=S.data?.village;if(!allVisited()||v.visionSeen||destinations.includes(b.subtype)||['Home','Path','Landmark'].includes(b.elementType))return false;
+    const v=S.data?.village;if(!allVisited()||v.visionSeen||destinations.includes(b.subtype)||['Border','Home','Path','Landmark'].includes(b.elementType))return false;
     v.visionSeen=true;v.visionPending=true;S.log('A vision of your grandfather appears. “'+visionWords+'”');return true;
   }
   function dismissVision(){if(!visionActive())return false;S.data.village.visionPending=false;S.save();return true;}

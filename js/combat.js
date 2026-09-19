@@ -54,7 +54,7 @@ OR.combat=(()=>{
   function advanceDragon(battle){
     if(battle.enemyId!=='dragon'||battle.enemy.hp<=0||battle.enemy.hp>=battle.enemy.maxHp||W.local(battle.x,battle.y))return false;
     let x=battle.x,y=battle.y;if(Math.abs(x)>=Math.abs(y))x-=Math.sign(x);else y-=Math.sign(y);
-    if(W.local(x,y)||battle.enemyId==='dragon'&&OR.quests?.atTarget(W.at(battle.x,battle.y))&&!OR.quests.deep(x,y))return false;
+    if(W.local(x,y)||W.border(x,y)||battle.enemyId==='dragon'&&OR.quests?.atTarget(W.at(battle.x,battle.y))&&!OR.quests.deep(x,y))return false;
     const target=W.at(x,y),reserved=OR.village?.template(x,y);
     if(reserved||target&&target.elementType!=='Nature')return false;
     const origin=W.at(battle.x,battle.y);if(!origin||origin.elementType!=='Dragon')return false;
