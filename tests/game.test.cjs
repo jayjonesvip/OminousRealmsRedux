@@ -60,7 +60,7 @@ test('chest rewards use a transient toast and both toast hosts follow measured H
 test('home remains a recovery point while Eldric upgrades only at his village forge',()=>{
   const g=game(new Map(),true);g.state.add('SteelIngot',20);g.state.add('MetalIngot',30);g.state.data.hp.current=10;g.state.save();g.state.load();g.ui.init();
   assert.equal(g.world.current().elementType,'Home');assert.equal(g.actions.atForge(),false);assert.match(g.nodes.stage.innerHTML,/LET THE HEARTH HEAL/);assert.equal(g.actions.craft('weapon'),false);assert.ok(g.state.data.rest);
-  const route=g.state.data.village.routes.find(r=>r.destination==='village-forge'),end=route.nodes.at(-1);g.state.data.x=end.x;g.state.data.y=end.y;g.ui.dispatch('forge:weapon');assert.match(g.nodes.stage.innerHTML,/ELDRIC’S FORGE/);assert.match(g.nodes.stage.innerHTML,/assets\/forge-village.png/);
+  const route=g.state.data.village.routes.find(r=>r.destination==='village-forge'),end=route.nodes.at(-1);g.state.data.x=end.x;g.state.data.y=end.y;g.ui.dispatch('forge:weapon');assert.match(g.nodes.stage.innerHTML,/Eldric’s Forge/);assert.match(g.nodes.stage.innerHTML,/assets\/forge-village.png/);
   g.ui.dispatch('craft:weapon');g.ui.dispatch('craft:armor');assert.equal(g.state.data.weapon.basePower,6);assert.equal(g.state.data.armor.resistance,11);assert.equal(g.state.qty('SteelIngot'),14);assert.equal(g.state.qty('MetalIngot'),20);
 });
 test('wilderness forges stay usable after upgrades, departure, revisits and reloads in both realms',()=>{
@@ -590,7 +590,7 @@ test('the last introduction gives a farewell in any order and persists completio
     const n=g.state.data.village.routes.find(r=>r.destination===last).nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;g.village.speak();
     assert.equal(g.village.allVisited(),false);g.village.claim();
     assert.ok(g.village.allVisited());assert.match(g.world.current().dialogue.text,/path you choose from here is your own/);
-    g.ui.route(last==='village-forge'?'forge':'explore');finishDialogue(g);assert.match(g.nodes.stage.innerHTML,/your own/);
+    g.ui.route('explore');assert.doesNotMatch(g.nodes.stage.innerHTML,/speech-bubble/);
     g.state.save();g.state.load();assert.ok(g.village.allVisited());assert.equal(g.village.reminder('elder'),'');
   }
 });
@@ -600,7 +600,7 @@ test('out of order landmark visits point toward remaining people rather than bey
 test('gift acceptance reveals the compass for wizard herbalist and forge',()=>{
   for(const id of ['wizard-sanctuary','herbalist-cottage','village-forge']){
     const g=game(new Map(),true),n=g.state.data.village.routes.find(r=>r.destination===id).nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;
-    g.ui.dispatch(id==='village-forge'?'forge:armor':'village:speak');assert.equal(g.village.pendingGift(),true);assert.match(g.nodes.stage.innerHTML,/data-action="move:N" disabled/);
+    g.ui.dispatch(id==='village-forge'?'forge:armor':'village:speak');assert.equal(g.village.pendingGift(),true);assert.equal(g.ui.screen,'village');assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);
     g.ui.dispatch('move:N');assert.equal(g.state.data.y,n.y);g.ui.dispatch('village:claim');assert.equal(g.village.pendingGift(),false);assert.match(g.nodes.stage.innerHTML,/data-action="move:N"/);g.ui.dispatch('move:N');assert.equal(g.state.data.y,n.y-1);
   }
 });
@@ -618,11 +618,11 @@ test('gold compass hint follows bends and revisits unfinished stops then disappe
 test('unvisited landmarks require entry and acceptance before movement',()=>{
  for(const id of ['village-forge','tavern','wizard-sanctuary','herbalist-cottage']){
   const g=game(new Map(),true),n=g.state.data.village.routes.find(r=>r.destination===id).nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/data-action="move:N" disabled/);assert.match(g.nodes.stage.innerHTML,/ENTER THE/);assert.equal(g.world.move('N'),false);g.ui.dispatch('move:N');assert.equal(g.state.data.y,n.y);
-  g.ui.dispatch(id==='village-forge'?'forge:armor':'village:speak');assert.match(g.nodes.stage.innerHTML,/data-action="move:N" disabled/);g.ui.dispatch('village:claim');assert.match(g.nodes.stage.innerHTML,/data-action="move:N"/);assert.ok(g.world.move('N'));
+  g.ui.dispatch(id==='village-forge'?'forge:armor':'village:speak');assert.equal(g.ui.screen,'village');assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);finishDialogue(g);g.ui.dispatch('village:claim');assert.match(g.nodes.stage.innerHTML,/data-action="move:N"/);assert.ok(g.world.move('N'));
  }
 });
 test('long dialogue pages before acceptance and preserves progress on reload',()=>{
- const g=game(new Map(),true),n=g.state.data.village.routes.find(r=>r.destination==='wizard-sanctuary').nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;g.ui.dispatch('village:speak');assert.match(g.nodes.stage.innerHTML,/data-action="next-dialogue"/);assert.doesNotMatch(g.nodes.stage.innerHTML,/ACCEPT ENCHANTMENT/);assert.match(g.nodes.stage.innerHTML,/dialogue-dock/);g.ui.dispatch('next-dialogue');assert.equal(g.world.current().dialogue.page,1);g.state.load();g.ui.route('explore');assert.equal(g.world.current().dialogue.page,1);finishDialogue(g);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="next-dialogue"/);assert.match(g.nodes.stage.innerHTML,/ACCEPT ENCHANTMENT/);assert.equal(g.state.data.enchanted,false);g.ui.dispatch('village:claim');assert.equal(g.state.data.enchanted,true);
+ const g=game(new Map(),true),n=g.state.data.village.routes.find(r=>r.destination==='wizard-sanctuary').nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;g.ui.dispatch('village:speak');assert.match(g.nodes.stage.innerHTML,/data-action="next-dialogue"/);assert.doesNotMatch(g.nodes.stage.innerHTML,/ACCEPT ENCHANTMENT/);assert.match(g.nodes.stage.innerHTML,/dialogue-dock/);g.ui.dispatch('next-dialogue');assert.equal(g.world.current().dialogue.page,1);g.state.load();g.ui.route('village');assert.equal(g.world.current().dialogue.page,1);finishDialogue(g);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="next-dialogue"/);assert.match(g.nodes.stage.innerHTML,/ACCEPT ENCHANTMENT/);assert.equal(g.state.data.enchanted,false);g.ui.dispatch('village:claim');assert.equal(g.state.data.enchanted,true);
 });
 test('graves never spawn in Strongwood and old local graves become figurines without moving coordinates',()=>{
  const g=game();for(const [x,y] of [[0,0],[25,25],[-25,-25]])for(let i=0;i<100;i++){g.rng(i/100);assert.notEqual(g.world.spawn('Thing',x,y).subtype,'grave');}
@@ -630,3 +630,5 @@ test('graves never spawn in Strongwood and old local graves become figurines wit
  g.place('Thing','grave',25,25);g.place('Thing','grave',26,25);g.state.save();g.state.load();assert.equal(g.world.at(25,25).subtype,'figurine');assert.equal(g.world.at(26,25).subtype,'grave');
 });
 test('digging has a dedicated page with stop and persistent resume',()=>{const g=game(new Map(),true),b=g.place('BuriedItems','dig',8,8);g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/data-action="route:digging"/);g.ui.dispatch('route:digging');assert.equal(g.ui.screen,'digging');assert.match(g.nodes.stage.innerHTML,/STOP DIGGING/);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);g.rng(0);g.ui.dispatch('dig');g.ui.dispatch('stop-digging');assert.equal(g.ui.screen,'explore');assert.equal(b.dug,1);assert.match(g.nodes.stage.innerHTML,/RESUME DIGGING/);g.state.load();g.ui.dispatch('route:digging');assert.equal(g.world.current().dug,1);});
+
+test('every village offering finalizes on Explore with a result toast',()=>{for(const id of ['village-forge','tavern','wizard-sanctuary','herbalist-cottage']){const g=game(new Map(),true),n=g.state.data.village.routes.find(r=>r.destination===id).nodes.at(-1);g.state.data.x=n.x;g.state.data.y=n.y;g.ui.dispatch(id==='village-forge'?'forge:armor':'village:speak');finishDialogue(g);g.ui.dispatch('village:claim');assert.equal(g.ui.screen,'explore');assert.match(g.nodes.stage.innerHTML,/data-action="move:N"/);assert.doesNotMatch(g.nodes.stage.innerHTML,/speech-bubble|ACCEPT INGOTS|ACCEPT POTION|ACCEPT WISDOM|ACCEPT ENCHANTMENT/);assert.match(g.nodes.toast.innerHTML,/GIFT RECEIVED|WEAPON ENCHANTED|WISDOM RECEIVED/);g.ui.route('village');assert.equal(g.ui.screen,'explore');}});

@@ -211,3 +211,5 @@ body.in-game{min-height:100dvh}
 
 /* Simple exploration fits the viewport; richer interactions remain scrollable. */
 .in-game #stage:has(.exploration-view){min-height:0;padding-bottom:var(--nav-height,84px);}.exploration-view.walking-view:has(.explore-dock){height:calc(100dvh - var(--hud-height,122px) - var(--nav-height,84px));min-height:0;padding-top:0;}.exploration-view.walking-view>.scene:not(.has-dialogue){flex:1;min-height:0;height:auto;}.exploration-view.walking-view>.explore-body{padding-block:0;}
+
+.interaction-page:has(.dialogue-dock){padding-bottom:100px;}.interaction-page .speech-text{font:400 18px/1.45 var(--body);color:#20291d;margin:0;min-height:80px;}
