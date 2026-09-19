@@ -342,14 +342,26 @@ OR.ui=(()=>{
   }
   function updateRest(){
     if(!S.data)return;
-    const result=S.syncRest();
-    if(result.changed){S.save();if(!combatBusy)render(true);}
+    const wasUnableToLeave=S.data.hp.current<=1,result=S.syncRest();
+    if(result.changed){
+      S.save();
+      if(!combatBusy){
+        const recovery=document.querySelector('[data-home-recovery]');
+        if(recovery&&!wasUnableToLeave&&!result.completed&&S.restStatus()){
+          hud();
+          const progress=recovery.querySelector('.rest-progress');
+          if(progress)progress.outerHTML=hpBar(S.data.hp.current,S.data.hp.max,'rest-progress');
+          const note=recovery.querySelector('.rest-note');
+          if(note)note.textContent=num(S.data.hp.current)+' / '+num(S.data.hp.max)+' HP · '+(S.data.hp.current<=1?'Recover above 1 HP before leaving.':'Leave whenever you like; healing stops outside.');
+        }else render(true);
+      }
+    }
     const timer=$('rest-countdown');if(timer)timer.textContent=restCountdown();
     if(result.completed)toast('FULLY RESTED','reward','Your health is full. The road awaits.');
   }
   function init(){
     if(!hudObserver&&typeof ResizeObserver!=='undefined'){hudObserver=new ResizeObserver(syncHudHeight);hudObserver.observe($('hud'));}
     window.addEventListener('resize',syncHudHeight);
-    W.rescueIfNeeded();clearInterval(restTimer);restTimer=setInterval(updateRest,1000);window.addEventListener('pagehide',()=>{if(S.data){S.syncRest();S.save();}});document.addEventListener('visibilitychange',updateRest);document.addEventListener('click',e=>{const target=e.target.closest('[data-action]');if(target&&!target.disabled)dispatch(target.dataset.action);});document.addEventListener('submit',e=>{if(e.target.id!=='name-form')return;e.preventDefault();S.create(new FormData(e.target).get('name'),chosen);W.current();S.save();route('explore',true);});window.addEventListener('popstate',()=>route(location.hash.slice(1),true));$('modal').addEventListener('close',()=>focusBefore?.focus());route(S.data?(location.hash==='#village'&&W.current().elementType==='Landmark'&&activeDialogue(W.current())?'village':S.data.foundLoot?.source==='dig'||location.hash==='#digging'&&W.current().elementType==='BuriedItems'?'digging':S.data.foundLoot?.source==='puzzle'||location.hash==='#puzzle'&&W.current().elementType==='Puzzle'?'puzzle':'explore'):'title',true);questToast();}
+    W.rescueIfNeeded();clearInterval(restTimer);restTimer=setInterval(updateRest,1000);window.addEventListener('pagehide',()=>{if(S.data){S.syncRest();S.save();}});document.addEventListener('visibilitychange',updateRest);window.addEventListener('pageshow',updateRest);document.addEventListener('click',e=>{const target=e.target.closest('[data-action]');if(target&&!target.disabled)dispatch(target.dataset.action);});document.addEventListener('submit',e=>{if(e.target.id!=='name-form')return;e.preventDefault();S.create(new FormData(e.target).get('name'),chosen);W.current();S.save();route('explore',true);});window.addEventListener('popstate',()=>route(location.hash.slice(1),true));$('modal').addEventListener('close',()=>focusBefore?.focus());route(S.data?(location.hash==='#village'&&W.current().elementType==='Landmark'&&activeDialogue(W.current())?'village':S.data.foundLoot?.source==='dig'||location.hash==='#digging'&&W.current().elementType==='BuriedItems'?'digging':S.data.foundLoot?.source==='puzzle'||location.hash==='#puzzle'&&W.current().elementType==='Puzzle'?'puzzle':'explore'):'title',true);questToast();}
   return {init,route,render,dispatch,icon,escape,get screen(){return screen;}};
 })();
