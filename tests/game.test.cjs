@@ -125,7 +125,7 @@ test('walking pickup shows potion card and toast, then full healing clears the f
 test('walking north then south preserves every discovered encounter across reloads without rerolling',()=>{
   const content=game().content;
   for(const e of Object.values(content.entities))for(const x of [3,30,-30]){
-    if(e.type==='LockedItem'||e.type==='Puzzle'&&Math.abs(x)<=25)continue;
+    if(e.type==='LockedItem'||e.type==='Puzzle'&&Math.abs(x)<=25||['bat','skeleton'].includes(e.id)&&Math.abs(x)<21)continue;
     if((['hunter','exile','gravekeeper','hermit'].includes(e.id)&&Math.abs(x)<=25)||e.type==='Home'||(e.id==='villager'&&Math.abs(x)>25)||(e.id==='grave'&&Math.abs(x)<=25))continue;
     const g=game(),b=g.place(e.type,e.id,x,3);
     if(e.type==='Landmark'){g.state.data.village.visits[e.id]=true;if(g.village.destinations.includes(e.id))b.elementType='Thing';}
@@ -657,3 +657,8 @@ test('crossing into the Outer Realm warns once per outward crossing, on all side
 });
 
 test('saved Strongwood puzzles become wilderness while Outer puzzles remain',()=>{const g=game();g.place('Puzzle','puzzle-runes',5,5);g.place('Puzzle','puzzle-levers',30,5);g.state.save();g.state.load();assert.equal(g.world.at(5,5).elementType,'Nature');assert.equal(g.world.at(30,5).elementType,'Puzzle');});
+
+test('Strongwood battles stay small and bats only leak into its outer five rows',()=>{
+ const g=game();for(const x of [3,-3,20,-20,21,-21,25,-25]){const ids=new Set();for(let i=0;i<100;i++){g.rng(i/100);ids.add(g.world.spawn('Danger',x,0).subtype);}assert.equal(ids.has('bat'),Math.abs(x)>=21);assert.ok(!ids.has('skeleton'));assert.ok(ids.has('rabid-rabbit'));}
+ for(const level of [1,3,10])for(const id of ['rabid-rabbit','snake','spider','bat']){g.state.data.level=level;const b=g.place('Danger',id,23,0);g.rng(.99);const e=g.combat.enemy(b);assert.ok(e.hp>=6&&e.hp<=10);assert.equal(e.resistance,0);assert.ok(e.moves.every(m=>e.basePower+m.power<=3));}
+});

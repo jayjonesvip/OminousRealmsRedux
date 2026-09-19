@@ -3,6 +3,10 @@ OR.combat=(()=>{
   const S=OR.state,C=OR.content,W=OR.world;
   const damage=(base,move,resistance,lucky=false)=>Math.random()<Math.min(100,move.accuracy+(lucky?5:0))/100?(base+move.power)*(1-Math.min(95,Math.max(0,resistance))/100):0;
   function enemy(block){
+    if(block.elementType==='Danger'&&W.local(block.x,block.y)){
+      const natural=C.creature(block.subtype,1),hp=C.random(6,10);
+      return {id:block.subtype,name:C.entities[block.subtype].name,level:1,hp,maxHp:hp,basePower:1,weapon:null,attackStyle:natural?.attackStyle||'Claws',defense:null,resistance:0,moves:(natural?.moves||[{name:'Bite',power:0,accuracy:80}]).map(m=>({...m,power:Math.min(2,m.power),accuracy:Math.min(85,m.accuracy)}))};
+    }
     const natural=C.creature(block.subtype,S.data.level),type={ogre:'Axe',troll:'Hammer',skeleton:'Sword'}[block.subtype]||'Sword';
     let max=block.elementType==='Danger'?C.random(20,30):50,base=5,armor=C.random(1,15);
     for(let l=2;l<=S.data.level;l++){max+=1.2*Math.ceil(C.required(l-1))+l;base++;armor=Math.min(95,armor+1);}

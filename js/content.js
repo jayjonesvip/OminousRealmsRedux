@@ -10,6 +10,7 @@ OR.content = (() => {
   };
   const weapon = type => ({type,basePower:5,moves:[move('Tackle',0,99,'Shoulder first. No hesitation.'),...weapons[type].moves.map(m=>({...m})),move('Realmfire',25,100,'Burn a magic crystal. Scorch the veil.',true)]});
   const creatures = {
+    'rabid-rabbit':{attackStyle:'Teeth & claws',moves:[move('Snap',0,85,''),move('Bite',1,80,'')]},
     bat:{attackStyle:'Fangs & wings',moves:[move('Wing Bash',0,99,''),move('Bite',4,99,''),move('Diving Bite',10,85,'')]},
     snake:{attackStyle:'Fangs & coils',moves:[move('Tail Lash',0,99,''),move('Fang Strike',4,99,''),move('Lunge',10,85,'')]},
     spider:{attackStyle:'Fangs & legs',moves:[move('Leg Strike',0,99,''),move('Bite',4,99,''),move('Pounce',10,85,'')]},
@@ -71,6 +72,7 @@ OR.content = (() => {
     ['Animal','hedgehog','Hedgehog','A hedgehog rustles beside a rotting log, then draws into its spines.','A small hedgehog huddles beside a blackened log.'],
     ['Animal','otter','River Otter','An otter slips over wet stones with a silver fish in its jaws.','An otter carries a pale fish along the dark water.'],
     ['Animal','marten','Pine Marten','A marten watches from a low branch, its golden throat bright against the bark.','A marten grips a bare branch, its golden throat dulled with ash.'],
+    ['Danger','rabid-rabbit','Rabid Rabbit','A trembling rabbit bares its teeth and lunges.','A fevered rabbit snaps at anything that moves.'],
     ['Danger','snake','Briar Snake','A coiled serpent claims the path ahead.','A scaled shadow uncoils in the ash.'],
     ['Danger','skeleton','Restless Skeleton','Old bones rise where no grave should be.','Rusted iron hangs from a soldier long past death.'],
     ['Danger','spider','Thornback Spider','Silken threads shiver across the path.','A many-legged shape descends through red fog.'],
