@@ -422,5 +422,8 @@
   },
   "grandfather-vision": {
     "file": "grandfather-vision.png"
+  },
+  "home-interior": {
+    "file": "home-interior.png"
   }
 }
