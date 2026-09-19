@@ -49,7 +49,7 @@ OR.world=(()=>{
     return false;
   }
   function findHealing(){
-    const s=S.data;s.lastFind=null;
+    const s=S.data;s.lastFind=null;if(!local(s.x,s.y)){s.healingSearchSteps=0;return;}
     if(s.hp.current>s.hp.max/2||S.qty('Potion')>0){s.healingSearchSteps=0;return;}
     s.healingSearchSteps=Math.min(3,(Number.isInteger(s.healingSearchSteps)?s.healingSearchSteps:0)+1);
     if(s.hp.current<=s.hp.max/4||s.healingSearchSteps>=3||Math.random()<0.35){

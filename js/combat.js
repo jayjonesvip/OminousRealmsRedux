@@ -10,7 +10,15 @@ OR.combat=(()=>{
     const moves=C.weapon(type).moves.filter(m=>!m.magic);
     return {id:block.subtype,name:C.entities[block.subtype].name,level:S.data.level,hp:block.dragonHp||max,maxHp:max,basePower:base,resistance:armor,weapon:type,moves,...natural};
   }
-  function start(){const s=S.data,b=W.current();if(s.battle||s.outcome||s.foundLoot||b.cleared||!['Danger','Enemy','Dragon'].includes(b.elementType))return false;const e=enemy(b);if(b.elementType==='Dragon')b.dragonMaxHp=e.maxHp;s.battle={enemyId:b.subtype,enemy:e,x:s.x,y:s.y,round:1,log:`${e.name} confronts you. Choose your opening.`};s.state='Battle';S.save();return true;}
+  function start(){const s=S.data,b=W.current();if(s.battle||s.outcome||s.foundLoot||b.cleared||!['Danger','Enemy','Dragon'].includes(b.elementType))return false;const e=enemy(b);if(b.elementType==='Dragon')b.dragonMaxHp=e.maxHp;s.battle={enemyId:b.subtype,enemy:e,x:s.x,y:s.y,round:1,log:`${e.name} confronts you. Choose your opening.`};s.state='Battle';if(!W.local(s.x,s.y)&&['Enemy','Dragon'].includes(b.elementType))ambush();S.save();return true;}
+  function ambush(){
+    const s=S.data,b=s.battle,e=b.enemy,move=C.pick(e.moves),hurt=damage(e.basePower,move,s.armor.resistance);
+    b.ambushed=true;b.ambushPresented=false;
+    b.lastRound={round:1,ambush:true,dealt:null,received:hurt,reply:move.name};
+    s.hp.current=Math.max(1,s.hp.current-hurt);
+    S.log(hurt?e.name+' strikes first: '+move.name+', '+Number(hurt.toFixed(1))+' damage.':e.name+' strikes first but misses.');
+    if(s.hp.current<=1)finish(false);
+  }
   function levelUp(){const s=S.data,old=s.level;while(S.levelProgress().remaining===0){const cost=C.required(s.level);s.levelStartVictories+=cost;s.level++;s.hp.max+=1.2*cost+s.level;s.hp.current=s.hp.max;s.weapon.basePower++;s.armor.resistance=Math.min(95,s.armor.resistance+1);s.armor.craftCost=s.armor.resistance;}return s.level-old;}
   function finish(win,bribed=false){
     const s=S.data,b=W.current(),isDragon=b.elementType==='Dragon',e=s.battle.enemy;
@@ -43,7 +51,18 @@ OR.combat=(()=>{
     if(s.hp.current<=1)return finish(false);
     S.save();return true;
   }
-  function flee(){if(!S.data?.battle)return false;S.log(`You break off the fight. ${S.data.battle.enemy.name} still threatens this ground.`);S.data.battle=null;S.data.state='Explore';W.current().resolved=true;S.save();return true;}
+  function advanceDragon(battle){
+    if(battle.enemyId!=='dragon'||battle.enemy.hp<=0||battle.enemy.hp>=battle.enemy.maxHp||W.local(battle.x,battle.y))return false;
+    let x=battle.x,y=battle.y;if(Math.abs(x)>=Math.abs(y))x-=Math.sign(x);else y-=Math.sign(y);
+    if(W.local(x,y))return false;
+    const target=W.at(x,y),reserved=OR.village?.template(x,y);
+    if(reserved||target&&target.elementType!=='Nature')return false;
+    const origin=W.at(battle.x,battle.y);if(!origin||origin.elementType!=='Dragon')return false;
+    const moved={x,y,elementType:'Dragon',subtype:'dragon',dragonHp:battle.enemy.hp,dragonMaxHp:battle.enemy.maxHp,resolved:false};
+    if(target){for(const key of Object.keys(target))delete target[key];Object.assign(target,moved);}else S.data.blocks.push(moved);
+    Object.assign(origin,{elementType:'Nature',subtype:'clearing',dragonHp:null,dragonMaxHp:null,resolved:true,cleared:true});return true;
+  }
+  function flee(){if(!S.data?.battle)return false;const b=S.data.battle,moved=advanceDragon(b);S.log(moved?'The wounded dragon moves toward Strongwood.':('You break off the fight. '+b.enemy.name+' still threatens this ground.'));S.data.battle=null;S.data.state='Explore';W.current().resolved=true;S.save();return true;}
   function bribe(){if(!S.data?.battle||!S.qty('Gem'))return false;S.add('Gem',-1);return finish(true,true);}
   function claim(){if(!S.data?.outcome)return false;if(!S.data.outcome.win)W.current().resolved=true;S.data.outcome=null;S.save();return true;}
   return {damage,enemy,start,attack,flee,bribe,claim,levelUp};
