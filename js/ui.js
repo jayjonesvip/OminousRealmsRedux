@@ -290,11 +290,11 @@ OR.ui=(()=>{
     switch(key){
       case 'move':{
         if(V.pendingGift())break;
-        const b=W.current();let notice='';
+        const b=W.current(),wasLocal=W.local(S.data.x,S.data.y);let notice='';
         if(['N','S','E','W'].includes(value)&&S.data.hp.current>1&&['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle','Landmark'].includes(b.elementType)&&(!b.resolved||activeDialogue(b))){
           if(A.ignore()&&!b.cleared&&['Danger','Enemy','Dragon'].includes(b.elementType))notice=S.data.message;
         }
-        if(W.move(value)){route('explore');if(S.data.lastFind)toast('POTION FOUND','reward','+1 Potion in your pack · Use HEAL to recover.');else if(notice)toast(notice);}
+        if(W.move(value)){route('explore');if(wasLocal&&!W.local(S.data.x,S.data.y))toast('ENTERING THE OUTER REALM','danger','Strongwood’s warmth fades. Beyond this fence, enemies strike first.');else if(S.data.lastFind)toast('POTION FOUND','reward','+1 Potion in your pack · Use HEAL to recover.');else if(notice)toast(notice);}
         break;
       }
       case 'quest':{if(value==='open'){if(Q.open())route('explore');}else if(value==='decline'){if(Q.decline())route('explore');}else if(value==='accept'){if(Q.accept()){route('explore');toast('QUEST ACCEPTED','reward',S.data.message);}else toast('NO CLEAR DESTINATION','notice','Try accepting again when the road is clear.');}break;}

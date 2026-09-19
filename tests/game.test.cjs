@@ -647,3 +647,11 @@ test('border ring always has scenery and movement only, including old saves',()=
  assert.equal(g.content.encounterRates(false).Border,undefined);
 });
 
+
+test('crossing into the Outer Realm warns once per outward crossing, on all sides',()=>{
+ for(const [x,y,out,back] of [[25,0,'E','W'],[-25,0,'W','E'],[0,25,'S','N'],[0,-25,'N','S']]){
+ const g=game(new Map(),true);g.place('Nature','forest',x,y);g.ui.dispatch('move:'+out);assert.match(g.nodes.toast.innerHTML,/ENTERING THE OUTER REALM/);assert.equal(g.nodes.toast.className,'toast-danger');
+ g.nodes.toast.innerHTML='';g.ui.dispatch('move:'+back);assert.equal(g.nodes.toast.innerHTML,'');g.ui.dispatch('move:'+out);assert.match(g.nodes.toast.innerHTML,/ENTERING THE OUTER REALM/);
+ g.nodes.toast.innerHTML='';g.ui.dispatch('move:'+out);assert.doesNotMatch(g.nodes.toast.innerHTML,/ENTERING THE OUTER REALM/);
+ }
+});
