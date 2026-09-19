@@ -99,3 +99,5 @@ Dialogue is divided into balanced pages when longer than roughly 280 characters.
 `nExplore uses one fixed dock above bottom navigation: always-visible compass, then contextual action controls. Movement locks disable compass buttons. Dock height is measured to reserve scroll space for dialogue, including smaller mobile viewports. The Explore Journal button is removed.
 
 Explore scene metadata (category, title, description) is measured as the first section of the bottom dock, immediately above the compass. Dialogue is a separate top-of-scene region below its label. Small screens can scroll dialogue clear of the dock; long control panels have bounded scrolling.
+
+Digging shares the dedicated interaction layout with puzzles. Explore offers Dig or Resume Digging; Stop Digging preserves progress and returns to Explore. Unclaimed digging loot resumes on reload, and gathering it returns to Explore. Ordinary walking screens fit the dynamic viewport without surplus bottom scroll.
