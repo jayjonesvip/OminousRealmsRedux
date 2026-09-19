@@ -82,7 +82,7 @@ OR.village=(()=>{
     if(allVisited()){updateSpeech(b);S.log(names[b.subtype]+': '+farewell);}
     S.log((b.subtype==='wizard-sanctuary'?'Realmfire enchanted. ':'')+'Received: '+rewards.map(r=>r.qty+' '+C.items[r.type].name).join(', ')+'.');retireCompleted();S.save();return rewards;
   }
-  const visionWords='That gentle golden light upon your compass was me, my child. I have been watching over you, guiding you to those who could help. I will watch over you still. When that light returns, know that I am pointing the way—but the choice is always yours. Trust your instincts. Protect the people who believe in you. Save Strongwood from the shadow. You never walk alone.';
+  const visionWords='That gentle golden light upon your compass was me, my child. I have been watching over you, guiding you to those who could help. I will watch over you still. When that light returns, know that I am pointing the way—but the choice is always yours. Grow stronger, and venture deeper beyond the veil. When you are ready, listen for my voice. There are things I left unfinished—tasks that could help our village. I will ask for your help, but the choice to accept will be yours. Trust your instincts. Protect the people who believe in you. Save Strongwood from the shadow. You never walk alone.';
   const visionActive=()=>!!S.data?.village?.visionPending;
   function triggerVision(b){
     const v=S.data?.village;if(!allVisited()||v.visionSeen||destinations.includes(b.subtype)||['Home','Path','Landmark'].includes(b.elementType))return false;
