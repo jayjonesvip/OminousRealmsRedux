@@ -206,3 +206,5 @@ body.in-game{min-height:100dvh}
 
 /* Scene dialogue sits at the top; scene identity belongs above the compass. */
 .explore-dock .scene-metadata{position:static;inset:auto;padding:8px 0 14px;margin:0;}.explore-dock .scene-metadata h1{font-size:clamp(28px,8vw,39px);margin:5px 0 8px;}.explore-dock .scene-metadata p{font-size:15px;line-height:1.45;color:#c3c7b5;min-height:0;}.scene-dialogue{position:relative;padding:58px 23px 24px;z-index:2;}.scene-dialogue .speech-bubble{margin-top:12px;}.scene-dialogue .speech-text{font:400 18px/1.45 var(--body);color:#20291d;min-height:80px;margin:0;}.exploration-view>.scene{height:auto;min-height:max(240px,calc(100dvh - var(--hud-height,122px) - var(--nav-height,84px) - var(--dock-height,250px)));}.exploration-view>.scene.has-dialogue{height:auto;min-height:240px;padding-bottom:40px;}.explore-dock{max-height:calc(100dvh - var(--hud-height,122px) - var(--nav-height,84px) - 80px);overflow-y:auto;overscroll-behavior:contain;}
+
+.explore-dock{padding-inline:14px;}@media(max-width:370px){.explore-dock{padding-inline:10px;}}
