@@ -25,12 +25,7 @@ OR.state = (() => {
       data.weapon.moves=OR.content.weapon(data.weapon.type).moves;
       data.armor.craftCost=data.armor.craftCost||data.armor.resistance;
       data.journal=data.journal.slice(-50);
-      // Strongwood villagers stay inside Strongwood. Replace legacy outer
-      // sightings with a hunter and retire dialogue belonging to the old NPC.
-      for(const b of data.blocks)if(b.elementType==='NPC'&&b.subtype==='villager'&&(Math.abs(b.x)>25||Math.abs(b.y)>25)){
-        b.subtype='hunter';delete b.dialogue;
-        if(b.x===data.x&&b.y===data.y)data.message='';
-      }
+      OR.world?.migrateNpcs();
       // Retire ambiguous legacy banners without rewriting the journal history.
       if(['Not every shadow needs your steel.','You leave it to the forest.','Another day. Another fight.'].includes(data.message))data.message='';
       // Older saves kept cleared encounters as resolved clearings without a flag.

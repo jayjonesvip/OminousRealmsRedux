@@ -29,7 +29,7 @@ OR.content = (() => {
     RustyNail:{name:'Rusty Nail',art:'item-nail',group:'REMNANTS',note:'Even the old world had loose ends.'}
   };
   const entries = [
-    ['Home','home','Strongwood Cottage','Smoke curls above the roof. A cobblestone path leads north toward Eldric’s forge.','The hearth is cold. Something remembers you.'],
+    ['Home','home','Strongwood Cottage','Smoke curls above the roof. A cobblestone path leads north toward the Lantern Tavern.','The hearth is cold. Something remembers you.'],
     ['Nature','forest','Oldwood Forest','Sunlight cuts through the trees like ancestral steel.','Dead branches claw at a blood-red sky.'],
     ['Nature','mossy','Mossbound Stones','Green velvet softens the bones of the earth.','Black moss drinks from the cracks in the stone.'],
     ['Nature','rocks','Sentinel Rocks','Old stones keep a watch no warrior could outlast.','The stones lean inward, listening for your breath.'],
@@ -50,6 +50,9 @@ OR.content = (() => {
     ['NPC','woodcutter','The Woodcutter','An axe rests against a freshly cut stump.','The woodcutter swings at a tree that bleeds.'],
     ['NPC','hunter','The Hunter','A watchful hunter reads tracks in the soft earth.','A hunter watches you instead of the tracks.'],
     ['NPC','elder','The Elder','An old soul has stories the forest still remembers.','The elder speaks to someone you cannot see.'],
+    ['NPC','exile','The Exile','A traveler holds to a road no longer leading home.','An exile keeps watch beneath a broken arch.'],
+    ['NPC','gravekeeper','The Gravekeeper','A keeper tends forgotten names.','A gravekeeper rests a spade beside nameless stones.'],
+    ['NPC','hermit','The Hermit','A quiet figure listens beside a weathered shelter.','A hermit watches the ash fall around an ancient tree.'],
     ['Food','mushrooms','Witchcap Mushrooms','Tiny caps shine beneath a fallen branch.','Pale caps cluster in the ash beneath a blackened branch.'],
     ['Animal','rabbit','Wild Rabbit','A rabbit freezes, then vanishes into the ferns.','A pale rabbit watches without blinking.'],
     ['Animal','squirrel','Red Squirrel','A flash of russet darts up the ancient oak.','Ash clings to a squirrel with far too still a gaze.'],

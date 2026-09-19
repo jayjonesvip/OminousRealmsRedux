@@ -1,6 +1,6 @@
 'use strict';
 OR.dialogue=(()=>{
-  // Each encounter represents a different person; these are shared voices, not biographies.
+  // Each NPC is one persistent person, with varied replies on return visits.
   const raw={
     villager:{
       strongwood:[
@@ -15,7 +15,7 @@ OR.dialogue=(()=>{
         ['tip','Your cottage is at zero, zero. Even the longest walk has an address to come back to.'],
         ['tip','Rest at home and your health returns, even while you are away from the game.'],
         ['tip','A potion restores all your health. Save it for a wound worth the cork.'],
-        ['tip','Eldric tends the village forge. Bring your ingots to him to strengthen your gear.'],
+        ['tip','Find a wayfarer’s forge to strengthen your gear. Your map marks those you discover.'],
         ['tip','Metal strengthens armor. Steel strengthens weapons. The smiths are very particular about that.'],
         ['tip','Your map remembers discovered places. It cannot tell you what is still hidden.'],
         ['tip','Keep Walking is a perfectly respectable answer to trouble.'],
@@ -343,6 +343,446 @@ OR.dialogue=(()=>{
       ]
     }
   };
+  Object.assign(raw,{
+  "exile": {
+    "outer": [
+      [
+        "tip",
+        "Mark a forge when you find one. Out here, a remembered fire is worth more than a rumor."
+      ],
+      [
+        "tip",
+        "Your map remembers the way home. Your courage does not. Look at it."
+      ],
+      [
+        "tip",
+        "Keep a potion. The road has no interest in how close you were to winning."
+      ],
+      [
+        "tip",
+        "Do not eat a mushroom because it looks familiar. I knew familiar faces that ruined me."
+      ],
+      [
+        "tip",
+        "A cleared patch stays cleared. Remember where you have made a little safety."
+      ],
+      [
+        "tip",
+        "Those sealed stones can be opened. Read before you start pulling at things."
+      ],
+      [
+        "tip",
+        "Metal for armor. Steel for weapons. Mistakes are expensive this far from a forge."
+      ],
+      [
+        "gruff",
+        "I left a whole village to avoid questions. Do not make the journey pointless."
+      ],
+      [
+        "gruff",
+        "No, I will not tell you what I was accused of."
+      ],
+      [
+        "gruff",
+        "Stand somewhere else. You are blocking the only view I tolerate."
+      ],
+      [
+        "gruff",
+        "Take your sympathy back to Strongwood. Somebody there might still want it."
+      ],
+      [
+        "gruff",
+        "I have nothing to trade, nothing to confess, and very little patience."
+      ],
+      [
+        "gruff",
+        "We have spoken. That does not make us companions."
+      ],
+      [
+        "gruff",
+        "You found me here before. You can find me here later. Preferably much later."
+      ],
+      [
+        "gruff",
+        "Do not call this my home. It is where I stopped walking."
+      ],
+      [
+        "rambling",
+        "They crossed my name from the book. At night I hear the ink scratching to put it back."
+      ],
+      [
+        "rambling",
+        "The arch had a door yesterday. I think it only opens when I am asleep."
+      ],
+      [
+        "rambling",
+        "My shadow keeps pointing toward the village. Disloyal little thing."
+      ],
+      [
+        "rambling",
+        "Count the windows in those ruins. Then forget the number before they notice."
+      ],
+      [
+        "rambling",
+        "I buried a letter without opening it. Something underground keeps answering."
+      ],
+      [
+        "rambling",
+        "There are two moons in my dreams. One of them knows why I left."
+      ],
+      [
+        "rambling",
+        "The ash falls upward when nobody is looking. I have caught it pretending."
+      ],
+      [
+        "rambling",
+        "I hear my old key turning in trees. None of them are my door."
+      ],
+      [
+        "rambling",
+        "The road asked my name once. I gave it someone else’s. We have not been friendly since."
+      ],
+      [
+        "rambling",
+        "If you meet someone with my face, let her go home. One of us should."
+      ]
+    ],
+    "attacked": [
+      [
+        "angry",
+        "You will not make another outcast of me."
+      ],
+      [
+        "angry",
+        "Is that the welcome your village teaches?"
+      ],
+      [
+        "angry",
+        "Put it away. I have been judged enough."
+      ],
+      [
+        "angry",
+        "You swing like someone who has never been made to leave."
+      ],
+      [
+        "angry",
+        "I owe you neither a fight nor an explanation."
+      ],
+      [
+        "angry",
+        "Back away from the arch."
+      ],
+      [
+        "angry",
+        "Keep your blade out of my last patch of peace."
+      ],
+      [
+        "angry",
+        "Try that again and we will both regret finding this road."
+      ],
+      [
+        "angry",
+        "Your anger belongs somewhere else."
+      ],
+      [
+        "angry",
+        "Leave. You should still know how."
+      ]
+    ]
+  },
+  "gravekeeper": {
+    "outer": [
+      [
+        "tip",
+        "Watch your vitality before digging. The earth charges for every foot."
+      ],
+      [
+        "tip",
+        "You may stop digging. A hole will wait; your blood will not."
+      ],
+      [
+        "tip",
+        "No marker tells you how deep a treasure lies. Do not spend your life guessing."
+      ],
+      [
+        "tip",
+        "Bring metal to a forge for armor. A grave offers less protection."
+      ],
+      [
+        "tip",
+        "Your map keeps the places you discover. Trust that record over a voice in the fog."
+      ],
+      [
+        "tip",
+        "A potion is for the living. Use yours while that still includes you."
+      ],
+      [
+        "tip",
+        "Go home to rest when you can. I would rather keep your name out of my work."
+      ],
+      [
+        "gruff",
+        "If you are here to stare, stare at the ground. It has better manners."
+      ],
+      [
+        "gruff",
+        "No, I do not know what they were carrying."
+      ],
+      [
+        "gruff",
+        "Leave the stones where they stand."
+      ],
+      [
+        "gruff",
+        "I am working. Your questions are not helping."
+      ],
+      [
+        "gruff",
+        "You want a story. They wanted another morning."
+      ],
+      [
+        "gruff",
+        "Move your boots. That little flower has survived enough."
+      ],
+      [
+        "gruff",
+        "I have heard every joke about this trade. Keep yours."
+      ],
+      [
+        "gruff",
+        "Come back quietly, if you must come back at all."
+      ],
+      [
+        "rambling",
+        "One of the names changes every dawn. I have stopped correcting it."
+      ],
+      [
+        "rambling",
+        "The empty graves are the ones that keep me awake."
+      ],
+      [
+        "rambling",
+        "I heard knocking beneath the shovel. Three polite knocks. That was the worst part."
+      ],
+      [
+        "rambling",
+        "A stone asked me to move it closer to the trees. I refused. It sulks now."
+      ],
+      [
+        "rambling",
+        "The dead are mostly quiet. It is their unfinished errands that make the noise."
+      ],
+      [
+        "rambling",
+        "I count the markers twice. The second count is for whoever arrived between counts."
+      ],
+      [
+        "rambling",
+        "Do not answer if the earth uses your childhood name."
+      ],
+      [
+        "rambling",
+        "Someone leaves fresh mud on my doorstep. I have not dug in that soil for years."
+      ],
+      [
+        "rambling",
+        "The crows sit facing away from one grave. I have learned to respect their taste."
+      ],
+      [
+        "rambling",
+        "When the wind stops, I can hear a bell with no church left around it."
+      ]
+    ],
+    "attacked": [
+      [
+        "angry",
+        "I will not dig faster because you threaten me."
+      ],
+      [
+        "angry",
+        "Put that down among the dead and see how small it looks."
+      ],
+      [
+        "angry",
+        "Mind the markers, fool."
+      ],
+      [
+        "angry",
+        "I work with a spade. Do not mistake it for a weakness."
+      ],
+      [
+        "angry",
+        "There is enough grief here without yours."
+      ],
+      [
+        "angry",
+        "The stones deserve more respect than you are showing."
+      ],
+      [
+        "angry",
+        "Step away. I have work for the living yet."
+      ],
+      [
+        "angry",
+        "Your name is not on my list. Keep it that way."
+      ],
+      [
+        "angry",
+        "Threaten the earth if you like. It is more patient than I am."
+      ],
+      [
+        "angry",
+        "Take your violence off this ground."
+      ]
+    ]
+  },
+  "hermit": {
+    "outer": [
+      [
+        "tip",
+        "Read the rune clue slowly. The stones are not impressed by speed."
+      ],
+      [
+        "tip",
+        "A wrong lever may undo your sequence. Remember what you pulled."
+      ],
+      [
+        "tip",
+        "A crystal wakes the magic in an enchanted weapon. An empty hand wakes nothing."
+      ],
+      [
+        "tip",
+        "A forge stays where you found it. Mark the place in your mind and check your map."
+      ],
+      [
+        "tip",
+        "A heavy strike may stagger a foe. Missing it buys you no peace."
+      ],
+      [
+        "tip",
+        "The path home is made of ordinary steps. Take them before you need a miracle."
+      ],
+      [
+        "tip",
+        "Some mushrooms heal and some hurt. The forest does not label its intentions."
+      ],
+      [
+        "gruff",
+        "I chose solitude. You are standing in it."
+      ],
+      [
+        "gruff",
+        "Do not sit there. That is where the silence sits."
+      ],
+      [
+        "gruff",
+        "I know the way to the village. That is why I remain here."
+      ],
+      [
+        "gruff",
+        "No blessings today. Try behaving sensibly."
+      ],
+      [
+        "gruff",
+        "You have brought enough noise for three visitors."
+      ],
+      [
+        "gruff",
+        "Keep your heroic business outside my shelter."
+      ],
+      [
+        "gruff",
+        "There is no secret under my beard. Stop looking for one."
+      ],
+      [
+        "gruff",
+        "We can speak again another time. This time has had enough of us."
+      ],
+      [
+        "rambling",
+        "The roots repeat my dreams badly. I have begun dreaming simpler things."
+      ],
+      [
+        "rambling",
+        "I put a thought in that jar. Now it refuses to be opened."
+      ],
+      [
+        "rambling",
+        "Yesterday lasted twice. I used the second one to avoid the first."
+      ],
+      [
+        "rambling",
+        "There is a star beneath the ash. It dislikes being called a coal."
+      ],
+      [
+        "rambling",
+        "Do not follow the footsteps that arrive before the walker."
+      ],
+      [
+        "rambling",
+        "The tree and I agreed not to ask what lives beneath us."
+      ],
+      [
+        "rambling",
+        "I once heard the realm breathing. It held its breath when I listened harder."
+      ],
+      [
+        "rambling",
+        "The wind borrows my voice. If it asks you for anything, demand it back."
+      ],
+      [
+        "rambling",
+        "Someone has been folding the horizon. Those creases were not there last winter."
+      ],
+      [
+        "rambling",
+        "A moth told me to leave. I asked where. It has not forgiven the question."
+      ]
+    ],
+    "attacked": [
+      [
+        "angry",
+        "Violence is an unusually loud way to admit confusion."
+      ],
+      [
+        "angry",
+        "Strike the tree. It has been disagreeing with me longer."
+      ],
+      [
+        "angry",
+        "My staff is not merely decorative."
+      ],
+      [
+        "angry",
+        "Leave my little silence intact."
+      ],
+      [
+        "angry",
+        "You mistake alone for defenseless."
+      ],
+      [
+        "angry",
+        "Put it away before the roots take an interest."
+      ],
+      [
+        "angry",
+        "No. That is the entire answer."
+      ],
+      [
+        "angry",
+        "I have outlived better threats."
+      ],
+      [
+        "angry",
+        "You cannot beat wisdom into yourself through someone else."
+      ],
+      [
+        "angry",
+        "Walk away while walking is still simple."
+      ]
+    ]
+  }
+});
   const pools=Object.fromEntries(Object.entries(raw).map(([type,contexts])=>[type,Object.fromEntries(Object.entries(contexts).map(([context,lines])=>[context,lines.map(([tone,text],i)=>({id:`${type}.${context}.${i+1}`,tone,text}))]))]));
   function choose(type,context,previousId){
     const pool=pools[type]?.[context];if(!pool)throw new Error('Unknown NPC dialogue pool');

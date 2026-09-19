@@ -5,14 +5,23 @@ OR.world=(()=>{
   const border=(x,y)=>Math.abs(x)===26||Math.abs(y)===26;
   const realm=(x,y)=>local(x,y)?'Strongwood Village':'The Outer Realm';
   const at=(x,y)=>S.data.blocks.find(b=>b.x===x&&b.y===y);
-  function spawn(type,x,y){const candidates=Object.values(C.entities).filter(e=>e.type===type&&(e.id!=='villager'||local(x,y))&&(e.id!=='grave'||!local(x,y)));const e=C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
+  const outerPeople=['hunter','exile','gravekeeper','hermit'];
+  const npcAllowed=(id,x,y)=>id==='villager'?local(x,y):!outerPeople.includes(id)||!local(x,y);
+  const npcCandidates=(x,y)=>Object.values(C.entities).filter(e=>e.type==='NPC'&&npcAllowed(e.id,x,y)&&!S.data.blocks.some(b=>b.elementType==='NPC'&&b.subtype===e.id));
+  function migrateNpcs(){
+    const seen=new Set(),blocks=[...S.data.blocks].sort((a,b)=>Number(b.x===S.data.x&&b.y===S.data.y)-Number(a.x===S.data.x&&a.y===S.data.y));
+    for(const b of blocks)if(b.elementType==='NPC'){
+      if(!npcAllowed(b.subtype,b.x,b.y)||seen.has(b.subtype)){Object.assign(b,{elementType:'Nature',subtype:'clearing',resolved:false});delete b.dialogue;if(b.x===S.data.x&&b.y===S.data.y)S.data.message='';}
+      else seen.add(b.subtype);
+    }
+  }
+  function spawn(type,x,y){let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&(e.id!=='grave'||!local(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
   function getOrCreateBlock(x,y){
     let b=at(x,y);
     if(b)return b;
     const village=OR.village?.template(x,y);if(village){S.data.blocks.push(village);return village;}
     let type;
     if(x===0&&y===0)type='Home';
-    else if(Math.max(Math.abs(x),Math.abs(y))===1)type='NPC';
     else{
       const rates=C.encounterRates(local(x,y)),types=Object.keys(rates);
       let roll=Math.random()*100;
@@ -62,5 +71,5 @@ OR.world=(()=>{
   }
   function description(b=current()){const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
   const coords=(x,y)=>x===0&&y===0?'HOME · 0 / 0':`${Math.abs(x)}${x<0?'W':'E'} ${Math.abs(y)}${y<0?'N':'S'}`;
-  return {local,border,realm,at,spawn,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
+  return {local,border,realm,at,spawn,npcCandidates,migrateNpcs,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
 })();

@@ -87,7 +87,7 @@ The home page includes a canonical URL, descriptive metadata, Open Graph and Twi
 
 New journeys follow one connected cobblestone trail north from home: forge, tavern, wizard, then herbalist. Each three-step segment starts at the previous landmark: north, one randomly selected east/west turn, then north. Each person directs you toward an unfinished introduction, even when visited out of order. All five wandering NPC types add distinct trail reminders until introductions are complete; attacked replies remain unchanged. The final introduction says the path ahead is your own. Existing saved routes retain their geometry. Reserved path cells never spawn random encounters. Routes are generated once and saved. Path and Landmark types are excluded from random encounter rates. The village map shows these known routes without counting their unvisited cells as discoveries.
 
-The wizard unlocks Realmfire and grants one Magic Crystal; the herbalist grants one Potion; Eldric grants one Metal and one Steel Ingot; the barkeep gives wisdom. Gifts use an explicit acceptance and itemized toast. Completion persists across reloads and prevents farming. Wizard, tavern and herbalist use occupied art during their final conversation and empty art after departure. The forge reuses existing art and remains usable. Home is for recovery on new journeys. Legacy saves preserve locations, home forging, and existing magic access, and do not receive routes retroactively.
+The wizard unlocks Realmfire and grants one Magic Crystal; the herbalist grants one Potion; the barkeep grants one Metal and one Steel Ingot. Accepting a gift returns to Explore with an itemized toast. Home is for recovery. Upgrades require a discovered wayfarer forge; the tavern is not a forge.
 
 After all four village introductions and gifts are complete, the first move onto a non-Path, non-Landmark, non-Home cell triggers a one-time grandfather vision. Its pending/seen state survives reloads. Dismissing it reveals the unchanged coordinate encounter. It grants no additional loot.
 
@@ -104,6 +104,8 @@ Digging shares the dedicated interaction layout with puzzles. Explore offers Dig
 
 Village introductions and the grandfather vision use the shared interaction page. Accepting an offering returns immediately to Explore with a result toast; completed introductions cannot be reopened. Ordinary NPCs and mushrooms remain on Explore.
 
-The active village trail now visits the forge, wizard and herbalist. The tavern is retired; its occupied and empty assets are reserved for future use. Existing saves retain landmark coordinates, with the old tavern converted into a safe path tile.
+The former onboarding forge is now the tavern. Existing saves retain its coordinate and accepted gift status. Historical empty landmark artwork stays available for future use.
 
 Home now uses home-interior.png (cozy bed and fireplace, generated with the built-in image tool; prompt beside the asset). Walking scenes retain a flex-sized image area after interactions, route changes reset scroll immediately, and grandfather's portrait is framed from the top.
+
+NPCs are now eight unique persistent people. Discovery rolls remain 10% in Strongwood and 5% outside while eligible NPCs remain, then resolve as wilderness. Hunter, Exile, Gravekeeper and Hermit are Outer Realm only; Villager is Strongwood only. Duplicate or invalid saved sightings become quiet clearings, preserving one eligible spot (preferring the current spot). Three new NPCs each have 25 Outer Realm replies and 10 attacked replies; warnings, dismissals and unsettling ramblings dominate. Dialogue portrait frames are top-aligned to show faces.

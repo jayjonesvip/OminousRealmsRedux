@@ -425,5 +425,17 @@
   },
   "home-interior": {
     "file": "home-interior.png"
+  },
+  "exile": {
+    "file": "exile-outer.png",
+    "outer": "exile-outer.png"
+  },
+  "gravekeeper": {
+    "file": "gravekeeper-outer.png",
+    "outer": "gravekeeper-outer.png"
+  },
+  "hermit": {
+    "file": "hermit-outer.png",
+    "outer": "hermit-outer.png"
   }
 }

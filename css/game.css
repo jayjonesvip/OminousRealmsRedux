@@ -221,3 +221,8 @@ body.in-game{min-height:100dvh}
 .interaction-page .forge-art:has(img[src*="/grandfather-vision"]){height:clamp(260px,38svh,340px);}
 .interaction-page .forge-art>img[src*="/grandfather-vision"]{object-position:center top;}
 .interaction-page:has(img[src*="/grandfather-vision"]) .section-head h1{font-size:36px;}
+
+/* Dialogue portraits keep faces above the fold instead of cropping to torsos. */
+.interaction-page .forge-art:has(img[src*="herbalist-cottage"],img[src*="wizard-sanctuary"],img[src*="tavern-village"]){height:clamp(250px,36svh,320px);}
+.interaction-page .forge-art>img:is([src*="herbalist-cottage"],[src*="wizard-sanctuary"],[src*="tavern-village"]){object-position:center top;}
+.interaction-page:has(.speech-bubble) .section-head h1{font-size:36px;}

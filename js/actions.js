@@ -31,7 +31,7 @@ OR.actions=(()=>{
   function rest(){const s=S.data;if(s.battle||s.outcome||s.x!==0||s.y!==0||s.hp.current>=s.hp.max)return false;S.syncRest();S.save();return true;}
   const armorCost=()=>Math.max(1,S.data.armor.craftCost||S.data.armor.resistance);
   const weaponCost=()=>S.data.weapon.basePower+1;
-  const atForge=()=>!!S.data&&(W.current().elementType==='Craft'||W.current().subtype==='village-forge'||S.data.village?.legacy===true&&S.data.x===0&&S.data.y===0);
+  const atForge=()=>!!S.data&&W.current().elementType==='Craft';
   const canCraft=()=>atForge()&&!S.data.battle&&!S.data.outcome&&!S.data.foundLoot;
   function craft(which){const s=S.data;if(!canCraft())return false;const isArmor=which==='armor';if(!isArmor&&which!=='weapon')return false;if(isArmor&&s.armor.resistance>=95)return false;const cost=isArmor?armorCost():weaponCost(),type=isArmor?'MetalIngot':'SteelIngot';if(S.qty(type)<cost)return false;S.add(type,-cost);if(isArmor){s.armor.resistance++;s.armor.craftCost=s.armor.resistance;}else s.weapon.basePower++;S.log(isArmor?'Your ancestral iron grows stronger. +1% damage resistance.':`Your ${s.weapon.type.toLowerCase()} is reinforced. +1 weapon power.`);S.save();return true;}
   return {resolve,ignore,talk,eat,dig,gatherLoot,unlock,potion,rest,craft,armorCost,weaponCost,atForge,canCraft};
