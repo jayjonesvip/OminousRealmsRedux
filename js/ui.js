@@ -18,7 +18,7 @@ OR.ui=(()=>{
   const btn=(label,action,kind='primary',extra='')=>`<button class="btn ${kind}" data-action="${action}" ${extra}>${label}</button>`;
   const eyebrow=text=>`<div class="eyebrow">${text}</div>`;
   const sectionHead=(small,big,sub='')=>`<div class="section-head">${eyebrow(small)}<h1>${big}</h1>${sub?`<p>${sub}</p>`:''}</div>`;
-  function asset(b){if(b.elementType==='Home')return 'home-interior';if(['exile','gravekeeper','hermit'].includes(b.subtype))return b.subtype+'-outer';if(b.elementType==='Landmark')return b.subtype==='village-forge'?'forge-village':b.subtype+'-village'+(V.empty(b)?'-empty':'');const paired=['Home','Nature','NPC','Food','Animal','Thing','Dragon','LockedItem','BuriedItems','Craft','Puzzle','Path'].includes(b.elementType);return b.subtype+(paired?(W.local(b.x,b.y)?'-village':'-outer'):'');}
+  function asset(b){if(b.elementType==='Home')return 'home-interior';if(['exile','gravekeeper','hermit'].includes(b.subtype))return b.subtype+'-outer';if(b.elementType==='Landmark'||V.destinations.includes(b.subtype))return b.subtype==='village-forge'?'forge-village':b.subtype+'-village'+(V.empty(b)?'-empty':'');const paired=['Home','Nature','NPC','Food','Animal','Thing','Dragon','LockedItem','BuriedItems','Craft','Puzzle','Path'].includes(b.elementType);return b.subtype+(paired?(W.local(b.x,b.y)?'-village':'-outer'):'');}
   const playerArt=()=>`warrior-${S.data.weapon.type.toLowerCase()}`;
   function hpBar(current,max,cls=''){const p=Math.max(0,Math.min(100,current/max*100));return `<div class="hp-track ${p<=25?'critical':p<=50?'wounded':''} ${cls}" role="progressbar" aria-label="Health" aria-valuenow="${num(current)}" aria-valuemin="0" aria-valuemax="${num(max)}"><span style="width:${p}%"></span></div>`;}
   function hud(){const s=S.data;if(!s){vitalitySnapshot=null;$('hud').hidden=true;$('nav').hidden=true;return;}const hp=visibleHealth();const lost=vitalitySnapshot?.data===s?Math.max(0,vitalitySnapshot.hp-hp.current):0,previousPercent=vitalitySnapshot?Math.min(100,100*vitalitySnapshot.hp/vitalitySnapshot.max):0;vitalitySnapshot={data:s,hp:hp.current,max:hp.max};const local=W.local(s.x,s.y),pack=s.inventory.reduce((n,i)=>n+i.qty,0);$('hud').hidden=false;$('nav').hidden=false;
@@ -69,6 +69,7 @@ OR.ui=(()=>{
     return '<div class="puzzle-panel">'+eyebrow('INSCRIPTION · '+rule.name.toUpperCase())+'<p class="puzzle-clue">“'+escape(P.clue(b))+'”</p>'+controls+'</div>';
   }
   function landmarkActions(b){
+    if(V.completed(b.subtype))return "";
     if(b.subtype==='village-forge')return btn('ENTER THE FORGE '+icon('forge'),'forge:armor');
 
 
