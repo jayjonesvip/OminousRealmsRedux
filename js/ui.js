@@ -294,7 +294,7 @@ OR.ui=(()=>{
         if(['N','S','E','W'].includes(value)&&S.data.hp.current>1&&['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle','Landmark'].includes(b.elementType)&&(!b.resolved||activeDialogue(b))){
           if(A.ignore()&&!b.cleared&&['Danger','Enemy','Dragon'].includes(b.elementType))notice=S.data.message;
         }
-        if(W.move(value)){route('explore');if(wasLocal&&!W.local(S.data.x,S.data.y))toast('ENTERING THE OUTER REALM','danger','Strongwood’s warmth fades. Beyond this fence, enemies strike first.');else if(S.data.lastFind)toast('POTION FOUND','reward','+1 Potion in your pack · Use HEAL to recover.');else if(notice)toast(notice);}
+        if(W.move(value)){route('explore');if(wasLocal&&!W.local(S.data.x,S.data.y))toast('ENTERING THE OUTER REALM','danger','Strongwood’s warmth fades. Beyond this fence, enemies strike first.');else if(S.data.lastFind)toast('POTION FOUND','reward','+1 Potion in your pack · Use HEAL to recover.');else if(notice)toast(notice,'danger');}
         break;
       }
       case 'quest':{if(value==='open'){if(Q.open())route('explore');}else if(value==='decline'){if(Q.decline())route('explore');}else if(value==='accept'){if(Q.accept()){route('explore');toast('QUEST ACCEPTED','reward',S.data.message);}else toast('NO CLEAR DESTINATION','notice','Try accepting again when the road is clear.');}break;}
@@ -309,7 +309,7 @@ OR.ui=(()=>{
       case 'npc-attack':if(A.talk(true))route('encounter');break;
       case 'next-dialogue':if(dialogueToAdvance&&moreDialogue(dialogueToAdvance)){dialogueToAdvance.page=(dialogueToAdvance.page||0)+1;S.save();render(true);}break;
       case 'skip-dialogue':if(typeFinish)typeFinish();break;
-      case 'ignore':{const b=W.current(),warn=!b.cleared&&['Danger','Enemy','Dragon'].includes(b.elementType),ignored=A.ignore(),notice=S.data.message;route('explore');if(ignored&&warn&&notice)toast(notice);break;}
+      case 'ignore':{const b=W.current(),warn=!b.cleared&&['Danger','Enemy','Dragon'].includes(b.elementType),ignored=A.ignore(),notice=S.data.message;route('explore');if(ignored&&warn&&notice)toast(notice,'danger');break;}
       case 'eat':{const before=S.data.hp.current;const eaten=A.eat();route('explore');const lost=before-S.data.hp.current;if(eaten&&lost>0)toast('POISONED · −'+num(lost)+' HP','danger','The mushrooms were poisonous. Your vitality has dropped.');else if(eaten)toast('HEALTH RESTORED','reward','The mushrooms mend your wounds.');break;}
       case 'stop-digging':if(!S.data.foundLoot&&W.current().elementType==='BuriedItems'){A.ignore();route('explore');}break;
       case 'dig':{A.dig();if(S.data.foundLoot?.source==='dig'){route('digging');}else if(W.current().elementType!=='BuriedItems'){route('explore');toast(S.data.message,'danger');}else{if(screen!=='digging')route('digging');else render(true);toast(S.data.message);}break;}
@@ -329,7 +329,7 @@ OR.ui=(()=>{
         },950);
         break;
       }
-      case 'flee':if(B.flee()){route('explore');toast(S.data.message);}break;
+      case 'flee':if(B.flee()){route('explore');toast(S.data.message,'danger');}break;
       case 'bribe':if(B.bribe())route('aftermath');break;
       case 'claim':case 'recover':{
         const result=S.data.outcome;if(!result)break;

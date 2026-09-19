@@ -233,7 +233,7 @@ body.in-game{min-height:100dvh}
 .dialogue-dock .button-pair{margin:0;}
 
 /* Darker translucent toast surfaces beyond Strongwood. */
-body.outer-world #toast{background:#17130fcc}
+body.outer-world #toast{background:#17130fcc;color:#e3d6b9}
 body.outer-world #toast.toast-reward{background:#101e13cc}
 body.outer-world #toast.toast-danger{background:#000c;color:#b15a55;border-color:#823b37;border-left-color:#823b37}
 body.outer-world .combat-toast.opening{background:#171710cc}
