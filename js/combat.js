@@ -8,7 +8,7 @@ OR.combat=(()=>{
     for(let l=2;l<=S.data.level;l++){max+=1.2*Math.ceil(C.required(l-1))+l;base++;armor=Math.min(95,armor+1);}
     if(block.elementType==='Dragon')max=block.dragonMaxHp||block.dragonHp;
     const moves=C.weapon(type).moves.filter(m=>!m.magic);
-    return {id:block.subtype,name:C.entities[block.subtype].name,level:S.data.level,hp:block.dragonHp||max,maxHp:max,basePower:base,resistance:armor,weapon:type,moves,...natural};
+    return {id:block.subtype,name:OR.quests?.name(block)||C.entities[block.subtype].name,level:S.data.level,hp:block.dragonHp||max,maxHp:max,basePower:base,resistance:armor,weapon:type,moves,...natural};
   }
   function start(){const s=S.data,b=W.current();if(s.battle||s.outcome||s.foundLoot||b.cleared||!['Danger','Enemy','Dragon'].includes(b.elementType))return false;const e=enemy(b);if(b.elementType==='Dragon')b.dragonMaxHp=e.maxHp;s.battle={enemyId:b.subtype,enemy:e,x:s.x,y:s.y,round:1,log:`${e.name} confronts you. Choose your opening.`};s.state='Battle';if(!W.local(s.x,s.y)&&['Enemy','Dragon'].includes(b.elementType))ambush();S.save();return true;}
   function ambush(){
@@ -23,7 +23,7 @@ OR.combat=(()=>{
   function finish(win,bribed=false){
     const s=S.data,b=W.current(),isDragon=b.elementType==='Dragon',e=s.battle.enemy;
     let levels=0,rewards=[];
-    if(win){s.victories++;levels=levelUp();rewards=S.grantLoot(isDragon?2:1,isDragon);W.clear(true);}
+    if(win){s.victories++;levels=levelUp();rewards=S.grantLoot(isDragon?2:1,isDragon);OR.quests?.complete('slay',b);W.clear(true);}
     s.outcome={win,bribed,dragon:isDragon&&win&&!bribed,rewards,levels,enemy:e.name,lastRound:s.battle.lastRound||null,art:win?`warrior-${s.weapon.type.toLowerCase()}`:'warrior-wounded'};
     S.log(win?(bribed?`A gem spent. ${e.name} withdraws. This ground is now clear.`:`${e.name} falls. This ground is now clear.`):'You fall unconscious. The realm leaves you one breath.');
     if(levels)S.log(`LEVEL ${s.level}. Your gear improves and your health is restored.`);
@@ -54,16 +54,17 @@ OR.combat=(()=>{
   function advanceDragon(battle){
     if(battle.enemyId!=='dragon'||battle.enemy.hp<=0||battle.enemy.hp>=battle.enemy.maxHp||W.local(battle.x,battle.y))return false;
     let x=battle.x,y=battle.y;if(Math.abs(x)>=Math.abs(y))x-=Math.sign(x);else y-=Math.sign(y);
-    if(W.local(x,y))return false;
+    if(W.local(x,y)||battle.enemyId==='dragon'&&OR.quests?.atTarget(W.at(battle.x,battle.y))&&!OR.quests.deep(x,y))return false;
     const target=W.at(x,y),reserved=OR.village?.template(x,y);
     if(reserved||target&&target.elementType!=='Nature')return false;
     const origin=W.at(battle.x,battle.y);if(!origin||origin.elementType!=='Dragon')return false;
-    const moved={x,y,elementType:'Dragon',subtype:'dragon',dragonHp:battle.enemy.hp,dragonMaxHp:battle.enemy.maxHp,resolved:false};
+    const moved={...(origin.questId?{questId:origin.questId}:{}),x,y,elementType:'Dragon',subtype:'dragon',dragonHp:battle.enemy.hp,dragonMaxHp:battle.enemy.maxHp,resolved:false};
+    OR.quests?.relocate(origin,x,y);delete origin.questId;
     if(target){for(const key of Object.keys(target))delete target[key];Object.assign(target,moved);}else S.data.blocks.push(moved);
     Object.assign(origin,{elementType:'Nature',subtype:'clearing',dragonHp:null,dragonMaxHp:null,resolved:true,cleared:true});return true;
   }
   function flee(){if(!S.data?.battle)return false;const b=S.data.battle,moved=advanceDragon(b);S.log(moved?'The wounded dragon moves toward Strongwood.':('You break off the fight. '+b.enemy.name+' still threatens this ground.'));S.data.battle=null;S.data.state='Explore';W.current().resolved=true;S.save();return true;}
-  function bribe(){if(!S.data?.battle||!S.qty('Gem'))return false;S.add('Gem',-1);return finish(true,true);}
+  function bribe(){if(!S.data?.battle||!S.qty('Gem')||OR.quests?.atTarget(W.current()))return false;S.add('Gem',-1);return finish(true,true);}
   function claim(){if(!S.data?.outcome)return false;if(!S.data.outcome.win)W.current().resolved=true;S.data.outcome=null;S.save();return true;}
   return {damage,enemy,start,attack,flee,bribe,claim,levelUp};
 })();

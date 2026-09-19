@@ -34,7 +34,7 @@ OR.puzzles=(()=>{
   function solve(b,p){
     p.solved=true;p.offered=0;
     p.rewards=[{type:C.pick(['MetalIngot','SteelIngot']),qty:C.random(3,5)},
-      {type:C.pick(['Potion','Gem','Key']),qty:1}];
+      {type:C.pick(['Potion','Gem','SteelIngot']),qty:1}];
     S.log(C.entities[b.subtype].name+': the seal opens. A hidden chamber awaits.');S.save();
     return {title:'SEAL OPENED',detail:'The passage stays open. Enter to gather its treasure.',kind:'reward'};
   }

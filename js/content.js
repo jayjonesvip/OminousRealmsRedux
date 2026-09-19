@@ -22,13 +22,16 @@ OR.content = (() => {
     SteelIngot:{name:'Steel Ingot',art:'item-steel',group:'CRAFTING',note:'Put a sharper edge on your weapon.'},
     Potion:{name:'Potion',art:'item-potion',group:'SUPPLIES',note:'Restore all missing health.'},
     Gem:{name:'Gem',art:'item-gem',group:'SUPPLIES',note:'Buy a victory. Bribe an enemy.'},
-    Key:{name:'Key',art:'item-key',group:'SUPPLIES',note:'Open a locked chest.'},
+    Keepsake:{name:'Grandfather’s Keepsake',art:'figurine-village',group:'RELICS',note:'A small wooden guardian, recovered from the earth.'},
+    Key:{name:'Provisions Key',art:'item-key',group:'SUPPLIES',note:'Grandfather’s key opens the missing provisions chest.'},
     MagicCrystal:{name:'Magic Crystal',art:'item-crystal',group:'RELICS',note:'Consumed by one Realmfire attack.'},
     LuckyCoin:{name:'Lucky Coin',art:'item-coin',group:'RELICS',note:'+5% accuracy on every attack.'},
     BrokenPottery:{name:'Broken Pottery',art:'item-pottery',group:'REMNANTS',note:'A small piece of a forgotten life.'},
     RustyNail:{name:'Rusty Nail',art:'item-nail',group:'REMNANTS',note:'Even the old world had loose ends.'}
   };
   const entries = [
+    ['Quest','grandfather-echo','A Familiar Voice','Your grandfather waits.','Your grandfather’s voice reaches through the veil.'],
+    ['Thing','empty-chest','Empty Chest','An old chest stands empty.','An abandoned chest holds only ash.'],
     ['Home','home','Strongwood Cottage','Smoke curls above the roof. A cobblestone path leads north toward the Lantern Tavern.','The hearth is cold. Something remembers you.'],
     ['Nature','forest','Oldwood Forest','Sunlight cuts through the trees like ancestral steel.','Dead branches claw at a blood-red sky.'],
     ['Nature','mossy','Mossbound Stones','Green velvet softens the bones of the earth.','Black moss drinks from the cracks in the stone.'],
@@ -93,12 +96,12 @@ OR.content = (() => {
     ['Puzzle','puzzle-levers','The Silent Mechanism','Three levers stand watch over an ancient vault.','Three rusted levers wait beneath watchful stone beasts.']
   ];
   const entities = Object.fromEntries(entries.map(([type,id,name,village,outer])=>[id,{type,id,name,village,outer}]));
-  const weights = {Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1,Path:1,Landmark:1};
+  const weights = {Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1,Path:1,Landmark:1,Quest:1};
   const outerOnly = ['Enemy','Dragon','LockedItem'];
   // New coordinates: quiet terrain and scarce travelers in both realms.
   // Outside, reserve 20% for threats; preserve relative weights within each pool.
   const encounterRates=isLocal=>{
-    const eligible=Object.entries(weights).filter(([type])=>!['Home','Path','Landmark'].includes(type)&&(!isLocal||!outerOnly.includes(type)));
+    const eligible=Object.entries(weights).filter(([type])=>!['Home','Path','Landmark','Quest','LockedItem'].includes(type)&&(!isLocal||!outerOnly.includes(type)));
     const threats=['Danger','Enemy','Dragon'];
     const inPool=type=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&(isLocal||!threats.includes(type));
     const poolWeight=eligible.reduce((total,[type,weight])=>total+(inPool(type)?weight:0),0);

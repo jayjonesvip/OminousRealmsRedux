@@ -26,6 +26,7 @@ OR.state = (() => {
       data.armor.craftCost=data.armor.craftCost||data.armor.resistance;
       data.journal=data.journal.slice(-50);
       OR.world?.migrateNpcs();
+      OR.quests?.migrate();
       // Retire ambiguous legacy banners without rewriting the journal history.
       if(['Not every shadow needs your steel.','You leave it to the forest.','Another day. Another fight.'].includes(data.message))data.message='';
       // Older saves kept cleared encounters as resolved clearings without a flag.
@@ -71,7 +72,7 @@ OR.state = (() => {
   }
   function loot() {
     if(data.hp.current<data.hp.max && !qty('Potion') && Math.random()<0.6)return 'Potion';
-    return OR.content.pick(['MetalIngot','MetalIngot','SteelIngot','SteelIngot','Potion','Gem','Key','MagicCrystal','LuckyCoin','BrokenPottery','RustyNail'].filter(t=>!(['LuckyCoin','MagicCrystal'].includes(t)&&qty(t)>0)));
+    return OR.content.pick(['MetalIngot','MetalIngot','SteelIngot','SteelIngot','Potion','Gem','MagicCrystal','LuckyCoin','BrokenPottery','RustyNail'].filter(t=>!(['LuckyCoin','MagicCrystal'].includes(t)&&qty(t)>0)));
   }
   function grantLoot(count=1,big=false) {const rewards=[];for(let i=0;i<count;i++){const type=loot(),n=big?OR.content.random(3,6):1;add(type,['LuckyCoin','MagicCrystal'].includes(type)?1:n);rewards.push({type,qty:['LuckyCoin','MagicCrystal'].includes(type)?1:n});}return rewards;}
   return {KEY,REST_DURATION,fresh,load,save,create,reset,qty,levelProgress,add,log,loot,grantLoot,syncRest,restStatus,get data(){return data;},get error(){return storageError;}};
