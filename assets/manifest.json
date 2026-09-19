@@ -440,5 +440,8 @@
   },
   "outer-realm-border": {
     "file": "outer-realm-border.png"
+  },
+  "rabid-rabbit": {
+    "file": "rabid-rabbit.png"
   }
 }
