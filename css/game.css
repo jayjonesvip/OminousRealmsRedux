@@ -235,8 +235,8 @@ body.in-game{min-height:100dvh}
 /* Darker translucent toast surfaces beyond Strongwood. */
 body.outer-world #toast{background:#17130fcc}
 body.outer-world #toast.toast-reward{background:#101e13cc}
-body.outer-world #toast.toast-danger{background:#241013cc}
+body.outer-world #toast.toast-danger{background:#000c;color:#b15a55;border-color:#823b37;border-left-color:#823b37}
 body.outer-world .combat-toast.opening{background:#171710cc}
-body.outer-world .combat-toast.hurt{background:#241013cc}
+body.outer-world .combat-toast.hurt{background:#000c;color:#b15a55;border-color:#823b37}
 body.outer-world .combat-toast.miss{background:#101c27cc}
 body.outer-world .combat-toast.hit,body.outer-world .combat-toast.magic-hit{background:#10251acc}
