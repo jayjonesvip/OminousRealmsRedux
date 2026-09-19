@@ -491,7 +491,7 @@ test('puzzles are 1.5 percent of new coordinates and have stable realm artwork a
     for(const [n,id] of ['puzzle-plate','puzzle-runes','puzzle-levers'].entries()){
       g.rng((n+.5)/3);const b=g.world.spawn('Puzzle',local?5:30,5+n);assert.equal(b.subtype,id);assert.ok(Number.isInteger(b.puzzle.variant));
       g.state.data.blocks.push(b);g.state.data.x=b.x;g.state.data.y=b.y;g.ui.route('explore');
-      assert.match(g.nodes.stage.innerHTML,new RegExp(id+'-'+(local?'village':'outer')+'\\.png'));assert.match(g.nodes.stage.innerHTML,/INSCRIPTION/);assert.match(g.nodes.stage.innerHTML,/data-action="move:N"/);
+      assert.match(g.nodes.stage.innerHTML,new RegExp(id+'-'+(local?'village':'outer')+'\\.png'));assert.match(g.nodes.stage.innerHTML,/SOLVE PUZZLE/);assert.match(g.nodes.stage.innerHTML,/data-action="move:N"/);g.ui.dispatch('route:puzzle');assert.match(g.nodes.stage.innerHTML,/INSCRIPTION/);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);
       const before=JSON.stringify(b.puzzle);g.state.save();g.state.load();assert.equal(JSON.stringify(g.world.current().puzzle),before);
     }
   }
@@ -506,11 +506,11 @@ test('all twelve puzzle patterns solve in both realms and grant their cached tre
     assert.equal(b.puzzle.solved,true,id+' '+variant);assert.equal(g.state.data.foundLoot,null);assert.match(g.nodes.toast.innerHTML,/SEAL OPENED/);assert.match(g.nodes.stage.innerHTML,/ENTER CAVE|ENTER CHAMBER/);
     const rewards=JSON.stringify(b.puzzle.rewards),inventory=JSON.stringify(g.state.data.inventory);g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');
     assert.equal(g.world.current().puzzle.solved,true);assert.equal(JSON.stringify(g.world.current().puzzle.rewards),rewards);assert.equal(JSON.stringify(g.state.data.inventory),inventory);
-    g.ui.dispatch('puzzle:enter');assert.match(g.nodes.stage.innerHTML,/HIDDEN CHAMBER/);assert.match(g.nodes.stage.innerHTML,/GATHER LOOT/);assert.match(g.nodes.stage.innerHTML,/data-action="move:N" disabled/);assert.equal(g.world.move('N'),false);
+    g.ui.dispatch('puzzle:enter');assert.match(g.nodes.stage.innerHTML,/HIDDEN CHAMBER/);assert.match(g.nodes.stage.innerHTML,/GATHER LOOT/);assert.equal(g.ui.screen,'puzzle');assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);assert.equal(g.world.move('N'),false);
     g.state.load();g.ui.init();assert.equal(JSON.stringify(g.state.data.foundLoot.rewards),rewards);assert.match(g.nodes.stage.innerHTML,/HIDDEN CHAMBER/);
     const before=Object.fromEntries(JSON.parse(rewards).map(r=>[r.type,g.state.qty(r.type)]));g.ui.dispatch('gather-loot');
     for(const r of JSON.parse(rewards))assert.equal(g.state.qty(r.type),before[r.type]+r.qty);
-    assert.equal(g.world.current().puzzle.claimed,true);assert.equal(g.state.data.foundLoot,null);assert.match(g.nodes.toast.innerHTML,/LOOT GATHERED/);assert.match(g.nodes.stage.innerHTML,/CHAMBER SEARCHED/);
+    assert.equal(g.world.current().puzzle.claimed,true);assert.equal(g.state.data.foundLoot,null);assert.match(g.nodes.toast.innerHTML,/LOOT GATHERED/);assert.equal(g.ui.screen,'explore');assert.doesNotMatch(g.nodes.stage.innerHTML,/SOLVE PUZZLE|GATHER LOOT/);
     const final=JSON.stringify(g.state.data.inventory);g.ui.dispatch('puzzle:enter');g.ui.dispatch('gather-loot');g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');g.ui.dispatch('puzzle:enter');
     assert.equal(JSON.stringify(g.state.data.inventory),final);assert.equal(g.state.data.foundLoot,null);assert.match(g.world.description(),/already been searched/);
   }
