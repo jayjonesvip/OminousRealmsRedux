@@ -292,7 +292,7 @@ OR.ui=(()=>{
         if(V.pendingGift())break;
         const b=W.current();let notice='';
         if(['N','S','E','W'].includes(value)&&S.data.hp.current>1&&['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle','Landmark'].includes(b.elementType)&&(!b.resolved||activeDialogue(b))){
-          if(A.ignore())notice=S.data.message;
+          if(A.ignore()&&!b.cleared&&['Danger','Enemy','Dragon'].includes(b.elementType))notice=S.data.message;
         }
         if(W.move(value)){route('explore');if(S.data.lastFind)toast('POTION FOUND','reward','+1 Potion in your pack · Use HEAL to recover.');else if(notice)toast(notice);}
         break;
@@ -309,7 +309,7 @@ OR.ui=(()=>{
       case 'npc-attack':if(A.talk(true))route('encounter');break;
       case 'next-dialogue':if(dialogueToAdvance&&moreDialogue(dialogueToAdvance)){dialogueToAdvance.page=(dialogueToAdvance.page||0)+1;S.save();render(true);}break;
       case 'skip-dialogue':if(typeFinish)typeFinish();break;
-      case 'ignore':{const ignored=A.ignore(),notice=S.data.message;route('explore');if(ignored&&notice)toast(notice);break;}
+      case 'ignore':{const b=W.current(),warn=!b.cleared&&['Danger','Enemy','Dragon'].includes(b.elementType),ignored=A.ignore(),notice=S.data.message;route('explore');if(ignored&&warn&&notice)toast(notice);break;}
       case 'eat':{const before=S.data.hp.current;const eaten=A.eat();route('explore');const lost=before-S.data.hp.current;if(eaten&&lost>0)toast('POISONED · −'+num(lost)+' HP','danger','The mushrooms were poisonous. Your vitality has dropped.');else if(eaten)toast('HEALTH RESTORED','reward','The mushrooms mend your wounds.');break;}
       case 'stop-digging':if(!S.data.foundLoot&&W.current().elementType==='BuriedItems'){A.ignore();route('explore');}break;
       case 'dig':{A.dig();if(S.data.foundLoot?.source==='dig'){route('digging');}else if(W.current().elementType!=='BuriedItems'){route('explore');toast(S.data.message,'danger');}else{if(screen!=='digging')route('digging');else render(true);toast(S.data.message);}break;}

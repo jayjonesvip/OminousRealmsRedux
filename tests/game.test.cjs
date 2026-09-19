@@ -27,7 +27,7 @@ test('encounter prompts sit below directions, which leave in one tap without con
     assert.doesNotMatch(html,/INVESTIGATE|KEEP WALKING|data-action="ignore"|recent-message/);
     g.ui.dispatch('move:N');assert.equal(g.state.data.x,27);assert.equal(g.state.data.y,2);assert.equal(g.state.data.steps,1);
     assert.equal(b.elementType,type);assert.equal(b.subtype,id);assert.equal(g.state.data.battle,null);assert.equal(g.state.data.victories,0);assert.equal(g.state.qty('Key'),0);
-    if(type==='NPC')assert.equal(g.nodes.toast.innerHTML,'');else assert.ok(g.nodes.toast.innerHTML.length>0);
+    if(['Danger','Enemy','Dragon'].includes(type))assert.match(g.nodes.toast.innerHTML,/The threat remains here/);else assert.equal(g.nodes.toast.innerHTML,'');
     g.ui.dispatch('move:S');assert.equal(g.world.current(),b);assert.match(g.nodes.stage.innerHTML,new RegExp('data-action="'+action+'"'));
   }
 });
@@ -36,7 +36,7 @@ test('directions dismiss NPC speech and retain partially dug ground across reloa
   g.ui.dispatch('move:N');assert.doesNotMatch(g.nodes.stage.innerHTML,/speech-bubble/);assert.equal(g.nodes.toast.innerHTML,'');
   g.ui.dispatch('move:S');assert.match(g.nodes.stage.innerHTML,/data-action="talk"/);assert.doesNotMatch(g.nodes.stage.innerHTML,/speech-bubble/);
   const b=g.place('BuriedItems','dig',8,8);g.rng(0);g.ui.dispatch('dig');assert.equal(b.dug,1);
-  g.ui.dispatch('move:N');assert.match(g.nodes.toast.innerHTML,/unfinished hole remains/);g.state.load();g.ui.dispatch('move:S');
+  g.nodes.toast.innerHTML='';g.ui.dispatch('move:N');assert.equal(g.nodes.toast.innerHTML,'');g.state.load();g.ui.dispatch('move:S');
   assert.equal(g.world.current().dug,1);assert.equal(g.world.current().digDepth,3);assert.match(g.nodes.stage.innerHTML,/RESUME DIGGING/);g.ui.dispatch('route:digging');assert.match(g.nodes.stage.innerHTML,/DIG ANOTHER FOOT/);
 });
 test('pending battle, aftermath, and loot prevent compass movement and automatic ignoring',()=>{
