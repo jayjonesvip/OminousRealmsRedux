@@ -26,6 +26,7 @@ OR.state = (() => {
       data.armor.craftCost=data.armor.craftCost||data.armor.resistance;
       data.journal=data.journal.slice(-50);
       OR.world?.migrateBorders();
+      OR.world?.migratePuzzles();
       OR.world?.migrateNpcs();
       OR.quests?.migrate();
       // Retire ambiguous legacy banners without rewriting the journal history.

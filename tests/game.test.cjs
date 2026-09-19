@@ -125,7 +125,7 @@ test('walking pickup shows potion card and toast, then full healing clears the f
 test('walking north then south preserves every discovered encounter across reloads without rerolling',()=>{
   const content=game().content;
   for(const e of Object.values(content.entities))for(const x of [3,30,-30]){
-    if(e.type==='LockedItem')continue;
+    if(e.type==='LockedItem'||e.type==='Puzzle'&&Math.abs(x)<=25)continue;
     if((['hunter','exile','gravekeeper','hermit'].includes(e.id)&&Math.abs(x)<=25)||e.type==='Home'||(e.id==='villager'&&Math.abs(x)>25)||(e.id==='grave'&&Math.abs(x)<=25))continue;
     const g=game(),b=g.place(e.type,e.id,x,3);
     if(e.type==='Landmark'){g.state.data.village.visits[e.id]=true;if(g.village.destinations.includes(e.id))b.elementType='Thing';}
@@ -443,7 +443,7 @@ test('new-coordinate rates reserve quiet terrain, scarce NPCs and increased oute
     if(!local){assert.ok(Math.abs(threats.reduce((sum,type)=>sum+rates[type],0)-20)<1e-10);assert.equal(rates.Danger,rates.Enemy);assert.equal(rates.Danger,4*rates.Dragon);}
     const others=Object.entries(rates).filter(([type])=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&(local||!threats.includes(type)));
     const totalWeight=others.reduce((sum,[type])=>sum+g.content.weights[type],0);
-    for(const [type,rate] of others)assert.ok(Math.abs(rate-(local?48.5:33.5)*g.content.weights[type]/totalWeight)<1e-10,type);
+    for(const [type,rate] of others)assert.ok(Math.abs(rate-(local?50:33.5)*g.content.weights[type]/totalWeight)<1e-10,type);
     assert.equal(Object.hasOwn(rates,'Home'),false);
     for(const type of g.content.outerOnly)assert.equal(Object.hasOwn(rates,type),type==='LockedItem'?false:!local);
     let start=0,i=0;
@@ -472,8 +472,8 @@ test('new scenery and animals spawn in both realms while graves stay outside Str
 });
 
 test('puzzles are 1.5 percent of new coordinates and have stable realm artwork and patterns',()=>{
-  for(const local of [true,false]){
-    const g=game(new Map(),true),rates=g.content.encounterRates(local);assert.equal(rates.Puzzle,1.5);
+  for(const local of [false]){
+    const g=game(new Map(),true),rates=g.content.encounterRates(local);assert.equal(rates.Puzzle,local?undefined:1.5);
     assert.equal(rates.Nature,40);assert.equal(rates.NPC,local?10:5);
     for(const [n,id] of ['puzzle-plate','puzzle-runes','puzzle-levers'].entries()){
       g.rng((n+.5)/3);const b=g.world.spawn('Puzzle',local?5:30,5+n);assert.equal(b.subtype,id);assert.ok(Number.isInteger(b.puzzle.variant));
@@ -483,9 +483,9 @@ test('puzzles are 1.5 percent of new coordinates and have stable realm artwork a
     }
   }
 });
-test('all twelve puzzle patterns solve in both realms and grant their cached treasure only once',()=>{
+test('all twelve puzzle patterns solve in the Outer Realm and grant their cached treasure only once',()=>{
   const answers={'puzzle-plate':[['MetalIngot',1],['SteelIngot',1],['MetalIngot',2],['SteelIngot',2]],'puzzle-runes':[[0,1,2],[2,1,0],[1,2,0],[2,0,1]],'puzzle-levers':[[0,1,2],[2,0,1],[1,2,1,0],[0,2,0,1]]};
-  for(const local of [true,false])for(const [id,variants] of Object.entries(answers))for(const [variant,answer] of variants.entries()){
+  for(const local of [false])for(const [id,variants] of Object.entries(answers))for(const [variant,answer] of variants.entries()){
     const g=game(new Map(),true),b=g.place('Puzzle',id,local?5:30,5);b.puzzle=g.puzzles.create(id);b.puzzle.variant=variant;g.state.add('MetalIngot',10);g.state.add('SteelIngot',10);g.ui.route('explore');
     if(id==='puzzle-plate'){for(let n=0;n<answer[1];n++)g.ui.dispatch('puzzle:offer-'+answer[0]);assert.equal(g.state.qty(answer[0]),10-answer[1]);}
     if(id==='puzzle-runes'){for(const [i,turns] of answer.entries())for(let n=0;n<turns;n++)g.ui.dispatch('puzzle:turn-'+i);g.ui.dispatch('puzzle:check');}
@@ -503,7 +503,7 @@ test('all twelve puzzle patterns solve in both realms and grant their cached tre
   }
 });
 test('plate rejects wrong ingots without spending them and preserves recoverable partial offerings',()=>{
-  const g=game(new Map(),true),b=g.place('Puzzle','puzzle-plate',5,5);b.puzzle=g.puzzles.create(b.subtype);b.puzzle.variant=2;
+  const g=game(new Map(),true),b=g.place('Puzzle','puzzle-plate',30,5);b.puzzle=g.puzzles.create(b.subtype);b.puzzle.variant=2;
   assert.equal(g.puzzles.act('offer','MetalIngot'),false);g.state.add('MetalIngot',2);g.state.add('SteelIngot',1);
   g.ui.dispatch('puzzle:offer-SteelIngot');assert.equal(g.state.qty('SteelIngot'),1);assert.equal(b.puzzle.offered,0);assert.match(g.nodes.toast.innerHTML,/Nothing spent/);
   g.ui.dispatch('puzzle:offer-MetalIngot');assert.equal(b.puzzle.offered,1);assert.equal(g.state.qty('MetalIngot'),1);g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');
@@ -511,10 +511,10 @@ test('plate rejects wrong ingots without spending them and preserves recoverable
   g.ui.dispatch('puzzle:recover');assert.equal(g.state.qty('MetalIngot'),2);g.ui.dispatch('puzzle:offer-MetalIngot');g.ui.dispatch('puzzle:offer-MetalIngot');g.ui.dispatch('puzzle:recover');assert.equal(g.state.qty('MetalIngot'),0);
 });
 test('rune and lever progress survives departure while mistakes never damage or charge the player',()=>{
-  const g=game(new Map(),true),b=g.place('Puzzle','puzzle-runes',5,5);b.puzzle=g.puzzles.create(b.subtype);b.puzzle.variant=0;
+  const g=game(new Map(),true),b=g.place('Puzzle','puzzle-runes',30,5);b.puzzle=g.puzzles.create(b.subtype);b.puzzle.variant=0;
   g.ui.dispatch('puzzle:turn-1');g.ui.dispatch('puzzle:check');assert.equal(b.puzzle.solved,false);assert.equal(g.state.data.hp.current,50);assert.match(g.nodes.toast.innerHTML,/SEAL HOLDS/);
   g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');assert.equal(JSON.stringify(g.world.current().puzzle.wheels),'[0,1,0]');
-  const lever=g.place('Puzzle','puzzle-levers',8,8);lever.puzzle=g.puzzles.create(lever.subtype);lever.puzzle.variant=2;
+  const lever=g.place('Puzzle','puzzle-levers',30,8);lever.puzzle=g.puzzles.create(lever.subtype);lever.puzzle.variant=2;
   g.ui.dispatch('puzzle:pull-1');g.ui.dispatch('move:N');g.state.load();g.ui.dispatch('move:S');assert.equal(g.world.current().puzzle.progress,1);
   g.ui.dispatch('puzzle:pull-0');assert.equal(g.world.current().puzzle.progress,0);assert.equal(g.state.data.hp.current,50);assert.match(g.nodes.toast.innerHTML,/LEVERS RESET/);assert.equal(g.state.data.inventory.length,0);
   assert.equal(g.puzzles.act('pull','-1'),false);assert.equal(g.puzzles.act('pull','3'),false);assert.equal(g.puzzles.act('turn','0'),false);
@@ -655,3 +655,5 @@ test('crossing into the Outer Realm warns once per outward crossing, on all side
  g.nodes.toast.innerHTML='';g.ui.dispatch('move:'+out);assert.doesNotMatch(g.nodes.toast.innerHTML,/ENTERING THE OUTER REALM/);
  }
 });
+
+test('saved Strongwood puzzles become wilderness while Outer puzzles remain',()=>{const g=game();g.place('Puzzle','puzzle-runes',5,5);g.place('Puzzle','puzzle-levers',30,5);g.state.save();g.state.load();assert.equal(g.world.at(5,5).elementType,'Nature');assert.equal(g.world.at(30,5).elementType,'Puzzle');});

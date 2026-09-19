@@ -98,7 +98,7 @@ OR.content = (() => {
   ];
   const entities = Object.fromEntries(entries.map(([type,id,name,village,outer])=>[id,{type,id,name,village,outer}]));
   const weights = {Border:1,Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1,Path:1,Landmark:1,Quest:1};
-  const outerOnly = ['Enemy','Dragon','LockedItem'];
+  const outerOnly = ['Enemy','Dragon','LockedItem','Puzzle'];
   // New coordinates: quiet terrain and scarce travelers in both realms.
   // Outside, reserve 20% for threats; preserve relative weights within each pool.
   const encounterRates=isLocal=>{
@@ -109,7 +109,7 @@ OR.content = (() => {
     const threatWeight=threats.reduce((total,type)=>total+weights[type],0);
     return Object.fromEntries(eligible.map(([type,weight])=>[type,
       type==='Nature'?40:type==='NPC'?(isLocal?10:5):type==='Puzzle'?1.5:
-      !isLocal&&threats.includes(type)?20*weight/threatWeight:(isLocal?48.5:33.5)*weight/poolWeight
+      !isLocal&&threats.includes(type)?20*weight/threatWeight:(isLocal?50:33.5)*weight/poolWeight
     ]));
   };
   const random = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
