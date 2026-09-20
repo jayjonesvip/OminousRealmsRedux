@@ -18,7 +18,7 @@ OR.createBattleUI=({$,escape,num,art,enemyArt,playerArt,eyebrow,hpBar,btn,visibl
   function roundToast(r,enemy=false){
     if(r.received===null){
       if(!enemy){
-        if(r.stagger)combatToast('hit','STAGGERED',r.move+' staggered '+(S.data.battle?.enemy.name||'the enemy')+' · ROUND '+r.round+' · NO COUNTER',num(r.dealt)+' DMG');
+        if(r.stagger){const first=!S.data.heavyStaggerSeen;if(first){S.data.heavyStaggerSeen=true;S.save();}combatToast('hit','STAGGERED',r.move+' staggered '+(S.data.battle?.enemy.name||'the enemy')+' · ROUND '+r.round+' · NO COUNTER'+(first?' · A landed heavy strike denies the counter.':''),num(r.dealt)+' DMG');}
         else combatToast(r.magic?'magic-hit':'hit','ENEMY VANQUISHED',r.move+' vanquished '+S.data.outcome.enemy+' · ROUND '+r.round,num(r.dealt)+' DMG');
       }
       return;

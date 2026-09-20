@@ -685,3 +685,26 @@ test('save export import round-trips a real journey and previews without writes'
 test('invalid saves and failed persistence leave the current journey untouched',()=>{const g=game(),before=g.state.exportSave(),stored=g.storage.get(g.state.KEY);for(const raw of ['{bad','null','{}',JSON.stringify({...g.state.data,worldFlags:{roadCleared:'yes'}})]){assert.equal(g.state.importSave(raw),false);assert.equal(JSON.stringify(g.state.data),JSON.stringify(JSON.parse(before)));assert.equal(g.storage.get(g.state.KEY),stored);}const valid=JSON.parse(before);valid.name='Replacement';g.ctx.localStorage.setItem=()=>{throw Error('full');};assert.equal(g.state.importSave(JSON.stringify(valid)),false);assert.equal(g.state.data.name,'Rowan');assert.equal(g.storage.get(g.state.KEY),stored);});
 test('Hero restore previews escaped details, cancels safely, and confirms replacement',()=>{const g=game(new Map(),true);g.ui.route('hero');assert.match(g.nodes.stage.innerHTML,/DOWNLOAD SAVE/);assert.match(g.nodes.stage.innerHTML,/RESTORE SAVE/);let picked=false;g.nodes['save-file']={click(){picked=true;}};g.ui.dispatch('choose-save');assert.ok(picked);const raw=JSON.parse(g.state.exportSave());raw.name='<New>';delete raw.worldFlags;delete raw.reactionSeen;assert.ok(g.ui.previewImport(JSON.stringify(raw)));assert.match(g.nodes.modal.innerHTML,/&lt;New&gt;/);assert.equal(g.state.data.name,'Rowan');g.ui.dispatch('cancel-modal');g.ui.dispatch('confirm-import');assert.equal(g.state.data.name,'Rowan');g.ui.previewImport(JSON.stringify(raw));g.ui.dispatch('confirm-import');assert.equal(g.state.data.name,'<New>');assert.equal(g.ui.screen,'explore');assert.ok(g.state.data.worldFlags);assert.equal(g.ui.previewImport('bad'),false);assert.match(g.nodes.toast.innerHTML,/INVALID SAVE/);});
 test('Hero export downloads JSON without changing the save slot',()=>{const g=game(new Map(),true);let clicked=false,download,blob;g.ctx.Blob=function(parts){blob=parts.join('');};g.ctx.URL={createObjectURL(){return 'blob:test';},revokeObjectURL(){}};const create=g.ctx.document.createElement;g.ctx.document.createElement=tag=>tag==='a'?{set download(v){download=v;},click(){clicked=true;},remove(){}}:create(tag);g.ctx.document.body.appendChild=()=>{};g.ui.dispatch('export-save');assert.ok(clicked);assert.equal(download,'ominousrealms-save.json');assert.equal(JSON.parse(blob).name,'Rowan');assert.match(g.nodes.toast.innerHTML,/SAVE DOWNLOADED/);});
+
+test('heavy stagger explanation persists once, with safe legacy defaults and strict validation',()=>{
+  const g=game(new Map(),true),timers=roundTimers(g);assert.equal(g.state.data.heavyStaggerSeen,false);
+  const legacy=JSON.parse(g.state.exportSave());delete legacy.heavyStaggerSeen;
+  assert.equal(g.state.prepareImport(JSON.stringify(legacy)).heavyStaggerSeen,false);
+  for(const value of [null,1,'true',{}])assert.throws(()=>g.state.prepareImport(JSON.stringify({...legacy,heavyStaggerSeen:value})),/valid/);
+  g.place('Enemy','ogre',3,3);g.combat.start();g.state.data.battle.enemy.hp=200;g.state.data.battle.enemy.maxHp=200;g.ui.route('battle');g.rng(0);
+  g.ui.dispatch('attack:0');assert.equal(g.state.data.heavyStaggerSeen,false);timers.flush();
+  g.ui.dispatch('attack:2');assert.match(g.nodes['combat-toasts'].innerHTML,/A landed heavy strike denies the counter/);assert.equal(g.state.data.heavyStaggerSeen,true);timers.flush();
+  assert.equal(g.state.prepareImport(g.state.exportSave()).heavyStaggerSeen,true);g.state.load();g.ui.route('battle');
+  g.ui.dispatch('attack:2');assert.match(g.nodes['combat-toasts'].innerHTML,/STAGGERED/);assert.doesNotMatch(g.nodes['combat-toasts'].innerHTML,/A landed heavy strike denies the counter/);
+});
+
+test('Hero quiet compass waits for village introductions and all five quests',()=>{
+  const g=game(new Map(),true),s=g.state.data,quiet=/The compass is quiet\. The path is yours\./;
+  g.ui.route('hero');assert.doesNotMatch(g.nodes.stage.innerHTML,quiet);
+  for(const id of g.village.destinations)s.village.visits[id]=true;
+  for(const id of Object.keys(g.quests.definitions)){g.ui.render();assert.doesNotMatch(g.nodes.stage.innerHTML,quiet);g.quests.data().completed.push(id);}
+  s.village.visionPending=true;g.ui.render();assert.doesNotMatch(g.nodes.stage.innerHTML,quiet);
+  s.village.visionPending=false;g.ui.render();assert.match(g.nodes.stage.innerHTML,quiet);
+  s.village.visits.tavern=false;g.ui.render();assert.doesNotMatch(g.nodes.stage.innerHTML,quiet);
+  s.village.legacy=true;g.ui.render();assert.match(g.nodes.stage.innerHTML,quiet);
+});
