@@ -25,7 +25,7 @@ OR.world=(()=>{
       else seen.add(b.subtype);
     }
   }
-  function spawn(type,x,y){if(border(x,y))return borderBlock(x,y);if(type==='Puzzle'){const p=OR.puzzles.unique();if(p)return {x,y,elementType:'Puzzle',...p,resolved:false};type='Nature';}let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&(e.id!=='wild-berries'||local(x,y))&&(e.id!=='mud-biter'||local(x,y))&&(e.id!=='large-rat'||!local(x,y))&&(e.id!=='grave'||!local(x,y))&&(!local(x,y)||type!=='Danger'||['rabid-rabbit','snake','spider','mud-biter'].includes(e.id)||e.id==='bat'&&nearBorder(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
+  function spawn(type,x,y,safe=false){if(border(x,y))return borderBlock(x,y);if(type==='Puzzle'){const p=OR.puzzles.unique();if(p)return {x,y,elementType:'Puzzle',...p,resolved:false};type='Nature';}let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&e.id!=='bandit-hideout'&&e.id!=='empty-hideout'&&(!(safe||S.data.poisoned)||e.id!=='poison-vine')&&(e.id!=='wild-berries'||local(x,y))&&(e.id!=='mud-biter'||local(x,y))&&(e.id!=='large-rat'||!local(x,y))&&(e.id!=='grave'||!local(x,y))&&(!local(x,y)||type!=='Danger'||['rabid-rabbit','snake','spider','mud-biter'].includes(e.id)||e.id==='bat'&&nearBorder(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
   function borderBlock(x,y,b){
     if(!b)b={x,y};
     for(const key of Object.keys(b))if(!['x','y'].includes(key))delete b[key];
@@ -37,7 +37,7 @@ OR.world=(()=>{
     if(border(x,y)){if(b?.elementType==='Border')return b;const crossing=borderBlock(x,y,b);if(!b)S.data.blocks.push(crossing);return crossing;}
     if(b)return b;
     const village=OR.village?.template(x,y);if(village){S.data.blocks.push(village);return village;}
-    if(quiet){b=spawn('Nature',x,y);S.data.blocks.push(b);return b;}
+    if(quiet){b=spawn('Nature',x,y,true);S.data.blocks.push(b);return b;}
     const quest=OR.quests?.roll(x,y);if(quest){S.data.blocks.push(quest);return quest;}
     let type;
     if(x===0&&y===0)type='Home';
@@ -46,7 +46,7 @@ OR.world=(()=>{
       let roll=Math.random()*100;
       type=types.find(t=>(roll-=rates[t])<0)||types[types.length-1];
     }
-    b=spawn(type,x,y);S.data.blocks.push(b);return b;
+    b=(type==='Nature'?OR.errands?.roll(x,y):null)||spawn(type,x,y);S.data.blocks.push(b);return b;
   }
   const current=()=>getOrCreateBlock(S.data.x,S.data.y);
   function clear(permanent=false){const b=current();Object.assign(b,{elementType:'Nature',subtype:'clearing',dragonHp:null,resolved:true,cleared:permanent||b.cleared===true});}
@@ -83,15 +83,16 @@ OR.world=(()=>{
     S.syncRest();
     if(s.hp.current<=1)return rescueIfNeeded()||false;
     s.homecoming=null;
-    const source=current(),needsQuiet=s.explorationNeedsQuiet||!['Nature','Path','Home','Border'].includes(source.elementType);
+    const source=current(),needsQuiet=s.explorationNeedsQuiet||source.subtype==='poison-vine'||!['Nature','Path','Home','Border'].includes(source.elementType);
     const wasLocal=local(s.x,s.y);s.x+=delta[0];s.y+=delta[1];s.direction=direction;s.steps++;s.state='Explore';
     const fresh=!at(s.x,s.y),b=getOrCreateBlock(s.x,s.y,needsQuiet);b.resolved=false;
-    s.explorationNeedsQuiet=!['Nature','Path','Home','Border'].includes(b.elementType);
+    if(b.subtype==='poison-vine'){S.poison();}
+    s.explorationNeedsQuiet=b.subtype==='poison-vine'||!['Nature','Path','Home','Border'].includes(b.elementType);
     const quietStep=fresh&&needsQuiet&&b.elementType==='Nature';
     if(wasLocal&&!local(s.x,s.y))S.log('THE VEIL BREAKS. Strongwood’s warmth dies behind you.');
-    S.log(description(b));if(!quietStep){findHealing();OR.village?.triggerVision(b);}else s.lastFind=null;S.syncRest();S.save();return b;
+    S.log(description(b));if(!quietStep){findHealing();OR.village?.triggerVision(b);}else s.lastFind=null;S.syncRest();rescueIfNeeded();S.save();return b;
   }
-  function description(b=current()){if(b.subtype==='wayside-shrine'&&b.healingUsed)return 'The offering is accepted. The shrine’s warmth has faded.';const quest=OR.quests?.description(b);if(quest)return quest;const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
+  function description(b=current()){if(b.subtype==='empty-hideout')return 'The hideout stands empty. The thief will not return.';if(b.subtype==='bandit-fleeing'&&!OR.errands?.active())return 'The thief is gone. Old footprints fade into the ash.';if(b.subtype==='wayside-shrine'&&b.healingUsed)return 'The offering is accepted. The shrine’s warmth has faded.';const quest=OR.quests?.description(b);if(quest)return quest;const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
   const coords=(x,y)=>x===0&&y===0?'HOME · 0 / 0':`${Math.abs(x)}${x<0?'W':'E'} ${Math.abs(y)}${y<0?'N':'S'}`;
   return {local,border,realm,at,spawn,npcCandidates,migrateNpcs,migrateThreats,migratePuzzles,migrateBorders,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
 })();

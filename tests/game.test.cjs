@@ -14,7 +14,7 @@ function game(storage=new Map(),ui=false){
   const nodes=Object.fromEntries(['hud','stage','nav','modal','toast','combat-toasts'].map(id=>[id,mockNode()]));
   const ctx={console,Math:Object.create(Math),localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setInterval:()=>1,clearInterval(){},setTimeout:()=>1,clearTimeout,matchMedia:()=>({matches:true}),scrollY:0,scrollTo(){},history:{pushState(){},replaceState(){}},location:{hash:''},addEventListener(){},document:{createElement:mockNode,getElementById:id=>nodes[id],querySelector:()=>null,addEventListener(){},body:{classList:{toggle(){}}}}};
   ctx.window=ctx;vm.createContext(ctx);
-  for(const file of ['content','dialogue','state','world','village','puzzles','combat','actions','quests',...(ui?['ui-battle','ui']:[])])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),ctx,{filename:file+'.js'});
+  for(const file of ['content','dialogue','state','world','village','puzzles','combat','actions','quests','errands',...(ui?['ui-battle','ui']:[])])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),ctx,{filename:file+'.js'});
   const g=ctx.OR;g.state.create('Rowan','Sword');g.world.current();g.state.save();
   return {...g,storage,ctx,nodes,rng:n=>ctx.Math.random=()=>n,place:(type,subtype,x=3,y=3)=>{g.state.data.x=x;g.state.data.y=y;let b=g.world.at(x,y);if(!b){b={x,y};g.state.data.blocks.push(b);}Object.assign(b,{elementType:type,subtype,resolved:false});return b;}};
 }
@@ -736,4 +736,84 @@ test('shrine refuses full health, Strongwood, and unfinished combat without spen
 test('healing encounter buttons report costs and actual healing then return to Explore',()=>{
   const g=game(new Map(),true);g.place('Food','wild-berries',4,4);g.state.data.hp.current=44;g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/EAT BERRIES · \+10 HP/);g.ui.dispatch('eat');assert.equal(g.ui.screen,'explore');assert.match(g.nodes.toast.innerHTML,/berries restore 6 HP/);
   g.place('Shrine','wayside-shrine',40,10);g.state.data.hp.current=20;g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/1 METAL INGOT REQUIRED/);g.state.add('MetalIngot',1);g.ui.render();assert.match(g.nodes.stage.innerHTML,/OFFER 1 METAL INGOT · FULL HEAL/);g.ui.dispatch('shrine');assert.equal(g.ui.screen,'explore');assert.match(g.nodes.toast.innerHTML,/\+30 HP · 1 Metal Ingot offered/);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="shrine"/);
+});
+
+test('poison ticks once each elapsed minute, catches up after reload, and never drops below one',()=>{
+  const g=game();let now=1000000;g.ctx.Date={now:()=>now};g.place('Nature','poison-vine',40,10);g.state.poison();assert.equal(g.state.data.hp.current,49);
+  now+=59999;g.state.syncRest();assert.equal(g.state.data.hp.current,49);now++;g.state.syncRest();assert.equal(g.state.data.hp.current,48);g.state.syncRest();assert.equal(g.state.data.hp.current,48);
+  g.state.save();now+=180000;g.state.load();assert.equal(g.state.data.hp.current,45);assert.ok(g.state.data.poisoned);now+=999*60000;g.state.syncRest();assert.equal(g.state.data.hp.current,1);
+});
+test('poison suppresses all new vine finds, preserves known vines and safe quiet ground',()=>{
+  const g=game();const vine=g.place('Nature','poison-vine',40,10);let now=1000000;g.ctx.Date={now:()=>now};g.state.poison();const tick=g.state.data.poisoned.lastTick;
+  for(let i=0;i<100;i++){g.rng(i/100);assert.notEqual(g.world.spawn('Nature',50+i,12).subtype,'poison-vine');assert.notEqual(g.world.spawn('Nature',5,5,true).subtype,'poison-vine');}
+  g.state.data.x=39;g.state.data.y=10;g.world.current();g.world.move('E');assert.equal(g.state.data.hp.current,48);assert.equal(g.world.current(),vine);assert.equal(g.state.data.poisoned.lastTick,tick);
+  g.state.add('Potion',1);g.actions.potion();assert.equal(g.state.data.poisoned,null);assert.equal(g.world.at(40,10).subtype,'poison-vine');g.world.move('W');g.world.move('E');assert.ok(g.state.data.poisoned);assert.equal(g.state.data.hp.current,49);
+});
+test('full healing cures poison while partial berries do not',()=>{
+  for(const heal of ['potion','mushroom','shrine','berries','level']){const g=game();g.place('Nature','poison-vine',40,10);g.state.data.hp.current=20;g.state.poison();
+    if(heal==='potion'){g.state.add('Potion',1);g.actions.potion();}
+    if(heal==='mushroom'){g.place('Food','mushrooms',40,10);g.actions.eat();}
+    if(heal==='shrine'){g.place('Shrine','wayside-shrine',40,10);g.state.add('MetalIngot',1);g.actions.shrine();}
+    if(heal==='berries'){g.place('Food','wild-berries',4,4);g.actions.eat();assert.ok(g.state.data.poisoned);g.state.data.hp.current=45;g.place('Food','wild-berries',5,4);g.actions.eat();}
+    if(heal==='level'){g.state.data.victories=5;g.combat.levelUp();g.state.save();}
+    assert.equal(g.state.data.poisoned,null,heal);assert.equal(g.state.data.hp.current,g.state.data.hp.max);
+  }
+});
+test('home rest outpaces poison and eventually cures it, including time away',()=>{
+  const g=game();let now=1000000;g.ctx.Date={now:()=>now};g.place('Nature','poison-vine',40,10);g.state.data.hp.current=2;g.state.poison();g.world.returnHome();
+  now+=600000;g.state.syncRest();assert.equal(g.state.data.hp.current,40);assert.ok(g.state.data.poisoned);assert.ok(g.state.restStatus().remainingMs>0);
+  now+=180000;g.state.syncRest();assert.equal(g.state.data.hp.current,50);assert.equal(g.state.data.poisoned,null);assert.equal(g.state.restStatus(),null);
+});
+test('hazard save fields migrate safely and reject invalid timers or overlapping pursuits',()=>{
+  const g=game(),raw=JSON.parse(g.state.exportSave());delete raw.poisoned;delete raw.pursuit;const migrated=g.state.prepareImport(JSON.stringify(raw));assert.equal(migrated.poisoned,null);assert.equal(migrated.pursuit,null);
+  for(const poisoned of [true,{}, {lastTick:-1},{lastTick:'now'}])assert.throws(()=>g.state.prepareImport(JSON.stringify({...raw,poisoned})),/valid/);
+  for(const pursuit of [true,{}, {x:40,y:10,originX:41,originY:10}])assert.throws(()=>g.state.prepareImport(JSON.stringify({...raw,pursuit})),/valid/);
+});
+function startPursuit(g){g.place('Nature','forest',40,10);g.state.add('Gem',1);g.rng(0);const b=g.errands.roll(41,10);g.state.data.blocks.push(b);return b;}
+test('bandits require an uncommitted gem, cannot overlap quests and reserve only new Outer ground',()=>{
+  const g=game();g.rng(0);assert.equal(g.errands.roll(40,10),null);g.state.add('Gem',2);assert.equal(g.errands.roll(2,2),null);assert.equal(g.errands.roll(26,10),null);
+  g.quests.data().offer={id:'keepsake',x:40,y:10};assert.equal(g.errands.roll(40,10),null);g.quests.data().offer=null;g.quests.data().active={id:'keepsake',x:45,y:10};assert.equal(g.errands.roll(40,10),null);g.quests.data().active=null;
+  g.place('NPC','hermit',36,10);const original=JSON.stringify(g.state.data.blocks),b=g.errands.roll(41,10);assert.equal(b.subtype,'bandit-fleeing');assert.equal(g.state.qty('Gem'),1);assert.equal(g.world.at(36,10).subtype,'hermit');assert.ok(original.includes('hermit'));
+  assert.equal(g.errands.roll(42,10),null);g.state.data.level=3;assert.equal(g.quests.roll(50,12),null);const p=g.errands.active();assert.equal(g.world.local(p.x,p.y),false);assert.equal(g.world.border(p.x,p.y),false);
+  g.state.data.blocks.push(b);g.state.save();g.state.load();assert.equal(g.state.qty('Gem'),1);assert.ok(g.state.data.pursuit);assert.equal(g.quests.accept(),false);
+  const raw=JSON.parse(g.state.exportSave());raw.quests.active={id:'keepsake',x:60,y:10};assert.throws(()=>g.state.prepareImport(JSON.stringify(raw)),/valid/);
+});
+test('bandit guidance reduces Manhattan distance and victory refunds exactly the stolen gem once',()=>{
+  const g=game();startPursuit(g);const p=g.errands.active();g.state.data.x=41;g.state.data.y=10;
+  for(const dir of g.errands.hints()){const [dx,dy]={N:[0,-1],S:[0,1],E:[1,0],W:[-1,0]}[dir];assert.equal(Math.abs(p.x-g.state.data.x-dx)+Math.abs(p.y-g.state.data.y-dy),Math.abs(p.x-g.state.data.x)+Math.abs(p.y-g.state.data.y)-1);}
+  g.state.data.x=p.x;g.state.data.y=p.y;assert.equal(g.combat.start(),true);const e=g.state.data.battle.enemy;assert.equal(e.hp,18);assert.equal(e.basePower,2);assert.ok(e.moves.every(m=>m.accuracy>=92&&m.power<=2));assert.equal(g.combat.canBribe(),false);
+  g.combat.flee();assert.ok(g.errands.active());g.combat.start();g.state.data.battle.enemy.hp=1;g.combat.attack(0);assert.equal(g.state.qty('Gem'),0);assert.equal(g.errands.active().phase,'collect');assert.equal(g.errands.pendingRewards()[0].type,'Gem');g.combat.claim();assert.equal(g.state.qty('Gem'),1);assert.equal(g.errands.active(),null);assert.equal(g.combat.start(),false);g.state.load();assert.equal(g.state.qty('Gem'),1);assert.equal(g.world.current().cleared,true);
+});
+test('pursuit UI uses red guidance, poison status is visible, and no new bandit spawns as a generic enemy',()=>{
+  const g=game(new Map(),true);startPursuit(g);g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/pursuit-hint/);assert.doesNotMatch(g.nodes.stage.innerHTML,/class="direction[^\"]*trail-hint/);g.ui.route('map');assert.match(g.nodes.stage.innerHTML,/STOLEN GEM · DESTINATION/);
+  g.state.poison();g.ui.route('explore');assert.match(g.nodes.hud.innerHTML,/POISONED · −1 HP/);for(let i=0;i<100;i++){g.rng(i/100);assert.notEqual(g.world.spawn('Enemy',50,10).subtype,'bandit-hideout');}
+});
+
+test('defeated bandit hideout stays empty on return and reload and never spawns as a random thing',()=>{
+  const g=game(new Map(),true);startPursuit(g);const p={...g.errands.active()};g.state.data.x=p.x;g.state.data.y=p.y;g.combat.start();g.state.data.battle.enemy.hp=1;g.combat.attack(0);g.combat.claim();g.world.move('E');g.world.move('W');g.state.load();g.ui.route('explore');
+  assert.equal(g.world.current().subtype,'empty-hideout');assert.equal(g.world.current().cleared,true);assert.equal(g.state.qty('Gem'),1);assert.match(g.nodes.stage.innerHTML,/assets\/empty-hideout.png/);assert.match(g.nodes.stage.innerHTML,/thief will not return/);assert.doesNotMatch(g.nodes.stage.innerHTML,/ENTER BATTLE/);
+  for(let i=0;i<100;i++){g.rng(i/100);assert.notEqual(g.world.spawn('Thing',50,10).subtype,'empty-hideout');}
+});
+
+test('walking into a new bandit encounter steals once and revisiting does not replay theft',()=>{
+  const g=game(new Map(),true);g.place('Nature','forest',40,10);g.state.add('Gem',2);g.rng(0);g.ui.route('explore');g.ui.dispatch('move:E');
+  assert.equal(g.world.current().subtype,'bandit-fleeing');assert.equal(g.state.qty('Gem'),1);assert.match(g.nodes.toast.innerHTML,/GEM STOLEN/);assert.match(g.nodes.stage.innerHTML,/pursuit-hint/);
+  g.ui.dispatch('move:W');g.nodes.toast.innerHTML='';g.ui.dispatch('move:E');assert.equal(g.state.qty('Gem'),1);assert.doesNotMatch(g.nodes.toast.innerHTML,/GEM STOLEN/);
+});
+
+test('a fleeing wounded dragon cannot replace a discovered poison vine',()=>{
+  const g=game();g.place('Nature','poison-vine',39,10);const dragon=g.place('Dragon','dragon',40,10);dragon.dragonHp=100;dragon.dragonMaxHp=200;g.rng(.999);g.combat.start();g.combat.flee();assert.equal(g.world.at(39,10).subtype,'poison-vine');assert.equal(g.world.at(40,10).subtype,'dragon');
+});
+
+test('shared retrieval supports encounter, guidance, battle, collection and delivery to an unharmed giver',()=>{
+  const g=game(new Map(),true);g.errands.register('returned-iron',{title:'THE LOST IRON',item:'SteelIngot',completion:'slay',returnToGiver:true,target:{elementType:'Danger',subtype:'snake'},rewards:[{type:'Potion',qty:1}]});const giver=g.place('NPC','villager',4,4),before=JSON.stringify(giver);g.rng(0);
+  assert.equal(g.errands.start('returned-iron',giver),true);assert.ok(JSON.parse(g.storage.get(g.state.KEY)).pursuit);assert.equal(g.errands.guideClass(),'trail-hint');const target={...g.errands.active()};assert.equal(g.errands.deliver(),false);assert.equal(g.errands.collect(),false);assert.equal(g.errands.start('returned-iron',giver),false);
+  g.state.data.x=target.x;g.state.data.y=target.y;g.combat.start();g.state.data.battle.enemy.hp=1;g.combat.attack(0);assert.equal(g.state.qty('SteelIngot'),0);assert.equal(g.errands.active().phase,'collect');g.state.save();g.state.load();g.ui.route('aftermath');assert.match(g.nodes.stage.innerHTML,/COLLECT STEEL INGOT/);assert.doesNotMatch(g.nodes.stage.innerHTML,/ADDED TO YOUR PACK/);g.ui.dispatch('claim');assert.equal(g.ui.screen,'explore');assert.equal(g.state.qty('SteelIngot'),1);assert.equal(g.errands.active().phase,'return');assert.equal(g.state.qty('Potion'),0);assert.equal(g.errands.collect(),false);
+  g.state.save();g.state.load();assert.equal(g.errands.active().x,giver.x);assert.equal(g.errands.active().y,giver.y);g.state.data.x=giver.x;g.state.data.y=giver.y;g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/RETURN STEEL INGOT/);g.ui.dispatch('errand:deliver');assert.equal(g.state.qty('SteelIngot'),0);assert.equal(g.state.qty('Potion'),1);assert.equal(g.errands.active(),null);assert.equal(g.errands.deliver(),false);assert.equal(JSON.stringify(g.world.current()),before);assert.equal(g.state.qty('Potion'),1);
+});
+test('shared gather targets use the same collection stage without duplicate rewards',()=>{
+  const g=game();g.errands.register('lost-gem',{title:'LOST GEM',item:'Gem',target:{elementType:'Thing',subtype:'figurine'}});const giver=g.place('NPC','elder',4,4);assert.equal(g.errands.start('lost-gem',giver),true);const p=g.errands.active();g.state.data.x=p.x;g.state.data.y=p.y;assert.ok(g.errands.retrieve());assert.equal(g.state.qty('Gem'),0);g.state.save();g.state.load();assert.equal(g.errands.prompt(g.world.current()).action,'errand:collect');assert.ok(g.errands.collect());assert.equal(g.state.qty('Gem'),1);assert.equal(g.errands.collect(),false);assert.equal(g.errands.retrieve(),false);
+});
+test('retrieval definitions reject NPC combat and malformed objectives; save validation rejects unknown kinds and phases',()=>{
+  const g=game();assert.throws(()=>g.errands.register('harm-person',{title:'Invalid',item:'Gem',completion:'slay',target:{elementType:'NPC',subtype:'villager'}}),/Invalid/);assert.throws(()=>g.errands.register('bad-item',{item:'Unknown',target:{elementType:'Thing',subtype:'figurine'}}),/Invalid/);startPursuit(g);const raw=JSON.parse(g.state.exportSave());raw.pursuit.kind='not-registered';assert.throws(()=>g.state.prepareImport(JSON.stringify(raw)),/valid/);raw.pursuit.kind='bandit';raw.pursuit.phase='return';assert.throws(()=>g.state.prepareImport(JSON.stringify(raw)),/valid/);
 });

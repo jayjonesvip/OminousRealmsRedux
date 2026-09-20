@@ -10,6 +10,7 @@ OR.content = (() => {
   };
   const weapon = type => ({type,basePower:5,moves:[move('Tackle',0,99,'Shoulder first. No hesitation.'),...weapons[type].moves.map(m=>({...m})),move('Realmfire',25,100,'Burn a magic crystal. Scorch the veil.',true)]});
   const creatures = {
+    'bandit-hideout':{attackStyle:'Knife',moves:[move('Knife Jab',0,98,''),move('Quick Cut',1,95,''),move('Low Slash',2,92,'')]},
     'large-rat':{attackStyle:'Teeth & claws',moves:[move('Gnaw',0,90,''),move('Lunging Bite',2,80,'')]},
     'mud-biter':{attackStyle:'Snapping pincers',moves:[move('Pinch',0,85,''),move('Pincer Snap',2,75,'')]},
     'rabid-rabbit':{attackStyle:'Teeth & claws',moves:[move('Snap',0,85,''),move('Bite',1,80,'')]},
@@ -39,6 +40,10 @@ OR.content = (() => {
     ['Home','home','Strongwood Cottage','Smoke curls above the roof. A cobblestone path leads north toward the Lantern Tavern.','The hearth is cold. Something remembers you.'],
     ['Nature','forest','Oldwood Forest','Sunlight cuts through the trees like ancestral steel.','Dead branches claw at a blood-red sky.'],
     ['Nature','mossy','Mossbound Stones','Green velvet softens the bones of the earth.','Black moss drinks from the cracks in the stone.'],
+    ['Nature','poison-vine','Poison Vines','Thorned vines cross the path. Their poison lingers until you fully heal.','Purple sap beads on the thorns. Their poison lingers until you fully heal.'],
+    ['Thing','empty-hideout','Abandoned Hideout','The hideout stands empty. The thief will not return.','The hideout stands empty. The thief will not return.'],
+    ['Bandit','bandit-fleeing','A Fleeing Bandit','A thief disappears down the road.','One gem lighter. Follow the red compass light to the thief’s hideout.'],
+    ['Enemy','bandit-hideout','Gem Thief','A knife glints at the hideout entrance.','The thief waits at a hidden cellar. Defeat them to reclaim your gem.'],
     ['Nature','rocks','Sentinel Rocks','Old stones keep a watch no warrior could outlast.','The stones lean inward, listening for your breath.'],
     ['Nature','stream','Silverrun Stream','Clear water carries the whispers of the village.','Ash floats downstream. Nothing drinks here.'],
     ['Nature','clearing','Sunlit Clearing','For a moment, the forest lets you breathe.','The clearing is quiet in all the wrong ways.'],
@@ -106,12 +111,12 @@ OR.content = (() => {
     ['Puzzle','puzzle-levers','The Silent Mechanism','Three levers stand watch over an ancient vault.','Three rusted levers wait beneath watchful stone beasts.']
   ];
   const entities = Object.fromEntries(entries.map(([type,id,name,village,outer])=>[id,{type,id,name,village,outer}]));
-  const weights = {Border:1,Home:1,Nature:12,NPC:8,Food:4,Shrine:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1,Path:1,Landmark:1,Quest:1};
+  const weights = {Bandit:1,Border:1,Home:1,Nature:12,NPC:8,Food:4,Shrine:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1,Path:1,Landmark:1,Quest:1};
   const outerOnly = ['Enemy','Dragon','LockedItem','Puzzle','Shrine'];
   // New coordinates: quiet terrain and scarce travelers in both realms.
   // Outside, reserve 20% for threats; preserve relative weights within each pool.
   const encounterRates=isLocal=>{
-    const eligible=Object.entries(weights).filter(([type])=>!['Border','Home','Path','Landmark','Quest','LockedItem'].includes(type)&&(!isLocal||!outerOnly.includes(type)));
+    const eligible=Object.entries(weights).filter(([type])=>!['Bandit','Border','Home','Path','Landmark','Quest','LockedItem'].includes(type)&&(!isLocal||!outerOnly.includes(type)));
     const threats=['Danger','Enemy','Dragon'];
     const inPool=type=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&type!=='Shrine'&&(isLocal||!threats.includes(type));
     const poolWeight=eligible.reduce((total,[type,weight])=>total+(inPool(type)?weight:0),0);

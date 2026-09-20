@@ -12,6 +12,7 @@ OR.combat=(()=>{
   function lightCreature(id,hp,base,extra){const natural=C.creature(id,1);return {id,name:C.entities[id].name,level:1,hp,maxHp:hp,...natural,basePower:base,resistance:0,moves:natural.moves.map(m=>({...m,power:Math.min(extra,m.power),accuracy:Math.min(90,m.accuracy)}))};}
   function migrateWildlife(){const b=S.data?.battle;if(!b)return;const id=b.enemyId,local=W.local(b.x,b.y);if(!wildlife[id]&&id!=='mud-biter')return;const p=local?{max:10,base:1,extra:2}:wildlife[id];if(!p)return;const e=b.enemy,max=Math.min(e.maxHp||p.max,p.max),hp=Math.min(e.hp,max);Object.assign(e,lightCreature(id,max,p.base,p.extra),{hp});}
   function enemy(block){
+    if(block.subtype==='bandit-hideout')return {id:block.subtype,name:'Gem Thief',level:1,hp:18,maxHp:18,basePower:2,...C.creature(block.subtype,1)};
     const profile=wildlife[block.subtype];if(profile&&!W.local(block.x,block.y))return lightCreature(block.subtype,C.random(profile.min,profile.max),profile.base,profile.extra);
     if(block.elementType==='Danger'&&W.local(block.x,block.y)){
       const natural=C.creature(block.subtype,1),hp=C.random(6,10);
@@ -36,9 +37,9 @@ OR.combat=(()=>{
   function levelUp(){const s=S.data,old=s.level;while(S.levelProgress().remaining===0){const cost=C.required(s.level);s.levelStartVictories+=cost;s.level++;s.hp.max+=1.2*cost+s.level;s.hp.current=s.hp.max;s.weapon.basePower++;s.armor.resistance=Math.min(95,s.armor.resistance+1);s.armor.craftCost=s.armor.resistance;}return s.level-old;}
   function finish(win,bribed=false){
     const s=S.data,b=W.current(),isDragon=b.elementType==='Dragon',e=s.battle.enemy;
-    let levels=0,rewards=[];
-    if(win){s.victories++;levels=levelUp();rewards=S.grantLoot(isDragon?2:1,isDragon);OR.quests?.complete('slay',b);W.clear(true);}
-    s.outcome={win,bribed,dragon:isDragon&&win&&!bribed,rewards,levels,enemy:e.name,lastRound:s.battle.lastRound||null,art:win?`warrior-${s.weapon.type.toLowerCase()}`:'warrior-wounded'};
+    let levels=0,rewards=[],retrieval=null;
+    if(win){s.victories++;levels=levelUp();retrieval=OR.errands?.recover(b,'slay');rewards=retrieval?retrieval.rewards:S.grantLoot(isDragon?2:1,isDragon);OR.quests?.complete('slay',b);W.clear(true);if(retrieval?.after)Object.assign(b,retrieval.after);}
+    s.outcome={retrieval:!!retrieval,win,bribed,dragon:isDragon&&win&&!bribed,rewards,levels,enemy:e.name,lastRound:s.battle.lastRound||null,art:win?`warrior-${s.weapon.type.toLowerCase()}`:'warrior-wounded'};
     S.log(win?(bribed?`A gem spent. ${e.name} withdraws. This ground is now clear.`:`${e.name} falls. This ground is now clear.`):'You fall unconscious. The realm leaves you one breath.');
     if(levels)S.log(`LEVEL ${s.level}. Your gear improves and your health is restored.`);
     s.battle=null;s.state='Explore';
@@ -70,7 +71,7 @@ OR.combat=(()=>{
     let x=battle.x,y=battle.y;if(Math.abs(x)>=Math.abs(y))x-=Math.sign(x);else y-=Math.sign(y);
     if(W.local(x,y)||W.border(x,y)||battle.enemyId==='dragon'&&OR.quests?.atTarget(W.at(battle.x,battle.y))&&!OR.quests.deep(x,y))return false;
     const target=W.at(x,y),reserved=OR.village?.template(x,y);
-    if(reserved||target&&target.elementType!=='Nature')return false;
+    if(reserved||target?.subtype==='poison-vine'||target&&target.elementType!=='Nature')return false;
     const origin=W.at(battle.x,battle.y);if(!origin||origin.elementType!=='Dragon')return false;
     const moved={...(origin.questId?{questId:origin.questId}:{}),x,y,elementType:'Dragon',subtype:'dragon',dragonHp:battle.enemy.hp,dragonMaxHp:battle.enemy.maxHp,resolved:false};
     OR.quests?.relocate(origin,x,y);delete origin.questId;
@@ -80,6 +81,6 @@ OR.combat=(()=>{
   function flee(){if(!S.data?.battle)return false;const b=S.data.battle,moved=advanceDragon(b);S.log(moved?'The wounded dragon moves toward Strongwood.':('You break off the fight. '+b.enemy.name+' still threatens this ground.'));S.data.battle=null;S.data.state='Explore';W.current().resolved=true;S.save();return true;}
   const canBribe=()=>!!S.data?.battle&&['ogre','gargoyle','troll'].includes(S.data.battle.enemyId)&&!OR.quests?.atTarget(W.current());
   function bribe(){if(!canBribe()||!S.qty('Gem'))return false;S.add('Gem',-1);return finish(true,true);}
-  function claim(){if(!S.data?.outcome)return false;if(!S.data.outcome.win)W.current().resolved=true;S.data.outcome=null;S.save();return true;}
+  function claim(){if(!S.data?.outcome)return false;if(S.data.outcome.retrieval&&!OR.errands.collect())return false;if(!S.data.outcome.win)W.current().resolved=true;S.data.outcome=null;S.save();return true;}
   return {damage,migrateWildlife,enemy,start,attack,flee,canBribe,bribe,claim,levelUp};
 })();

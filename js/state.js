@@ -9,10 +9,12 @@ OR.state = (() => {
   const flags=()=>Object.fromEntries(Object.keys(deedLines).map(key=>[key,false]));
   const record=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
   const validDeeds=s=>(s.worldFlags===undefined||record(s.worldFlags)&&Object.entries(s.worldFlags).every(([k,v])=>Object.hasOwn(deedLines,k)&&typeof v==='boolean'))&&(s.reactionSeen===undefined||record(s.reactionSeen)&&Object.values(s.reactionSeen).every(v=>Array.isArray(v)&&v.every(k=>Object.hasOwn(deedLines,k))));
+  const validHazards=s=>(s.poisoned===undefined||s.poisoned===null||record(s.poisoned)&&Number.isSafeInteger(s.poisoned.lastTick)&&s.poisoned.lastTick>=0)&&validRetrieval(s);
+  function validRetrieval(s){const p=s.pursuit;if(p===undefined||p===null)return true;const d=OR.errands?.definitions[p.kind||'bandit'];if(!record(p)||!d||!['x','y','originX','originY'].every(k=>Number.isSafeInteger(p[k]))||!['retrieve','collect','return'].includes(p.phase||'retrieve')||s.quests?.active||s.quests?.offer||!Array.isArray(s.blocks))return false;if(p.phase==='return')return d.returnToGiver&&p.x===p.originX&&p.y===p.originY&&s.blocks.some(b=>b&&b.x===p.x&&b.y===p.y);if(p.phase==='collect'){const after=d.after||{elementType:'Nature',subtype:'clearing'};return s.blocks.some(b=>b&&b.x===p.x&&b.y===p.y&&b.elementType===after.elementType&&b.subtype===after.subtype&&b.cleared);}return (d.realm!=='outer'||Math.max(Math.abs(p.x),Math.abs(p.y))>=27)&&s.blocks.some(b=>b&&b.x===p.x&&b.y===p.y&&b.elementType===d.target.elementType&&b.subtype===d.target.subtype);}
   function remember(){if(!data)return;data.worldFlags={...flags(),...data.worldFlags};data.reactionSeen=data.reactionSeen||{};const done=data.quests?.completed||[];for(const [quest,keys] of Object.entries({watchpost:['watchpostRecovered'],provisions:['provisionsReturned'],roadkeeper:['ogreDefeated','roadCleared'],hollowflame:['hollowflameDead']}))if(done.includes(quest))for(const key of keys)if(!data.worldFlags[key]){data.worldFlags[key]=true;log(deedLines[key]);}}
 
-  const fresh = (name='Warrior',type='Sword')=>({version:1,heavyStaggerSeen:false,worldFlags:flags(),reactionSeen:{},enchanted:false,name:name.trim().slice(0,24)||'Warrior',x:0,y:0,direction:'N',state:'Explore',hp:{current:50,max:50},level:1,victories:0,levelStartVictories:0,armor:{resistance:10,craftCost:10},weapon:OR.content.weapon(type),inventory:[],message:'Your father’s iron. Your own legend.',journal:[],blocks:[],battle:null,outcome:null,foundLoot:null,steps:0,healingSearchSteps:0,lastFind:null,rest:null});
-  const valid = s=>s && s.version===1 && (s.heavyStaggerSeen===undefined||typeof s.heavyStaggerSeen==='boolean') && validDeeds(s) && typeof s.name==='string' && Number.isInteger(s.x) && Number.isInteger(s.y) && s.hp && Number.isFinite(s.hp.current) && Number.isFinite(s.hp.max) && s.hp.max>=1 && s.hp.current>=1 && s.hp.current<=s.hp.max && Number.isInteger(s.level) && s.level>=1 && Number.isFinite(s.victories) && s.victories>=0 && s.armor && Number.isFinite(s.armor.resistance) && s.armor.resistance>=0 && s.armor.resistance<=95 && s.weapon && OR.content.weapons[s.weapon.type] && Number.isFinite(s.weapon.basePower) && s.weapon.basePower>=1 && Array.isArray(s.inventory) && s.inventory.every(i=>OR.content.items[i.type] && Number.isInteger(i.qty) && i.qty>=0) && Array.isArray(s.blocks) && s.blocks.every(b=>b&&(b.healingUsed===undefined||typeof b.healingUsed==='boolean')&&Number.isInteger(b.x)&&Number.isInteger(b.y)&&OR.content.entities[b.subtype]&&OR.content.weights[b.elementType]) && Array.isArray(s.journal) && s.journal.every(j=>typeof j==='string');
+  const fresh = (name='Warrior',type='Sword')=>({version:1,poisoned:null,pursuit:null,heavyStaggerSeen:false,worldFlags:flags(),reactionSeen:{},enchanted:false,name:name.trim().slice(0,24)||'Warrior',x:0,y:0,direction:'N',state:'Explore',hp:{current:50,max:50},level:1,victories:0,levelStartVictories:0,armor:{resistance:10,craftCost:10},weapon:OR.content.weapon(type),inventory:[],message:'Your father’s iron. Your own legend.',journal:[],blocks:[],battle:null,outcome:null,foundLoot:null,steps:0,healingSearchSteps:0,lastFind:null,rest:null});
+  const valid = s=>s && s.version===1 && validHazards(s) && (s.heavyStaggerSeen===undefined||typeof s.heavyStaggerSeen==='boolean') && validDeeds(s) && typeof s.name==='string' && Number.isInteger(s.x) && Number.isInteger(s.y) && s.hp && Number.isFinite(s.hp.current) && Number.isFinite(s.hp.max) && s.hp.max>=1 && s.hp.current>=1 && s.hp.current<=s.hp.max && Number.isInteger(s.level) && s.level>=1 && Number.isFinite(s.victories) && s.victories>=0 && s.armor && Number.isFinite(s.armor.resistance) && s.armor.resistance>=0 && s.armor.resistance<=95 && s.weapon && OR.content.weapons[s.weapon.type] && Number.isFinite(s.weapon.basePower) && s.weapon.basePower>=1 && Array.isArray(s.inventory) && s.inventory.every(i=>OR.content.items[i.type] && Number.isInteger(i.qty) && i.qty>=0) && Array.isArray(s.blocks) && s.blocks.every(b=>b&&(b.healingUsed===undefined||typeof b.healingUsed==='boolean')&&Number.isInteger(b.x)&&Number.isInteger(b.y)&&OR.content.entities[b.subtype]&&OR.content.weights[b.elementType]) && Array.isArray(s.journal) && s.journal.every(j=>typeof j==='string');
   function load(rawOverride) {
     try {
       const raw=rawOverride===undefined?localStorage.getItem(KEY):rawOverride;
@@ -54,6 +56,7 @@ OR.state = (() => {
   }
   function save() {
     if (!data) return false;
+    if(data.hp.current>=data.hp.max)data.poisoned=null;
     if(staging)return true;
     try {localStorage.setItem(KEY,JSON.stringify(data));storageError='';return true;}
     catch (_) {storageError='Storage is full or blocked. Keep this tab open; progress is not saved.';return false;}
@@ -67,30 +70,46 @@ OR.state = (() => {
   function levelProgress() {const required=OR.content.required(data.level),earned=Math.max(0,data.victories-data.levelStartVictories);return {required,earned,remaining:Math.max(0,required-earned),percent:Math.min(100,earned/required*100)};}
   function add(type,n=1) {if(!OR.content.items[type]||!Number.isInteger(n))return false;const item=data.inventory.find(i=>i.type===type);if(qty(type)+n<0)return false;if(item)item.qty+=n;else if(n>0)data.inventory.push({type,qty:n});data.inventory=data.inventory.filter(i=>i.qty>0);return true;}
   function log(line) {data.message=line;data.journal.push(line);data.journal=data.journal.slice(-50);}
+  function poison(now=Date.now()){
+    if(!data)return false;syncRest(now);
+    data.hp.current=Math.max(1,data.hp.current-1);
+    data.poisoned=data.poisoned||{lastTick:now};
+    log('Poison vines sting. Lose 1 HP each minute until fully healed.');return true;
+  }
   function syncRest(now=Date.now()) {
     const s=data;if(!s)return {changed:false,completed:false};
-    if(s.x!==0||s.y!==0||s.battle||s.hp.current>=s.hp.max){const changed=!!s.rest;s.rest=null;return {changed,completed:false};}
-    const r=s.rest;
-    if(!r||!Number.isFinite(r.startedAt)||r.startedAt<0||r.startedAt>now||!Number.isFinite(r.hpAtStart)||r.hpAtStart<1||r.hpAtStart>s.hp.current||r.maxHp!==s.hp.max){
-      s.rest={startedAt:now,hpAtStart:s.hp.current,maxHp:s.hp.max};
+    let changed=false,ticks=0;
+    if(s.poisoned){
+      if(s.hp.current>=s.hp.max){s.poisoned=null;changed=true;}
+      else if(s.poisoned.lastTick>now){s.poisoned.lastTick=now;changed=true;}
+      else {ticks=Math.floor((now-s.poisoned.lastTick)/60000);if(ticks){s.poisoned.lastTick+=ticks*60000;changed=true;}}
+    }
+    if(s.x!==0||s.y!==0||s.battle||s.hp.current>=s.hp.max){
+      if(ticks)s.hp.current=Math.max(1,s.hp.current-ticks);
+      changed=changed||!!s.rest;s.rest=null;return {changed,completed:false};
+    }
+    let r=s.rest;
+    if(!r||!Number.isFinite(r.startedAt)||r.startedAt<0||r.startedAt>now||!Number.isFinite(r.hpAtStart)||r.hpAtStart<1||r.hpAtStart>s.hp.max||r.maxHp!==s.hp.max){
+      s.hp.current=Math.max(1,s.hp.current-ticks);s.rest={startedAt:now,hpAtStart:s.hp.current,maxHp:s.hp.max,poisonDamage:0};
       return {changed:true,completed:false};
     }
-    const rate=(s.hp.max-1)/REST_DURATION,elapsed=Math.max(0,now-r.startedAt);
-    const complete=elapsed*rate>=s.hp.max-r.hpAtStart;
-    const next=complete?s.hp.max:Math.min(s.hp.max,Math.max(s.hp.current,r.hpAtStart+Math.floor(elapsed*rate)));
-    const changed=next!==s.hp.current;s.hp.current=next;
-    if(complete){s.rest=null;s.homecoming=null;s.healingSearchSteps=0;log('The cottage hearth has mended your wounds. Fully rested.');}
+    r.poisonDamage=(Number.isFinite(r.poisonDamage)&&r.poisonDamage>=0?r.poisonDamage:0)+ticks;
+    const rate=(s.hp.max-1)/REST_DURATION,elapsed=Math.max(0,now-r.startedAt),recovered=r.hpAtStart+Math.floor(elapsed*rate)-r.poisonDamage;
+    const complete=elapsed*rate>=s.hp.max-r.hpAtStart+r.poisonDamage;
+    const next=complete?s.hp.max:Math.max(1,Math.min(s.hp.max,recovered));
+    changed=changed||next!==s.hp.current;s.hp.current=next;
+    if(complete){s.rest=null;s.poisoned=null;s.homecoming=null;s.healingSearchSteps=0;log('The cottage hearth has mended your wounds. Fully rested.');}
     return {changed:changed||complete,completed:complete};
   }
   function restStatus(now=Date.now()) {
     const s=data,r=s?.rest;
     if(!r||s.x!==0||s.y!==0||s.battle||s.hp.current>=s.hp.max)return null;
-    return {remainingMs:Math.max(0,r.startedAt+(s.hp.max-r.hpAtStart)*REST_DURATION/(s.hp.max-1)-now),percent:Math.min(100,s.hp.current/s.hp.max*100)};
+    return {remainingMs:Math.max(0,(s.poisoned?now+(s.hp.max-s.hp.current)/Math.max(.000001,(s.hp.max-1)/REST_DURATION-1/60000):r.startedAt+(s.hp.max-r.hpAtStart+(r.poisonDamage||0))*REST_DURATION/(s.hp.max-1))-now),percent:Math.min(100,s.hp.current/s.hp.max*100)};
   }
   function loot() {
     if(data.hp.current<data.hp.max && !qty('Potion') && Math.random()<0.6)return 'Potion';
     return OR.content.pick(['MetalIngot','MetalIngot','SteelIngot','SteelIngot','Potion','Gem','MagicCrystal','LuckyCoin','BrokenPottery','RustyNail'].filter(t=>!(['LuckyCoin','MagicCrystal'].includes(t)&&qty(t)>0)));
   }
   function grantLoot(count=1,big=false) {const rewards=[];for(let i=0;i<count;i++){const type=loot(),n=big?OR.content.random(3,6):1;add(type,['LuckyCoin','MagicCrystal'].includes(type)?1:n);rewards.push({type,qty:['LuckyCoin','MagicCrystal'].includes(type)?1:n});}return rewards;}
-  return {KEY,REST_DURATION,remember,valid,exportSave,prepareImport,importSave,fresh,load,save,create,reset,qty,levelProgress,add,log,loot,grantLoot,syncRest,restStatus,get data(){return data;},get error(){return storageError;}};
+  return {KEY,REST_DURATION,remember,valid,exportSave,prepareImport,importSave,fresh,load,save,create,reset,qty,levelProgress,add,log,loot,grantLoot,poison,syncRest,restStatus,get data(){return data;},get error(){return storageError;}};
 })();

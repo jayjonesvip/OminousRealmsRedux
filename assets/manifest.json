@@ -470,5 +470,17 @@
   "wayside-shrine": {
     "outer": "wayside-shrine-outer.png",
     "file": "wayside-shrine-outer.png"
+  },
+  "poison-vine": {
+    "file": "poison-vine.png"
+  },
+  "bandit-fleeing": {
+    "file": "bandit-fleeing.png"
+  },
+  "bandit-hideout": {
+    "file": "bandit-hideout.png"
+  },
+  "empty-hideout": {
+    "file": "empty-hideout.png"
   }
 }
