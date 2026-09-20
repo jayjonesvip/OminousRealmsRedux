@@ -125,7 +125,7 @@ test('walking pickup shows potion card and toast, then full healing clears the f
 test('walking north then south preserves every discovered encounter across reloads without rerolling',()=>{
   const content=game().content;
   for(const e of Object.values(content.entities))for(const x of [3,30,-30]){
-    if(e.type==='LockedItem'||e.type==='Puzzle'&&Math.abs(x)<=25||['bat','skeleton'].includes(e.id)&&Math.abs(x)<21)continue;
+    if(e.type==='Bandit'||e.type==='LockedItem'||e.type==='Puzzle'&&Math.abs(x)<=25||['bat','skeleton'].includes(e.id)&&Math.abs(x)<21)continue;
     if((['hunter','exile','gravekeeper','hermit'].includes(e.id)&&Math.abs(x)<=25)||e.type==='Home'||(e.id==='villager'&&Math.abs(x)>25)||(e.id==='grave'&&Math.abs(x)<=25))continue;
     const g=game(),b=g.place(e.type,e.id,x,3);
     if(e.type==='Landmark'){g.state.data.village.visits[e.id]=true;if(g.village.destinations.includes(e.id))b.elementType='Thing';}
@@ -841,3 +841,12 @@ test('Lucky Coin theft removes its accuracy bonus until collection and returns t
 test('bandit chooses one carried valuable and can reserve destinations inside the old border',()=>{
   for(const choose of [0,.99]){const g=game();g.place('Nature','forest',24,10);g.state.data.borderLoss=5;g.state.add('Gem',1);g.state.add('LuckyCoin',1);const rolls=[0,choose,0];g.ctx.Math.random=()=>rolls.shift()??0;const b=g.errands.roll(24,10);g.state.data.blocks.push(b);assert.equal(g.errands.active().kind,choose?'bandit-coin':'bandit');assert.equal(g.state.qty('Gem')+g.state.qty('LuckyCoin'),1);g.state.save();assert.ok(g.state.load());assert.ok(g.errands.active());}
 });
+
+test('both fleeing bandit origins become stable wilderness after leaving without changing pursuit',()=>{
+  for(const item of ['Gem','LuckyCoin']){const g=game(new Map(),true);g.place('Nature','forest',40,10);g.state.add(item,2);g.rng(0);g.ui.route('explore');g.ui.dispatch('move:E');const pursuit=JSON.stringify(g.errands.active());assert.equal(g.world.current().elementType,'Bandit');g.ui.dispatch('move:W');assert.equal(g.world.at(41,10).elementType,'Nature');g.state.load();g.ui.dispatch('move:E');assert.equal(g.world.current().subtype,'forest');assert.equal(JSON.stringify(g.errands.active()),pursuit);assert.equal(g.state.qty(item),1);assert.doesNotMatch(g.nodes.stage.innerHTML,/A FLEEING BANDIT|bandit-fleeing.png|bandit-coin-fleeing.png/);assert.match(g.nodes.stage.innerHTML,/pursuit-hint/);}
+});
+test('old saved bandit origins become wilderness on revisit without reroll or another theft',()=>{
+  const g=game();startPursuit(g);const p=JSON.stringify(g.errands.active());g.state.save();g.state.load();g.world.move('E');assert.equal(g.world.current().elementType,'Nature');assert.equal(g.world.current().subtype,'forest');assert.equal(JSON.stringify(g.errands.active()),p);assert.equal(g.state.qty('Gem'),0);g.state.save();g.state.load();assert.equal(g.world.current().subtype,'forest');
+});
+
+test('thief knockdown happens once, floors health at one, and respects reduced motion',()=>{for(const reduced of [true,false]){const g=game(new Map(),true);g.place('Nature','forest',40,10);g.state.add('Gem',2);g.rng(0);let shakes=0;g.ctx.matchMedia=()=>({matches:reduced});g.nodes.stage.animate=()=>shakes++;g.ui.dispatch('move:E');assert.equal(g.state.data.hp.current,49);assert.equal(shakes,reduced?0:1);assert.match(g.nodes.toast.innerHTML,/−1 HP/);g.ui.dispatch('move:W');g.ui.dispatch('move:E');g.state.load();assert.equal(g.state.data.hp.current,49);assert.equal(shakes,reduced?0:1);}const g=game();g.place('Nature','forest',40,10);g.state.add('Gem');g.state.data.hp.current=1;g.rng(0);g.errands.roll(41,10);assert.equal(g.state.data.hp.current,1);});

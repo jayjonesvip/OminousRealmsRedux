@@ -33,8 +33,10 @@ OR.world=(()=>{
     return Object.assign(b,{elementType:'Border',subtype:'outer-realm-border',resolved:true});
   }
   function migrateBorders(){if(S.data.borderLoss)return;for(const b of S.data.blocks)if(border(b.x,b.y))borderBlock(b.x,b.y,b);}
+  function retireBandit(b){if(b?.elementType==='Bandit')Object.assign(b,{elementType:'Nature',subtype:'forest',resolved:true,cleared:false});}
   function getOrCreateBlock(x,y,quiet=false){
     let b=at(x,y);
+    if(b&&(x!==S.data.x||y!==S.data.y))retireBandit(b);
     if(b&&S.data.borderLoss)return b;
     if(border(x,y)){if(b?.elementType==='Border')return b;const crossing=borderBlock(x,y,b);if(!b)S.data.blocks.push(crossing);return crossing;}
     if(b)return b;
@@ -87,8 +89,9 @@ OR.world=(()=>{
     if(s.hp.current<=1)return rescueIfNeeded()||false;
     s.homecoming=null;
     const source=current(),needsQuiet=s.explorationNeedsQuiet||source.subtype==='poison-vine'||!['Nature','Path','Home','Border'].includes(source.elementType);
+    retireBandit(source);
     const wasLocal=local(s.x,s.y);s.x+=delta[0];s.y+=delta[1];s.direction=direction;s.steps++;s.state='Explore';
-    const fresh=!at(s.x,s.y),b=getOrCreateBlock(s.x,s.y,needsQuiet);b.resolved=false;
+    const fresh=!at(s.x,s.y);retireBandit(at(s.x,s.y));const b=getOrCreateBlock(s.x,s.y,needsQuiet);b.resolved=false;
     if(b.subtype==='poison-vine'){S.poison();}
     s.explorationNeedsQuiet=b.subtype==='poison-vine'||!['Nature','Path','Home','Border'].includes(b.elementType);
     const quietStep=fresh&&needsQuiet&&b.elementType==='Nature';
