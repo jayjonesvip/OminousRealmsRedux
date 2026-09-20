@@ -4,8 +4,14 @@ OR.state = (() => {
   const REST_DURATION = 10 * 60 * 1000;
   let data = null;
   let storageError = '';
-  const fresh = (name='Warrior',type='Sword')=>({version:1,enchanted:false,name:name.trim().slice(0,24)||'Warrior',x:0,y:0,direction:'N',state:'Explore',hp:{current:50,max:50},level:1,victories:0,levelStartVictories:0,armor:{resistance:10,craftCost:10},weapon:OR.content.weapon(type),inventory:[],message:'Your father’s iron. Your own legend.',journal:[],blocks:[],battle:null,outcome:null,foundLoot:null,steps:0,healingSearchSteps:0,lastFind:null,rest:null});
-  const valid = s=>s && s.version===1 && typeof s.name==='string' && Number.isInteger(s.x) && Number.isInteger(s.y) && s.hp && Number.isFinite(s.hp.current) && Number.isFinite(s.hp.max) && s.hp.max>=1 && s.hp.current>=1 && s.hp.current<=s.hp.max && Number.isInteger(s.level) && s.level>=1 && Number.isFinite(s.victories) && s.victories>=0 && s.armor && Number.isFinite(s.armor.resistance) && s.armor.resistance>=0 && s.armor.resistance<=95 && s.weapon && OR.content.weapons[s.weapon.type] && Number.isFinite(s.weapon.basePower) && s.weapon.basePower>=1 && Array.isArray(s.inventory) && s.inventory.every(i=>OR.content.items[i.type] && Number.isInteger(i.qty) && i.qty>=0) && Array.isArray(s.blocks) && s.blocks.every(b=>Number.isInteger(b.x)&&Number.isInteger(b.y)&&OR.content.entities[b.subtype]&&OR.content.weights[b.elementType]) && Array.isArray(s.journal) && s.journal.every(j=>typeof j==='string');
+  const deedLines={watchpostRecovered:'Strongwood: the watchpost stores are recovered.',provisionsReturned:'Strongwood: the missing provisions have come home.',ogreDefeated:'Strongwood: the Roadkeeper’s Bane is dead.',roadCleared:'Strongwood: travelers can use the old road again.',hollowflameDead:'Strongwood: Hollowflame’s smoke no longer hangs over the village.'};
+  const flags=()=>Object.fromEntries(Object.keys(deedLines).map(key=>[key,false]));
+  const record=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
+  const validDeeds=s=>(s.worldFlags===undefined||record(s.worldFlags)&&Object.entries(s.worldFlags).every(([k,v])=>Object.hasOwn(deedLines,k)&&typeof v==='boolean'))&&(s.reactionSeen===undefined||record(s.reactionSeen)&&Object.values(s.reactionSeen).every(v=>Array.isArray(v)&&v.every(k=>Object.hasOwn(deedLines,k))));
+  function remember(){if(!data)return;data.worldFlags={...flags(),...data.worldFlags};data.reactionSeen=data.reactionSeen||{};const done=data.quests?.completed||[];for(const [quest,keys] of Object.entries({watchpost:['watchpostRecovered'],provisions:['provisionsReturned'],roadkeeper:['ogreDefeated','roadCleared'],hollowflame:['hollowflameDead']}))if(done.includes(quest))for(const key of keys)if(!data.worldFlags[key]){data.worldFlags[key]=true;log(deedLines[key]);}}
+
+  const fresh = (name='Warrior',type='Sword')=>({version:1,worldFlags:flags(),reactionSeen:{},enchanted:false,name:name.trim().slice(0,24)||'Warrior',x:0,y:0,direction:'N',state:'Explore',hp:{current:50,max:50},level:1,victories:0,levelStartVictories:0,armor:{resistance:10,craftCost:10},weapon:OR.content.weapon(type),inventory:[],message:'Your father’s iron. Your own legend.',journal:[],blocks:[],battle:null,outcome:null,foundLoot:null,steps:0,healingSearchSteps:0,lastFind:null,rest:null});
+  const valid = s=>s && s.version===1 && validDeeds(s) && typeof s.name==='string' && Number.isInteger(s.x) && Number.isInteger(s.y) && s.hp && Number.isFinite(s.hp.current) && Number.isFinite(s.hp.max) && s.hp.max>=1 && s.hp.current>=1 && s.hp.current<=s.hp.max && Number.isInteger(s.level) && s.level>=1 && Number.isFinite(s.victories) && s.victories>=0 && s.armor && Number.isFinite(s.armor.resistance) && s.armor.resistance>=0 && s.armor.resistance<=95 && s.weapon && OR.content.weapons[s.weapon.type] && Number.isFinite(s.weapon.basePower) && s.weapon.basePower>=1 && Array.isArray(s.inventory) && s.inventory.every(i=>OR.content.items[i.type] && Number.isInteger(i.qty) && i.qty>=0) && Array.isArray(s.blocks) && s.blocks.every(b=>Number.isInteger(b.x)&&Number.isInteger(b.y)&&OR.content.entities[b.subtype]&&OR.content.weights[b.elementType]) && Array.isArray(s.journal) && s.journal.every(j=>typeof j==='string');
   function load() {
     try {
       const raw=localStorage.getItem(KEY);
@@ -30,6 +36,7 @@ OR.state = (() => {
       OR.world?.migrateThreats();
       OR.world?.migrateNpcs();
       OR.quests?.migrate();
+      remember();
       OR.puzzles?.migrateUnique();
       // Retire ambiguous legacy banners without rewriting the journal history.
       if(['Not every shadow needs your steel.','You leave it to the forest.','Another day. Another fight.'].includes(data.message))data.message='';
@@ -80,5 +87,5 @@ OR.state = (() => {
     return OR.content.pick(['MetalIngot','MetalIngot','SteelIngot','SteelIngot','Potion','Gem','MagicCrystal','LuckyCoin','BrokenPottery','RustyNail'].filter(t=>!(['LuckyCoin','MagicCrystal'].includes(t)&&qty(t)>0)));
   }
   function grantLoot(count=1,big=false) {const rewards=[];for(let i=0;i<count;i++){const type=loot(),n=big?OR.content.random(3,6):1;add(type,['LuckyCoin','MagicCrystal'].includes(type)?1:n);rewards.push({type,qty:['LuckyCoin','MagicCrystal'].includes(type)?1:n});}return rewards;}
-  return {KEY,REST_DURATION,fresh,load,save,create,reset,qty,levelProgress,add,log,loot,grantLoot,syncRest,restStatus,get data(){return data;},get error(){return storageError;}};
+  return {KEY,REST_DURATION,remember,fresh,load,save,create,reset,qty,levelProgress,add,log,loot,grantLoot,syncRest,restStatus,get data(){return data;},get error(){return storageError;}};
 })();

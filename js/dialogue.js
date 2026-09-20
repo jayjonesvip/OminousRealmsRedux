@@ -784,9 +784,18 @@ OR.dialogue=(()=>{
   }
 });
   const pools=Object.fromEntries(Object.entries(raw).map(([type,contexts])=>[type,Object.fromEntries(Object.entries(contexts).map(([context,lines])=>[context,lines.map(([tone,text],i)=>({id:`${type}.${context}.${i+1}`,tone,text}))]))]));
+  const reactions={
+    watchpostRecovered:['The watchpost stores reached us. We can mend roofs before the next rain.','Those supplies you recovered from the watchpost are keeping the village working.'],
+    provisionsReturned:['The missing provisions are home. There is food on tables that stood bare.','Your recovered provisions mean we can spare bread for travelers again.'],
+    ogreDefeated:['You killed the ogre on the old road. My brother finally made it home.','The Roadkeeper’s Bane is dead. We no longer listen for its tread at night.'],
+    roadCleared:['The road you cleared is carrying carts again. We can bring timber home.','Children can wait for their parents by the road again. You made that possible.'],
+    hollowflameDead:['Since you killed Hollowflame, the smoke has lifted. We can see the far ridge again.','Hollowflame is dead. Last night, nobody kept watch for fire.']
+  };
+  function reaction(type,context,previousId){const s=OR.state.data;if(context!=='strongwood'||!['villager','farmer','woodcutter','elder'].includes(type)||!s)return null;const active=Object.keys(reactions).filter(k=>s.worldFlags?.[k]);if(!active.length)return null;s.reactionSeen=s.reactionSeen||{};const seen=s.reactionSeen[type]||[],unheard=active.filter(k=>!seen.includes(k));if(!unheard.length&&Math.random()>=.25)return null;const choices=(unheard.length?unheard:active).flatMap(key=>reactions[key].map((text,i)=>({id:type+'.reaction.'+key+'.'+i,tone:'reaction',text,key}))).filter(line=>line.id!==previousId);if(!choices.length)return null;const line=OR.content.pick(choices);s.reactionSeen[type]=[...new Set([...seen,line.key])];return line;}
   function choose(type,context,previousId){
+    const response=reaction(type,context,previousId);if(response)return response;
     const pool=pools[type]?.[context];if(!pool)throw new Error('Unknown NPC dialogue pool');
     return OR.content.pick(pool.filter(line=>line.id!==previousId));
   }
-  return {pools,choose};
+  return {pools,reactions,choose};
 })();
