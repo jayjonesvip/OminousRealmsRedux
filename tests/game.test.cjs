@@ -436,7 +436,7 @@ test('new rounds replace old notices and leaving battle cancels the pending enem
 
 test('new-coordinate rates reserve quiet terrain, scarce NPCs and increased outer threats',()=>{
   for(const local of [true,false]){
-    const g=game(),rates=g.content.encounterRates(local);
+    const g=game(),rates=g.content.encounterRates(local);g.state.data.level=3;
     assert.equal(rates.Nature,40);assert.equal(rates.NPC,local?10:5);
     assert.ok(Math.abs(Object.values(rates).reduce((a,b)=>a+b,0)-100)<1e-10);
     const threats=['Danger','Enemy','Dragon'];
@@ -850,3 +850,11 @@ test('old saved bandit origins become wilderness on revisit without reroll or an
 });
 
 test('thief knockdown happens once, floors health at one, and respects reduced motion',()=>{for(const reduced of [true,false]){const g=game(new Map(),true);g.place('Nature','forest',40,10);g.state.add('Gem',2);g.rng(0);let shakes=0;g.ctx.matchMedia=()=>({matches:reduced});g.nodes.stage.animate=()=>shakes++;g.ui.dispatch('move:E');assert.equal(g.state.data.hp.current,49);assert.equal(shakes,reduced?0:1);assert.match(g.nodes.toast.innerHTML,/−1 HP/);g.ui.dispatch('move:W');g.ui.dispatch('move:E');g.state.load();assert.equal(g.state.data.hp.current,49);assert.equal(shakes,reduced?0:1);}const g=game();g.place('Nature','forest',40,10);g.state.add('Gem');g.state.data.hp.current=1;g.rng(0);g.errands.roll(41,10);assert.equal(g.state.data.hp.current,1);});
+
+test('new dragons unlock at level three while discovered dragons retain their saved location and wounds',()=>{
+  const g=game();for(const level of [1,2,3,4]){g.state.data.level=level;g.rng(0);const b=g.world.spawn('Dragon',40,10);assert.equal(b.elementType,level<3?'Nature':'Dragon');if(level<3)assert.notEqual(b.subtype,'poison-vine');}
+  const b=g.place('Dragon','dragon',40,10);b.dragonHp=123;g.state.data.level=2;g.state.save();g.state.load();assert.equal(g.world.getOrCreateBlock(40,10).elementType,'Dragon');assert.equal(g.world.current().dragonHp,123);
+});
+test('ordinary exploration dragon rolls become wilderness below level three',()=>{
+  for(const level of [1,2,3]){const g=game();g.state.data.level=level;const rates=g.content.encounterRates(false);let before=0;for(const [type,rate] of Object.entries(rates)){if(type==='Dragon')break;before+=rate;}g.rng((before+rates.Dragon/2)/100);const b=g.world.getOrCreateBlock(40,10);assert.equal(b.elementType,level<3?'Nature':'Dragon');}
+});
