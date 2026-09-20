@@ -6,7 +6,7 @@
 
 An optional return-to-giver phase supports people requesting something they value. This is separate from the five grandfather quests. Only one retrieval may run at once, and it cannot overlap a grandfather quest or offer.
 
-The bandit is the first registered definition. On an eligible Outer Realm wilderness roll, a thief can take one carried gem. An undiscovered hideout 5–9 cardinal steps away is reserved; red guidance reduces Manhattan distance. Victory makes the gem available to collect. Collect Gem restores it and clears the guidance. The hideout stays empty afterward. No repeat loot or theft occurs on revisits.
+The bandit is the first registered definition. On an eligible Outer Realm wilderness roll, a thief can take one carried gem or Lucky Coin. If both are carried, one variant is selected; never both. The Lucky Coin’s accuracy bonus is absent until it is collected again. An undiscovered hideout 5–9 cardinal steps away is reserved; red guidance reduces Manhattan distance. Victory makes the gem available to collect. Collect Gem restores it and clears the guidance. The hideout stays empty afterward. No repeat loot or theft occurs on revisits.
 
 ## Add another encounter
 
@@ -49,3 +49,7 @@ The existing version-one `pursuit` save slot contains the definition `kind`, `ph
 ## Poison vines
 
 A wilderness variant that stings for 1 HP on every entry, then drains 1 HP per elapsed minute, including time away. Poison does not stack and cannot lower HP below 1. A full heal clears it; home rest outpaces its damage and eventually cures it. While infected, new wilderness cannot roll another vine. Known vines remain fixed. Forced quiet discoveries exclude vines.
+
+## Weakening border
+
+Each combat defeat advances the Outer Realm boundary one cell toward the cottage, capped at five advances total (Strongwood radius 25 down to 20). The cottage and onboarding trail stay safe. Fleeing, poison collapse and ordinary home visits do not advance it. The arrival notice and journal say the border is growing weaker; the map immediately shows the current boundary. Discovered tiles and encounters remain intact, even on or beyond the new boundary. New scenery and encounters use the current realm. Quest discovery remains five cells beyond the current border. Missing save fields default to no advances and no pending notice.

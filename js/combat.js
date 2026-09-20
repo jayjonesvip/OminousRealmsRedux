@@ -3,6 +3,7 @@ OR.combat=(()=>{
   const S=OR.state,C=OR.content,W=OR.world;
   const damage=(base,move,resistance,lucky=false)=>Math.random()<Math.min(100,move.accuracy+(lucky?5:0))/100?(base+move.power)*(1-Math.min(95,Math.max(0,resistance))/100):0;
   const wildlife={
+    'mud-biter':{min:6,max:10,base:1,extra:2},
     'large-rat':{min:12,max:18,base:2,extra:2},
     'rabid-rabbit':{min:10,max:14,base:2,extra:2},
     snake:{min:14,max:20,base:3,extra:3},
@@ -12,7 +13,7 @@ OR.combat=(()=>{
   function lightCreature(id,hp,base,extra){const natural=C.creature(id,1);return {id,name:C.entities[id].name,level:1,hp,maxHp:hp,...natural,basePower:base,resistance:0,moves:natural.moves.map(m=>({...m,power:Math.min(extra,m.power),accuracy:Math.min(90,m.accuracy)}))};}
   function migrateWildlife(){const b=S.data?.battle;if(!b)return;const id=b.enemyId,local=W.local(b.x,b.y);if(!wildlife[id]&&id!=='mud-biter')return;const p=local?{max:10,base:1,extra:2}:wildlife[id];if(!p)return;const e=b.enemy,max=Math.min(e.maxHp||p.max,p.max),hp=Math.min(e.hp,max);Object.assign(e,lightCreature(id,max,p.base,p.extra),{hp});}
   function enemy(block){
-    if(block.subtype==='bandit-hideout')return {id:block.subtype,name:'Gem Thief',level:1,hp:18,maxHp:18,basePower:2,...C.creature(block.subtype,1)};
+    if(block.subtype==='bandit-hideout')return {id:block.subtype,name:OR.errands?.atTarget(block)?OR.errands.definition().enemyName||'Bandit':'Gem Thief',level:1,hp:18,maxHp:18,basePower:2,...C.creature(block.subtype,1)};
     const profile=wildlife[block.subtype];if(profile&&!W.local(block.x,block.y))return lightCreature(block.subtype,C.random(profile.min,profile.max),profile.base,profile.extra);
     if(block.elementType==='Danger'&&W.local(block.x,block.y)){
       const natural=C.creature(block.subtype,1),hp=C.random(6,10);
@@ -43,7 +44,7 @@ OR.combat=(()=>{
     S.log(win?(bribed?`A gem spent. ${e.name} withdraws. This ground is now clear.`:`${e.name} falls. This ground is now clear.`):'You fall unconscious. The realm leaves you one breath.');
     if(levels)S.log(`LEVEL ${s.level}. Your gear improves and your health is restored.`);
     s.battle=null;s.state='Explore';
-    if(!win)W.returnHome('You fall unconscious. You wake at Strongwood Cottage with 1 HP.');
+    if(!win){W.weakenBorder();W.returnHome('You fall unconscious. You wake at Strongwood Cottage with 1 HP.');}
     S.save();return s.outcome;
   }
   const fmt=n=>Number(n.toFixed(1));

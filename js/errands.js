@@ -27,9 +27,10 @@ OR.errands=(()=>{
     S.log(d.startText||d.title+' accepted. Follow the compass light.');S.save();return true;
   }
   function roll(x,y){
-    if(W.local(x,y)||W.border(x,y)||blocked()||S.qty('Gem')<1||Math.random()>=.02)return null;
-    if(!start('bandit',{x,y}))return null;
-    return {x,y,elementType:'Bandit',subtype:'bandit-fleeing',resolved:false};
+    const eligible=['bandit','bandit-coin'].filter(id=>S.qty(definitions[id].item)>=1);
+    if(W.local(x,y)||W.border(x,y)||blocked()||!eligible.length||Math.random()>=.02)return null;
+    const kind=C.pick(eligible);if(!start(kind,{x,y}))return null;
+    return {x,y,elementType:'Bandit',subtype:definitions[kind].fleeingSubtype,resolved:false};
   }
   const atTarget=b=>!!active()&&(active().phase||'retrieve')==='retrieve'&&b?.subtype===definition().target.subtype&&b.x===active().x&&b.y===active().y;
   function recover(b,event='slay'){
@@ -60,7 +61,8 @@ OR.errands=(()=>{
   function prompt(b){const d=definition();if(!d)return null;if(atCollection(b))return {action:'errand:collect',label:'COLLECT '+C.items[d.item].name.toUpperCase(),disabled:false};if(atGiver(b))return {action:'errand:deliver',label:'RETURN '+C.items[d.item].name.toUpperCase(),disabled:S.qty(d.item)<d.quantity};if(atTarget(b)&&d.completion==='gather')return {action:'errand:retrieve',label:'RETRIEVE '+C.items[d.item].name.toUpperCase(),disabled:false};return null;}
   const guideClass=()=>definition()?.guide==='red'?'pursuit-hint':'trail-hint';
   const status=()=>active()?definition().title+' · '+(active().phase==='return'?'RETURN TO GIVER':active().phase==='collect'?'COLLECT ITEM':'DESTINATION')+' · '+W.coords(active().x,active().y):'';
-  register('bandit',{title:'STOLEN GEM',item:'Gem',steal:true,realm:'outer',completion:'slay',guide:'red',target:{elementType:'Enemy',subtype:'bandit-hideout'},after:{elementType:'Thing',subtype:'empty-hideout'},startText:'A bandit steals one gem. Follow the red compass light to the hideout.',doneText:'The stolen gem is back in your pack. The red trail fades.'});
+  register('bandit',{title:'STOLEN GEM',enemyName:'Gem Thief',fleeingSubtype:'bandit-fleeing',item:'Gem',steal:true,realm:'outer',completion:'slay',guide:'red',target:{elementType:'Enemy',subtype:'bandit-hideout'},after:{elementType:'Thing',subtype:'empty-hideout'},startText:'A bandit steals one gem. Follow the red compass light to the hideout.',doneText:'The stolen gem is back in your pack. The red trail fades.'});
+  register('bandit-coin',{...definitions.bandit,title:'STOLEN LUCKY COIN',enemyName:'Coin Thief',fleeingSubtype:'bandit-coin-fleeing',item:'LuckyCoin',startText:'A bandit steals your Lucky Coin. Follow the red compass light to the hideout.',doneText:'Your Lucky Coin is back in your pack. The red trail fades.'});
   return {register,definitions,start,active,definition,roll,atTarget,recover,retrieve,collect,pendingRewards,deliver,atGiver,hints,prompt,guideClass,status};
 })();
 

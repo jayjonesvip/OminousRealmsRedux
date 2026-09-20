@@ -1,16 +1,17 @@
 'use strict';
 OR.world=(()=>{
   const C=OR.content,S=OR.state;
-  const local=(x,y)=>Math.abs(x)<=25&&Math.abs(y)<=25;
-  const border=(x,y)=>Math.max(Math.abs(x),Math.abs(y))===26;
+  const radius=()=>25-(S.data?.borderLoss||0);
+  const local=(x,y)=>Math.abs(x)<=radius()&&Math.abs(y)<=radius();
+  const border=(x,y)=>Math.max(Math.abs(x),Math.abs(y))===radius()+1;
   const realm=(x,y)=>local(x,y)?'Strongwood Village':'The Outer Realm';
   const at=(x,y)=>S.data.blocks.find(b=>b.x===x&&b.y===y);
   const outerPeople=['hunter','exile','gravekeeper','hermit'];
   const npcAllowed=(id,x,y)=>id==='villager'?local(x,y):!outerPeople.includes(id)||!local(x,y);
   const npcCandidates=(x,y)=>Object.values(C.entities).filter(e=>e.type==='NPC'&&npcAllowed(e.id,x,y)&&!S.data.blocks.some(b=>b.elementType==='NPC'&&b.subtype===e.id));
-  const nearBorder=(x,y)=>Math.max(Math.abs(x),Math.abs(y))>=21;
-  function migrateThreats(){for(const b of S.data.blocks)if(local(b.x,b.y)&&b.elementType==='Danger'&&(b.subtype==='skeleton'||b.subtype==='bat'&&!nearBorder(b.x,b.y)))b.subtype='rabid-rabbit';}
-  function migratePuzzles(){
+  const nearBorder=(x,y)=>Math.max(Math.abs(x),Math.abs(y))>=radius()-4;
+  function migrateThreats(){if(S.data.borderLoss)return;for(const b of S.data.blocks)if(local(b.x,b.y)&&b.elementType==='Danger'&&(b.subtype==='skeleton'||b.subtype==='bat'&&!nearBorder(b.x,b.y)))b.subtype='rabid-rabbit';}
+  function migratePuzzles(){if(S.data.borderLoss)return;
     const find=S.data.foundLoot;
     for(const b of S.data.blocks)if(b.elementType==='Puzzle'&&local(b.x,b.y)&&!(find?.source==='puzzle'&&find.x===b.x&&find.y===b.y)){
       if(b.puzzle?.solved&&!b.puzzle.claimed&&!b.puzzle.entered){for(const r of b.puzzle.rewards||[])S.add(r.type,r.qty);}
@@ -18,7 +19,7 @@ OR.world=(()=>{
       Object.assign(b,{elementType:'Nature',subtype:'clearing',resolved:true});delete b.puzzle;
     }
   }
-  function migrateNpcs(){
+  function migrateNpcs(){if(S.data.borderLoss)return;
     const seen=new Set(),blocks=[...S.data.blocks].sort((a,b)=>Number(b.x===S.data.x&&b.y===S.data.y)-Number(a.x===S.data.x&&a.y===S.data.y));
     for(const b of blocks)if(b.elementType==='NPC'){
       if(!npcAllowed(b.subtype,b.x,b.y)||seen.has(b.subtype)){Object.assign(b,{elementType:'Nature',subtype:'clearing',resolved:false});delete b.dialogue;if(b.x===S.data.x&&b.y===S.data.y)S.data.message='';}
@@ -31,9 +32,10 @@ OR.world=(()=>{
     for(const key of Object.keys(b))if(!['x','y'].includes(key))delete b[key];
     return Object.assign(b,{elementType:'Border',subtype:'outer-realm-border',resolved:true});
   }
-  function migrateBorders(){for(const b of S.data.blocks)if(border(b.x,b.y))borderBlock(b.x,b.y,b);}
+  function migrateBorders(){if(S.data.borderLoss)return;for(const b of S.data.blocks)if(border(b.x,b.y))borderBlock(b.x,b.y,b);}
   function getOrCreateBlock(x,y,quiet=false){
     let b=at(x,y);
+    if(b&&S.data.borderLoss)return b;
     if(border(x,y)){if(b?.elementType==='Border')return b;const crossing=borderBlock(x,y,b);if(!b)S.data.blocks.push(crossing);return crossing;}
     if(b)return b;
     const village=OR.village?.template(x,y);if(village){S.data.blocks.push(village);return village;}
@@ -50,6 +52,7 @@ OR.world=(()=>{
   }
   const current=()=>getOrCreateBlock(S.data.x,S.data.y);
   function clear(permanent=false){const b=current();Object.assign(b,{elementType:'Nature',subtype:'clearing',dragonHp:null,resolved:true,cleared:permanent||b.cleared===true});}
+  function weakenBorder(){const s=S.data;if((s.borderLoss||0)>=5)return false;s.borderLoss=(s.borderLoss||0)+1;s.borderNotice=true;S.log('Strongwood’s border is growing weaker. The darkness presses closer.');return true;}
   function returnHome(reason='Your strength gives out. You are carried home to Strongwood Cottage.'){
     const s=S.data;
     if(s.battle?.enemyId==='dragon'){
@@ -92,7 +95,7 @@ OR.world=(()=>{
     if(wasLocal&&!local(s.x,s.y))S.log('THE VEIL BREAKS. Strongwood’s warmth dies behind you.');
     S.log(description(b));if(!quietStep){findHealing();OR.village?.triggerVision(b);}else s.lastFind=null;S.syncRest();rescueIfNeeded();S.save();return b;
   }
-  function description(b=current()){if(b.subtype==='empty-hideout')return 'The hideout stands empty. The thief will not return.';if(b.subtype==='bandit-fleeing'&&!OR.errands?.active())return 'The thief is gone. Old footprints fade into the ash.';if(b.subtype==='wayside-shrine'&&b.healingUsed)return 'The offering is accepted. The shrine’s warmth has faded.';const quest=OR.quests?.description(b);if(quest)return quest;const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
+  function description(b=current()){if(b.subtype==='empty-hideout')return 'The hideout stands empty. The thief will not return.';if(b.elementType==='Bandit'&&(!OR.errands?.active()||b.x!==OR.errands.active().originX||b.y!==OR.errands.active().originY))return 'The thief is gone. Old footprints fade into the ash.';if(b.subtype==='wayside-shrine'&&b.healingUsed)return 'The offering is accepted. The shrine’s warmth has faded.';if(b.subtype==='bandit-hideout'&&OR.errands?.atTarget(b))return 'The thief waits at a hidden cellar. Defeat them to reclaim your '+C.items[OR.errands.definition().item].name+'.';const quest=OR.quests?.description(b);if(quest)return quest;const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
   const coords=(x,y)=>x===0&&y===0?'HOME · 0 / 0':`${Math.abs(x)}${x<0?'W':'E'} ${Math.abs(y)}${y<0?'N':'S'}`;
-  return {local,border,realm,at,spawn,npcCandidates,migrateNpcs,migrateThreats,migratePuzzles,migrateBorders,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
+  return {radius,weakenBorder,local,border,realm,at,spawn,npcCandidates,migrateNpcs,migrateThreats,migratePuzzles,migrateBorders,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
 })();

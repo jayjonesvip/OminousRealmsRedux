@@ -482,5 +482,8 @@
   },
   "empty-hideout": {
     "file": "empty-hideout.png"
+  },
+  "bandit-coin-fleeing": {
+    "file": "bandit-coin-fleeing.png"
   }
 }
