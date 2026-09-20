@@ -457,5 +457,10 @@
   },
   "mud-biter": {
     "file": "mud-biter.png"
+  },
+  "mockingbird": {
+    "file": "mockingbird-village.png",
+    "village": "mockingbird-village.png",
+    "outer": "mockingbird-outer.png"
   }
 }

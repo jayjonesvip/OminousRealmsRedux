@@ -61,6 +61,7 @@ OR.content = (() => {
     ['NPC','gravekeeper','The Gravekeeper','A keeper tends forgotten names.','A gravekeeper rests a spade beside nameless stones.'],
     ['NPC','hermit','The Hermit','A quiet figure listens beside a weathered shelter.','A hermit watches the ash fall around an ancient tree.'],
     ['Food','mushrooms','Witchcap Mushrooms','Tiny caps shine beneath a fallen branch.','Pale caps cluster in the ash beneath a blackened branch.'],
+    ['Animal','mockingbird','Mockingbird','A mockingbird borrows the forest’s songs from a mossy branch.','A mockingbird repeats a familiar tune among the dead branches.'],
     ['Animal','rabbit','Wild Rabbit','A rabbit freezes, then vanishes into the ferns.','A pale rabbit watches without blinking.'],
     ['Animal','squirrel','Red Squirrel','A flash of russet darts up the ancient oak.','Ash clings to a squirrel with far too still a gaze.'],
     ['Animal','deer','Woodland Deer','A deer steps between the sunlit trees.','A stag stands in the fog, antlers tangled with bone.'],
