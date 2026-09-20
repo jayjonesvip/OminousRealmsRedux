@@ -32,11 +32,12 @@ OR.world=(()=>{
     return Object.assign(b,{elementType:'Border',subtype:'outer-realm-border',resolved:true});
   }
   function migrateBorders(){for(const b of S.data.blocks)if(border(b.x,b.y))borderBlock(b.x,b.y,b);}
-  function getOrCreateBlock(x,y){
+  function getOrCreateBlock(x,y,quiet=false){
     let b=at(x,y);
     if(border(x,y)){if(b?.elementType==='Border')return b;const crossing=borderBlock(x,y,b);if(!b)S.data.blocks.push(crossing);return crossing;}
     if(b)return b;
     const village=OR.village?.template(x,y);if(village){S.data.blocks.push(village);return village;}
+    if(quiet){b=spawn('Nature',x,y);S.data.blocks.push(b);return b;}
     const quest=OR.quests?.roll(x,y);if(quest){S.data.blocks.push(quest);return quest;}
     let type;
     if(x===0&&y===0)type='Home';
@@ -82,10 +83,13 @@ OR.world=(()=>{
     S.syncRest();
     if(s.hp.current<=1)return rescueIfNeeded()||false;
     s.homecoming=null;
+    const source=current(),needsQuiet=s.explorationNeedsQuiet||!['Nature','Path','Home','Border'].includes(source.elementType);
     const wasLocal=local(s.x,s.y);s.x+=delta[0];s.y+=delta[1];s.direction=direction;s.steps++;s.state='Explore';
-    const b=getOrCreateBlock(s.x,s.y);b.resolved=false;
+    const fresh=!at(s.x,s.y),b=getOrCreateBlock(s.x,s.y,needsQuiet);b.resolved=false;
+    s.explorationNeedsQuiet=!['Nature','Path','Home','Border'].includes(b.elementType);
+    const quietStep=fresh&&needsQuiet&&b.elementType==='Nature';
     if(wasLocal&&!local(s.x,s.y))S.log('THE VEIL BREAKS. Strongwood’s warmth dies behind you.');
-    S.log(description(b));findHealing();OR.village?.triggerVision(b);S.syncRest();S.save();return b;
+    S.log(description(b));if(!quietStep){findHealing();OR.village?.triggerVision(b);}else s.lastFind=null;S.syncRest();S.save();return b;
   }
   function description(b=current()){const quest=OR.quests?.description(b);if(quest)return quest;const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
   const coords=(x,y)=>x===0&&y===0?'HOME · 0 / 0':`${Math.abs(x)}${x<0?'W':'E'} ${Math.abs(y)}${y<0?'N':'S'}`;
