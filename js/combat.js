@@ -69,7 +69,8 @@ OR.combat=(()=>{
     Object.assign(origin,{elementType:'Nature',subtype:'clearing',dragonHp:null,dragonMaxHp:null,resolved:true,cleared:true});return true;
   }
   function flee(){if(!S.data?.battle)return false;const b=S.data.battle,moved=advanceDragon(b);S.log(moved?'The wounded dragon moves toward Strongwood.':('You break off the fight. '+b.enemy.name+' still threatens this ground.'));S.data.battle=null;S.data.state='Explore';W.current().resolved=true;S.save();return true;}
-  function bribe(){if(!S.data?.battle||!S.qty('Gem')||OR.quests?.atTarget(W.current()))return false;S.add('Gem',-1);return finish(true,true);}
+  const canBribe=()=>!!S.data?.battle&&['ogre','gargoyle','troll'].includes(S.data.battle.enemyId)&&!OR.quests?.atTarget(W.current());
+  function bribe(){if(!canBribe()||!S.qty('Gem'))return false;S.add('Gem',-1);return finish(true,true);}
   function claim(){if(!S.data?.outcome)return false;if(!S.data.outcome.win)W.current().resolved=true;S.data.outcome=null;S.save();return true;}
-  return {damage,enemy,start,attack,flee,bribe,claim,levelUp};
+  return {damage,enemy,start,attack,flee,canBribe,bribe,claim,levelUp};
 })();
