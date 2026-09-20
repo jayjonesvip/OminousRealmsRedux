@@ -462,5 +462,13 @@
     "file": "mockingbird-village.png",
     "village": "mockingbird-village.png",
     "outer": "mockingbird-outer.png"
+  },
+  "wild-berries": {
+    "village": "wild-berries-village.png",
+    "file": "wild-berries-village.png"
+  },
+  "wayside-shrine": {
+    "outer": "wayside-shrine-outer.png",
+    "file": "wayside-shrine-outer.png"
   }
 }

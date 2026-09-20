@@ -61,6 +61,8 @@ OR.content = (() => {
     ['NPC','gravekeeper','The Gravekeeper','A keeper tends forgotten names.','A gravekeeper rests a spade beside nameless stones.'],
     ['NPC','hermit','The Hermit','A quiet figure listens beside a weathered shelter.','A hermit watches the ash fall around an ancient tree.'],
     ['Food','mushrooms','Witchcap Mushrooms','Tiny caps shine beneath a fallen branch.','Pale caps cluster in the ash beneath a blackened branch.'],
+    ['Food','wild-berries','Wild Berries','Ripe berries gather beneath the leaves. Eat them to restore up to 10 HP.','No berries grow in this ash.'],
+    ['Shrine','wayside-shrine','Wayside Shrine','A weathered shrine stands beside the road.','A little warmth survives here. Offer 1 Metal Ingot to restore all your health.'],
     ['Animal','mockingbird','Mockingbird','A mockingbird borrows the forest’s songs from a mossy branch.','A mockingbird repeats a familiar tune among the dead branches.'],
     ['Animal','rabbit','Wild Rabbit','A rabbit freezes, then vanishes into the ferns.','A pale rabbit watches without blinking.'],
     ['Animal','squirrel','Red Squirrel','A flash of russet darts up the ancient oak.','Ash clings to a squirrel with far too still a gaze.'],
@@ -104,19 +106,21 @@ OR.content = (() => {
     ['Puzzle','puzzle-levers','The Silent Mechanism','Three levers stand watch over an ancient vault.','Three rusted levers wait beneath watchful stone beasts.']
   ];
   const entities = Object.fromEntries(entries.map(([type,id,name,village,outer])=>[id,{type,id,name,village,outer}]));
-  const weights = {Border:1,Home:1,Nature:12,NPC:8,Food:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1,Path:1,Landmark:1,Quest:1};
-  const outerOnly = ['Enemy','Dragon','LockedItem','Puzzle'];
+  const weights = {Border:1,Home:1,Nature:12,NPC:8,Food:4,Shrine:4,Animal:8,Danger:4,Thing:8,Enemy:4,Dragon:1,LockedItem:1,BuriedItems:2,Craft:2,Puzzle:1,Path:1,Landmark:1,Quest:1};
+  const outerOnly = ['Enemy','Dragon','LockedItem','Puzzle','Shrine'];
   // New coordinates: quiet terrain and scarce travelers in both realms.
   // Outside, reserve 20% for threats; preserve relative weights within each pool.
   const encounterRates=isLocal=>{
     const eligible=Object.entries(weights).filter(([type])=>!['Border','Home','Path','Landmark','Quest','LockedItem'].includes(type)&&(!isLocal||!outerOnly.includes(type)));
     const threats=['Danger','Enemy','Dragon'];
-    const inPool=type=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&(isLocal||!threats.includes(type));
+    const inPool=type=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&type!=='Shrine'&&(isLocal||!threats.includes(type));
     const poolWeight=eligible.reduce((total,[type,weight])=>total+(inPool(type)?weight:0),0);
+    // Keep each healing encounter at the original mushroom rate.
+    const pool=isLocal?50:33.5,mushroomRate=pool*weights.Food/poolWeight;
     const threatWeight=threats.reduce((total,type)=>total+weights[type],0);
     return Object.fromEntries(eligible.map(([type,weight])=>[type,
-      type==='Nature'?40:type==='NPC'?(isLocal?10:5):type==='Puzzle'?1.5:
-      !isLocal&&threats.includes(type)?20*weight/threatWeight:(isLocal?50:33.5)*weight/poolWeight
+      type==='Food'?mushroomRate*(isLocal?2:1):type==='Shrine'?mushroomRate:type==='Nature'?40:type==='NPC'?(isLocal?10:5):type==='Puzzle'?1.5:
+      !isLocal&&threats.includes(type)?20*weight/threatWeight:(pool-2*mushroomRate)*weight/(poolWeight-weights.Food)
     ]));
   };
   const random = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;

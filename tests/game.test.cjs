@@ -120,7 +120,7 @@ test('critical health finds a potion on the next step without replacing the tile
 test('low-health healing is guaranteed by three steps even on previously explored paths',()=>{const g=game();g.state.data.hp.current=25;g.rng(.99);g.world.move('N');assert.equal(g.state.qty('Potion'),0);g.state.load();g.world.move('S');assert.equal(g.state.qty('Potion'),0);g.world.move('N');assert.equal(g.state.qty('Potion'),1);assert.equal(g.state.data.healingSearchSteps,0);assert.equal(g.world.current().elementType,'Path');});
 test('walking never grants extra potions when healthy or already carrying one',()=>{const g=game();g.rng(0);for(let i=0;i<8;i++)g.world.move('N');assert.equal(g.state.qty('Potion'),0);g.state.data.hp.current=10;g.state.add('Potion');for(let i=0;i<8;i++)g.world.move('S');assert.equal(g.state.qty('Potion'),1);assert.equal(g.state.data.lastFind,null);});
 test('walking cannot grant healing during battle and does not erase a dragon',()=>{const g=game();const b=g.place('Dragon','dragon',27,0);b.dragonHp=600;g.combat.start();g.state.data.hp.current=10;assert.equal(g.world.move('N'),false);assert.equal(g.state.qty('Potion'),0);g.combat.flee();g.place('Nature','forest',27,1);g.rng(.99);g.world.move('N');assert.equal(g.world.current().elementType,'Dragon');assert.equal(g.world.current().dragonHp,600);assert.equal(g.state.qty('Potion'),0);});
-test('mushrooms spawn in Strongwood and heal without leaving the village',()=>{const g=game();g.rng(.5);const b=g.world.getOrCreateBlock(5,5);assert.equal(b.elementType,'Food');assert.equal(b.subtype,'mushrooms');g.state.data.x=5;g.state.data.y=5;g.state.data.hp.current=1;g.actions.eat();assert.equal(g.state.data.hp.current,50);});
+test('mushrooms spawn in Strongwood and heal without leaving the village',()=>{const g=game();const rolls=[.5,0];g.ctx.Math.random=()=>rolls.shift()??0;const b=g.world.getOrCreateBlock(5,5);assert.equal(b.elementType,'Food');assert.equal(b.subtype,'mushrooms');g.state.data.x=5;g.state.data.y=5;g.state.data.hp.current=1;g.actions.eat();assert.equal(g.state.data.hp.current,50);});
 test('walking pickup shows potion card and toast, then full healing clears the find',()=>{const g=game(new Map(),true);g.state.data.hp.current=10;g.ui.dispatch('move:N');assert.match(g.nodes.stage.innerHTML,/HEALING FOUND/);assert.match(g.nodes.stage.innerHTML,/DRINK POTION/);assert.match(g.nodes.toast.innerHTML,/POTION FOUND/);g.ui.dispatch('potion');assert.equal(g.state.data.hp.current,50);assert.equal(g.state.qty('Potion'),0);assert.equal(g.state.data.lastFind,null);assert.ok(!g.nodes.stage.innerHTML.includes('HEALING FOUND'));});
 test('walking north then south preserves every discovered encounter across reloads without rerolling',()=>{
   const content=game().content;
@@ -441,9 +441,9 @@ test('new-coordinate rates reserve quiet terrain, scarce NPCs and increased oute
     assert.ok(Math.abs(Object.values(rates).reduce((a,b)=>a+b,0)-100)<1e-10);
     const threats=['Danger','Enemy','Dragon'];
     if(!local){assert.ok(Math.abs(threats.reduce((sum,type)=>sum+rates[type],0)-20)<1e-10);assert.equal(rates.Danger,rates.Enemy);assert.equal(rates.Danger,4*rates.Dragon);}
-    const others=Object.entries(rates).filter(([type])=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&(local||!threats.includes(type)));
+    const others=Object.entries(rates).filter(([type])=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&type!=='Food'&&type!=='Shrine'&&(local||!threats.includes(type)));
     const totalWeight=others.reduce((sum,[type])=>sum+g.content.weights[type],0);
-    for(const [type,rate] of others)assert.ok(Math.abs(rate-(local?50:33.5)*g.content.weights[type]/totalWeight)<1e-10,type);
+    for(const [type,rate] of others)assert.ok(Math.abs(rate-((local?50:33.5)-2*(local?50/7:67/12))*g.content.weights[type]/totalWeight)<1e-10,type);
     assert.equal(Object.hasOwn(rates,'Home'),false);
     for(const type of g.content.outerOnly)assert.equal(Object.hasOwn(rates,type),type==='LockedItem'?false:!local);
     let start=0,i=0;
@@ -707,4 +707,33 @@ test('Hero quiet compass waits for village introductions and all five quests',()
   s.village.visionPending=false;g.ui.render();assert.match(g.nodes.stage.innerHTML,quiet);
   s.village.visits.tavern=false;g.ui.render();assert.doesNotMatch(g.nodes.stage.innerHTML,quiet);
   s.village.legacy=true;g.ui.render();assert.match(g.nodes.stage.innerHTML,quiet);
+});
+
+test('berries and shrines match original mushroom odds without reducing quiet ground or outer threats',()=>{
+  const g=game(),near=g.content.encounterRates(true),far=g.content.encounterRates(false);
+  assert.ok(Math.abs(near.Food/2-50/7)<1e-10);assert.ok(Math.abs(far.Food-67/12)<1e-10);assert.equal(far.Shrine,far.Food);assert.equal(near.Shrine,undefined);
+  for(const roll of [0,.49,.5,.999]){g.rng(roll);assert.equal(g.world.spawn('Food',40,5).subtype,'mushrooms');assert.equal(g.world.spawn('Food',5,5).subtype,roll<.5?'mushrooms':'wild-berries');}
+});
+test('berries heal ten safely once, cap at full, and leave a persistent clearing',()=>{
+  const g=game();g.place('Food','wild-berries',4,4);g.state.data.hp.current=35;assert.ok(g.actions.eat());assert.equal(g.state.data.hp.current,45);assert.equal(g.actions.eat(),false);g.state.save();g.state.load();assert.equal(g.world.current().elementType,'Nature');
+  g.place('Food','wild-berries',5,4);g.state.data.hp.current=48;g.actions.eat();assert.equal(g.state.data.hp.current,50);
+  g.place('Food','wild-berries',6,4);assert.equal(g.actions.eat(),false);assert.equal(g.world.current().subtype,'wild-berries');
+  g.place('Food','wild-berries',40,4);g.state.data.hp.current=20;assert.equal(g.actions.eat(),false);
+});
+test('shrine costs one metal ingot, heals fully once, and persists its spent state',()=>{
+  const g=game();const b=g.place('Shrine','wayside-shrine',40,10);g.state.data.hp.current=12;
+  assert.equal(g.actions.shrine(),false);g.state.add('SteelIngot',2);assert.equal(g.actions.shrine(),false);g.state.add('MetalIngot',2);
+  assert.equal(g.actions.shrine(),38);assert.equal(g.state.qty('MetalIngot'),1);assert.equal(g.state.qty('SteelIngot'),2);assert.equal(b.healingUsed,true);
+  g.state.load();g.state.data.hp.current=10;assert.equal(g.actions.shrine(),false);assert.equal(g.state.qty('MetalIngot'),1);assert.match(g.world.description(),/warmth has faded/);
+  g.world.move('E');g.world.move('W');assert.equal(g.actions.shrine(),false);assert.equal(g.world.current().subtype,'wayside-shrine');
+  const raw=JSON.parse(g.state.exportSave());assert.equal(g.state.prepareImport(JSON.stringify(raw)).blocks.find(t=>t.subtype==='wayside-shrine').healingUsed,true);raw.blocks.find(t=>t.subtype==='wayside-shrine').healingUsed='yes';assert.throws(()=>g.state.prepareImport(JSON.stringify(raw)),/valid/);
+});
+test('shrine refuses full health, Strongwood, and unfinished combat without spending ingots',()=>{
+  const g=game();g.state.add('MetalIngot',3);g.place('Shrine','wayside-shrine',40,10);assert.equal(g.actions.shrine(),false);g.state.data.hp.current=30;
+  for(const key of ['battle','outcome','foundLoot']){g.state.data[key]={};assert.equal(g.actions.shrine(),false);g.state.data[key]=null;}
+  g.place('Shrine','wayside-shrine',4,4);assert.equal(g.actions.shrine(),false);assert.equal(g.state.qty('MetalIngot'),3);
+});
+test('healing encounter buttons report costs and actual healing then return to Explore',()=>{
+  const g=game(new Map(),true);g.place('Food','wild-berries',4,4);g.state.data.hp.current=44;g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/EAT BERRIES · \+10 HP/);g.ui.dispatch('eat');assert.equal(g.ui.screen,'explore');assert.match(g.nodes.toast.innerHTML,/berries restore 6 HP/);
+  g.place('Shrine','wayside-shrine',40,10);g.state.data.hp.current=20;g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/1 METAL INGOT REQUIRED/);g.state.add('MetalIngot',1);g.ui.render();assert.match(g.nodes.stage.innerHTML,/OFFER 1 METAL INGOT · FULL HEAL/);g.ui.dispatch('shrine');assert.equal(g.ui.screen,'explore');assert.match(g.nodes.toast.innerHTML,/\+30 HP · 1 Metal Ingot offered/);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="shrine"/);
 });
