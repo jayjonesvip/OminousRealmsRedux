@@ -78,7 +78,7 @@ OR.ui=(()=>{
   }
   function tileActions(b){switch(b.elementType){
     case 'Puzzle':return P.ensure(b).claimed?'':btn('SOLVE PUZZLE','route:puzzle');
-    case 'Home':return V.allVisited()?'<p class="fine">Strongwood has helped you prepare. The path ahead is yours to choose.</p>':S.data.village?.legacy?'<p class="fine">Find wayfarer forges while exploring. Your map remembers each one.</p>':'<p class="fine">Start north. Follow the cobblestones to the Lantern Tavern, then onward to the wizard and herbalist.</p>';
+    case 'Home':return '';
     case 'Quest':return Q.offerHere()?btn('HEAR YOUR GRANDFATHER','quest:open'):'';
     case 'Landmark':return landmarkActions(b);
     case 'NPC':return '<div class="button-pair">'+btn('SPEAK','talk')+btn('ATTACK','npc-attack','outline')+'</div>';
@@ -97,12 +97,7 @@ OR.ui=(()=>{
   }
   function homeRecovery(){
     const s=S.data,status=S.restStatus();if(!status||s.outcome)return '';
-    return '<div class="home-recovery" data-home-recovery>'+eyebrow('STRONGWOOD COTTAGE · RESTING')+'<h2>LET THE HEARTH HEAL.</h2>'+
-      '<p>You recover automatically while at home—even with the game closed.</p>'+
-      '<div class="rest-status"><span>FULL HEALTH IN</span><strong id="rest-countdown" aria-label="Time until fully healed">'+restCountdown()+'</strong></div>'+
-      hpBar(s.hp.current,s.hp.max,'rest-progress')+
-      '<p class="rest-note">'+num(s.hp.current)+' / '+num(s.hp.max)+' HP · '+(s.hp.current<=1?'Recover above 1 HP before leaving.':'Leave whenever you like; healing stops outside.')+'</p>'+
-      (S.qty('Potion')?btn('USE POTION · HEAL INSTANTLY','potion','outline'):'')+'</div>';
+    return '<div class="home-rest-compact" data-home-recovery><span aria-hidden="true">◷</span><span>HEALING · FULL IN</span><strong id="rest-countdown" aria-label="Time until fully healed">'+restCountdown()+'</strong></div>';
   }
   function healingFind(){
     const s=S.data;
@@ -118,7 +113,7 @@ OR.ui=(()=>{
   function questToast(){if(!S.data||screen!=='explore')return;const n=Q.takeNotice();if(n)toast('GRANDFATHER · QUEST COMPLETE','reward',n.words+' '+n.rewards.map(r=>'+'+r.qty+' '+C.items[r.type].name).join(' · '));}
   function explore(encounter=false){if(V.visionActive())return grandfatherVision();if(Q.showOffer())return questOffer();const s=S.data,b=W.current(),interactive=['NPC','Danger','Enemy','Dragon','Food','BuriedItems','LockedItem','Craft','Puzzle','Landmark','Quest'].includes(b.elementType)&&!b.resolved;
     const suspended=s.battle?`<div class="resume-banner">${eyebrow('UNFINISHED BUSINESS')}<h2>THE FIGHT ISN’T OVER.</h2>${btn('RESUME BATTLE '+icon('battle'),'route:battle','danger')}</div>`:s.outcome?`<div class="resume-banner">${eyebrow('THE DUST HAS SETTLED')}<h2>${s.outcome.win?'VICTORY IS YOURS.':'YOU STILL BREATHE.'}</h2>${btn(s.outcome.win?'VIEW REWARDS':'RECOVER','route:aftermath',s.outcome.win?'primary':'outline')}</div>`:s.foundLoot?(s.foundLoot.source==='puzzle'?btn('SOLVE PUZZLE','route:puzzle'):btn('GATHER YOUR FIND','route:digging')):'';
-    const walking=!interactive&&!activeDialogue(b)&&!suspended&&!S.restStatus()&&!healingFind();
+    const walking=!interactive&&!activeDialogue(b)&&!suspended&&!healingFind();
     const prompts=['Home','Landmark','BuriedItems'].includes(b.elementType)?tileActions(b):interactive?tileActions(b):'';
     return `<section class="exploration-view${walking?' walking-view':''}${prompts?' has-encounter-actions':''}${['Dragon','BuriedItems','Puzzle'].includes(b.elementType)?' extended-actions':''}">${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${compass(suspended||prompts)}</div></section>`;
   }
@@ -251,6 +246,7 @@ OR.ui=(()=>{
     if(dialogue){while(dialogue.firstChild)actions.appendChild(dialogue.firstChild);dialogue.remove();tile?.remove();}
     else if(tile){while(tile.firstChild)actions.appendChild(tile.firstChild);tile.remove();}
     const metadata=view.querySelector('.scene-metadata');if(metadata)dock.appendChild(metadata);
+    const recovery=view.querySelector("[data-home-recovery]");if(recovery)dock.appendChild(recovery);
     dock.appendChild(compassBlock);if(actions.children.length)dock.appendChild(actions);
     view.appendChild(dock);
     let reservedHeight=previousDockHeight||0;

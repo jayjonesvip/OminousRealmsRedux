@@ -100,7 +100,7 @@ OR.village=(()=>{
   function pendingGift(){const b=OR.world.current();return b.elementType==='Landmark'&&destinations.includes(b.subtype)&&!completed(b.subtype);}
   function empty(b){return destinations.includes(b.subtype)&&completed(b.subtype);}
   function description(b){
-    if(b.elementType==='Home'&&allVisited())return 'Your hearth is here whenever you need it. The path you choose from here is your own.';
+    if(b.elementType==='Home'&&(allVisited()||S.data.village?.legacy||S.data.village?.visionSeen))return 'A warm hearth. A familiar bed. Rest here and recover.';
     if(b.elementType==='Home')return S.data.village?.legacy?'Your hearth is warm. Find wayfarer forges while exploring; your map remembers them.':'Follow the cobblestone path north to the Lantern Tavern. The people of Strongwood will help prepare you for the road.';
     if(b.elementType==='Path')return 'Weathered cobblestones wind through Strongwood. Follow the trail on your map; no wandering encounters disturb this path.';
     if(!destinations.includes(b.subtype)&&b.elementType!=='Landmark')return null;

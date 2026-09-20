@@ -267,3 +267,5 @@ body.outer-world .direction.trail-hint:not(:disabled){color:#e6c784;border-color
 body.outer-world .stat-cell.ready{color:#e6c784;box-shadow:inset 0 -2px #d4b16a}
 
 .button-pair>.btn:only-child{grid-column:1 / -1}
+
+.home-rest-compact{display:flex;align-items:center;gap:8px;padding:9px 11px;margin:0 0 10px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:500 12px/1.3 var(--display);letter-spacing:1px}.home-rest-compact>span:first-child{font:24px/1 var(--body);color:var(--gold)}.home-rest-compact strong{margin-left:auto;color:var(--cream);font-size:21px;font-variant-numeric:tabular-nums}
