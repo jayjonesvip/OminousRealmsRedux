@@ -24,6 +24,12 @@ OR.puzzles=(()=>{
   const runes=[{name:'Moon',symbol:'○'},{name:'Flame',symbol:'△'},{name:'Root',symbol:'◇'}];
   const levers=b=>W.local(b.x,b.y)?['Wolf','Stag','Raven']:['Raven','Wolf','Serpent'];
   const create=id=>patterns[id]?{variant:C.random(0,patterns[id].length-1),wheels:[0,0,0],progress:0,offered:0,solved:false,entered:false,claimed:false,rewards:null}:null;
+  function migrateUnique(){const seen=new Set(),history=new Set(S.data.puzzleHistory||[]),find=S.data.foundLoot;const priority=b=>b.questId?3:find?.source==='puzzle'&&find.x===b.x&&find.y===b.y?2:b.puzzle?.claimed?1:0;
+    for(const b of [...S.data.blocks].sort((a,b)=>priority(b)-priority(a))){if(!b.puzzle||!patterns[b.subtype])continue;const key=b.subtype+':'+b.puzzle.variant;history.add(key);if(seen.has(key)&&!b.questId&&!(find?.source==='puzzle'&&find.x===b.x&&find.y===b.y)){if(b.subtype==='puzzle-plate'&&b.puzzle.offered&&!b.puzzle.solved)S.add(patterns[b.subtype][b.puzzle.variant].item,b.puzzle.offered);Object.assign(b,{elementType:'Nature',subtype:'clearing',resolved:true});delete b.puzzle;}else seen.add(key);}
+    S.data.puzzleHistory=[...history];
+  }
+  function unused(){const used=new Set(S.data.puzzleHistory||[]);for(const b of S.data.blocks)if(b.puzzle&&patterns[b.subtype])used.add(b.subtype+':'+b.puzzle.variant);return Object.keys(patterns).flatMap(id=>patterns[id].map((_,variant)=>({id,variant}))).filter(p=>!used.has(p.id+':'+p.variant));}
+  function unique(quest=false){const pool=unused();const reserve=!S.data.quests?.completed?.includes('watchpost')&&!S.data.blocks.some(b=>b.questId==='watchpost');if(!pool.length||!quest&&reserve&&pool.length<=1)return null;const p=C.pick(pool);S.data.puzzleHistory=[...new Set([...(S.data.puzzleHistory||[]),...S.data.blocks.filter(b=>b.puzzle&&patterns[b.subtype]).map(b=>b.subtype+':'+b.puzzle.variant),p.id+':'+p.variant])];return {subtype:p.id,puzzle:{...create(p.id),variant:p.variant}};}
   function ensure(b=W.current()){
     if(b.elementType!=='Puzzle'||!patterns[b.subtype])return null;
     if(!b.puzzle){b.puzzle=create(b.subtype);if(S.data.blocks.includes(b))S.save();}
@@ -72,5 +78,5 @@ OR.puzzles=(()=>{
     }else return false;
     S.save();return result;
   }
-  return {patterns,runes,levers,create,ensure,pattern,clue,act};
+  return {patterns,runes,levers,create,migrateUnique,unused,unique,ensure,pattern,clue,act};
 })();

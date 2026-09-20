@@ -30,6 +30,7 @@ OR.state = (() => {
       OR.world?.migrateThreats();
       OR.world?.migrateNpcs();
       OR.quests?.migrate();
+      OR.puzzles?.migrateUnique();
       // Retire ambiguous legacy banners without rewriting the journal history.
       if(['Not every shadow needs your steel.','You leave it to the forest.','Another day. Another fight.'].includes(data.message))data.message='';
       // Older saves kept cleared encounters as resolved clearings without a flag.
