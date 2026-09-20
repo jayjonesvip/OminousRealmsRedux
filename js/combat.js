@@ -2,8 +2,17 @@
 OR.combat=(()=>{
   const S=OR.state,C=OR.content,W=OR.world;
   const damage=(base,move,resistance,lucky=false)=>Math.random()<Math.min(100,move.accuracy+(lucky?5:0))/100?(base+move.power)*(1-Math.min(95,Math.max(0,resistance))/100):0;
+  const wildlife={
+    'large-rat':{min:12,max:18,base:2,extra:2},
+    'rabid-rabbit':{min:10,max:14,base:2,extra:2},
+    snake:{min:14,max:20,base:3,extra:3},
+    spider:{min:14,max:20,base:3,extra:3},
+    bat:{min:12,max:18,base:2,extra:3}
+  };
+  function lightCreature(id,hp,base,extra){const natural=C.creature(id,1);return {id,name:C.entities[id].name,level:1,hp,maxHp:hp,...natural,basePower:base,resistance:0,moves:natural.moves.map(m=>({...m,power:Math.min(extra,m.power),accuracy:Math.min(90,m.accuracy)}))};}
+  function migrateWildlife(){const b=S.data?.battle;if(!b)return;const id=b.enemyId,local=W.local(b.x,b.y);if(!wildlife[id]&&id!=='mud-biter')return;const p=local?{max:10,base:1,extra:2}:wildlife[id];if(!p)return;const e=b.enemy,max=Math.min(e.maxHp||p.max,p.max),hp=Math.min(e.hp,max);Object.assign(e,lightCreature(id,max,p.base,p.extra),{hp});}
   function enemy(block){
-    if(block.subtype==='large-rat'){const hp=C.random(12,18);return {id:block.subtype,name:C.entities[block.subtype].name,level:1,hp,maxHp:hp,basePower:2,...C.creature(block.subtype,1)};}
+    const profile=wildlife[block.subtype];if(profile&&!W.local(block.x,block.y))return lightCreature(block.subtype,C.random(profile.min,profile.max),profile.base,profile.extra);
     if(block.elementType==='Danger'&&W.local(block.x,block.y)){
       const natural=C.creature(block.subtype,1),hp=C.random(6,10);
       return {id:block.subtype,name:C.entities[block.subtype].name,level:1,hp,maxHp:hp,basePower:1,weapon:null,attackStyle:natural?.attackStyle||'Claws',defense:null,resistance:0,moves:(natural?.moves||[{name:'Bite',power:0,accuracy:80}]).map(m=>({...m,power:Math.min(2,m.power),accuracy:Math.min(85,m.accuracy)}))};
@@ -72,5 +81,5 @@ OR.combat=(()=>{
   const canBribe=()=>!!S.data?.battle&&['ogre','gargoyle','troll'].includes(S.data.battle.enemyId)&&!OR.quests?.atTarget(W.current());
   function bribe(){if(!canBribe()||!S.qty('Gem'))return false;S.add('Gem',-1);return finish(true,true);}
   function claim(){if(!S.data?.outcome)return false;if(!S.data.outcome.win)W.current().resolved=true;S.data.outcome=null;S.save();return true;}
-  return {damage,enemy,start,attack,flee,canBribe,bribe,claim,levelUp};
+  return {damage,migrateWildlife,enemy,start,attack,flee,canBribe,bribe,claim,levelUp};
 })();

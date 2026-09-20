@@ -355,8 +355,8 @@ test('creatures use natural attacks and small creatures have no armor at any lev
 });
 
 test('an existing creature battle sheds old equipment without losing health or progress',()=>{
-  const g=game();g.place('Danger','bat');g.combat.start();const e=g.state.data.battle.enemy;
-  Object.assign(e,{hp:12,weapon:'Knife',resistance:15,moves:g.content.weapon('Knife').moves.filter(m=>!m.magic)});
+  const g=game();g.place('Danger','bat',30,3);g.combat.start();const e=g.state.data.battle.enemy;
+  Object.assign(e,{hp:12,maxHp:50,weapon:'Knife',resistance:15,moves:g.content.weapon('Knife').moves.filter(m=>!m.magic)});
   delete e.attackStyle;delete e.defense;g.state.data.battle.round=4;g.state.save();g.state.load();
   const saved=g.state.data.battle;assert.equal(saved.round,4);assert.equal(saved.enemy.hp,12);
   assert.equal(saved.enemy.weapon,null);assert.equal(saved.enemy.resistance,0);
@@ -671,3 +671,6 @@ test('enemy encounter and battle artwork agree with the realm',()=>{for(const id
 
 test('only nonquest ogres gargoyles and trolls can be bribed or show the button',()=>{for(const [type,id] of [['Enemy','ogre'],['Enemy','gargoyle'],['Enemy','troll'],['Danger','snake'],['Danger','bat'],['Danger','spider'],['Danger','rabid-rabbit'],['Danger','large-rat'],['Danger','mud-biter'],['Danger','skeleton'],['Dragon','dragon']]){const g=game(new Map(),true);const b=g.place(type,id,30,3);if(type==='Dragon')b.dragonHp=500;g.state.add('Gem');g.rng(.999);g.combat.start();g.ui.route('battle');const allowed=['ogre','gargoyle','troll'].includes(id);assert.equal(g.combat.canBribe(),allowed);assert.equal(g.nodes.stage.innerHTML.includes('BRIBE · 1 GEM'),allowed);if(!allowed){assert.equal(g.combat.bribe(),false);assert.equal(g.state.qty('Gem'),1);assert.ok(g.state.data.battle);}}});
 
+
+test('Outer wildlife stays modest at high levels and old rat battles retain damage',()=>{const g=game();g.state.data.level=10;for(const [id,max] of [['large-rat',18],['rabid-rabbit',14],['snake',20],['spider',20],['bat',18]]){const e=g.combat.enemy(g.place('Danger',id,30,3));assert.ok(e.hp<=max);assert.equal(e.resistance,0);}g.place('Danger','large-rat',30,3);g.combat.start();Object.assign(g.state.data.battle.enemy,{hp:7,maxHp:50});g.state.save();g.state.load();assert.equal(g.state.data.battle.enemy.maxHp,18);assert.equal(g.state.data.battle.enemy.hp,7);});
+test('empty chests select woodland or scorched artwork by coordinate',()=>{for(const x of [3,30]){const g=game(new Map(),true);g.place('Thing','empty-chest',x,3);g.ui.route('explore');assert.ok(g.nodes.stage.innerHTML.includes('assets/chest-'+(x===3?'village':'outer')+'.png'));}});

@@ -38,6 +38,7 @@ OR.state = (() => {
       if(data.foundLoot&&(!['dig','puzzle'].includes(data.foundLoot.source)||!Array.isArray(data.foundLoot.rewards)||!data.foundLoot.rewards.length||!data.foundLoot.rewards.every(r=>r&&OR.content.items[r.type]&&Number.isSafeInteger(r.qty)&&r.qty>0)))data.foundLoot=null;
       if (data.battle && (!data.battle.enemy || !Number.isFinite(data.battle.enemy.hp) || !Array.isArray(data.battle.enemy.moves))) data.battle=null;
       if(data.battle){const e=data.battle.enemy;Object.assign(e,OR.content.creature(e.id,e.level||data.level));}
+      OR.combat?.migrateWildlife();
       syncRest();
       return data;
     } catch (_) {storageError='Device storage is unavailable or the save is damaged. Progress may not persist.';return null;}
