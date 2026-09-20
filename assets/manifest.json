@@ -16,7 +16,9 @@
     "file": "badger-village.png"
   },
   "bat": {
-    "file": "bat.png"
+    "file": "bat.png",
+    "outer": "bat.png",
+    "village": "bat-village.png"
   },
   "chest": {
     "outer": "chest-outer.png",
@@ -214,10 +216,14 @@
     "file": "skeleton.png"
   },
   "snake": {
-    "file": "snake.png"
+    "file": "snake.png",
+    "outer": "snake.png",
+    "village": "snake-village.png"
   },
   "spider": {
-    "file": "spider.png"
+    "file": "spider.png",
+    "outer": "spider.png",
+    "village": "spider-village.png"
   },
   "squirrel": {
     "outer": "squirrel-outer.png",
@@ -442,7 +448,9 @@
     "file": "outer-realm-border.png"
   },
   "rabid-rabbit": {
-    "file": "rabid-rabbit.png"
+    "file": "rabid-rabbit.png",
+    "village": "rabid-rabbit.png",
+    "outer": "rabid-rabbit-outer.png"
   },
   "large-rat": {
     "file": "large-rat.png"
