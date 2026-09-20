@@ -14,7 +14,7 @@ function game(storage=new Map(),ui=false){
   const nodes=Object.fromEntries(['hud','stage','nav','modal','toast','combat-toasts'].map(id=>[id,mockNode()]));
   const ctx={console,Math:Object.create(Math),localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setInterval:()=>1,clearInterval(){},setTimeout:()=>1,clearTimeout,matchMedia:()=>({matches:true}),scrollY:0,scrollTo(){},history:{pushState(){},replaceState(){}},location:{hash:''},addEventListener(){},document:{createElement:mockNode,getElementById:id=>nodes[id],querySelector:()=>null,addEventListener(){},body:{classList:{toggle(){}}}}};
   ctx.window=ctx;vm.createContext(ctx);
-  for(const file of ['content','dialogue','state','world','village','puzzles','combat','actions','quests',...(ui?['ui']:[])])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),ctx,{filename:file+'.js'});
+  for(const file of ['content','dialogue','state','world','village','puzzles','combat','actions','quests',...(ui?['ui-battle','ui']:[])])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),ctx,{filename:file+'.js'});
   const g=ctx.OR;g.state.create('Rowan','Sword');g.world.current();g.state.save();
   return {...g,storage,ctx,nodes,rng:n=>ctx.Math.random=()=>n,place:(type,subtype,x=3,y=3)=>{g.state.data.x=x;g.state.data.y=y;let b=g.world.at(x,y);if(!b){b={x,y};g.state.data.blocks.push(b);}Object.assign(b,{elementType:type,subtype,resolved:false});return b;}};
 }

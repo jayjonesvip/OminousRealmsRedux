@@ -2,9 +2,9 @@
 OR.ui=(()=>{
   const S=OR.state,C=OR.content,W=OR.world,A=OR.actions,B=OR.combat,P=OR.puzzles,V=OR.village,Q=OR.quests;
   const $=id=>document.getElementById(id);
-  let vitalitySnapshot=null,damageTimer=null,roundPhase=null,roundStartHealth=null,forgeFocus='armor',forgeSingle=false,hudObserver=null;
+  let vitalitySnapshot=null,damageTimer=null,forgeFocus='armor',forgeSingle=false,hudObserver=null;
   function syncHudHeight(){const navHeight=$('nav').getBoundingClientRect?.().height;if(navHeight>0)$('stage').style?.setProperty('--nav-height',navHeight+'px');const height=$('hud').getBoundingClientRect?.().height;if(height>0)for(const id of ['stage','toast','combat-toasts'])$(id).style?.setProperty('--hud-height',height+'px');}
-  const visibleHealth=()=>combatBusy&&roundPhase==='player'&&roundStartHealth?roundStartHealth:S.data.hp;
+  const visibleHealth=()=>combatUI.busy&&combatUI.phase==='player'&&combatUI.startHealth?combatUI.startHealth:S.data.hp;
   function damageFeedback(){
     const stage=$('stage');clearTimeout(damageTimer);stage.classList.remove('damage-taken');void stage.offsetWidth;stage.classList.add('damage-taken');
     damageTimer=setTimeout(()=>{stage.classList.remove('damage-taken');document.querySelector('.health-cell')?.classList.remove('vitality-damaged');document.querySelector('.vitality-loss')?.remove();},1400);
@@ -12,7 +12,7 @@ OR.ui=(()=>{
   const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const num=n=>Number(Number(n).toFixed(1));
   let pendingImport=null;
-  let screen='title',step=0,chosen='Sword',typing=null,typeFinish=null,toastTimer=null,focusBefore=null,roundPlayback=null,roundTimer=null,combatBusy=false,restTimer=null;
+  let screen='title',step=0,chosen='Sword',typing=null,typeFinish=null,toastTimer=null,focusBefore=null,restTimer=null;
   const paths={explore:'M12 2 4 21l8-5 8 5-8-19Zm0 4v10',battle:'m4 3 13 13M3 3l1 5 4-4-5-1Zm17 0L7 16m14-13-1 5-4-4 5-1ZM3 16l5 5m8-5 5 5M5 18l-3 3m17-3 3 3',pack:'M7 7V5a5 5 0 0 1 10 0v2M5 7h14l2 14H3L5 7Zm3 5h8v5H8z',map:'m2 5 6-3 8 3 6-3v17l-6 3-8-3-6 3V5Zm6-3v17m8-14v17',hero:'M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0ZM4 22v-3a8 8 0 0 1 16 0v3',arrow:'M4 12h16m-7-7 7 7-7 7',forge:'m5 3 8 8-4 4-8-8 4-4Zm6 10 9 9m-4-8 5-5 2 2-5 5',journal:'M5 2h15v20H5a3 3 0 0 1 0-6h15M5 2v14m4-9h7m-7 4h7',heart:'M12 21 3 12C-3 4 7-2 12 6c5-8 15-2 9 6l-9 9Z',close:'m5 5 14 14M19 5 5 19',shield:'M12 2 3 6v7c0 5 9 9 9 9s9-4 9-9V6l-9-4Z',north:'m5 15 7-7 7 7',south:'m5 9 7 7 7-7',east:'m9 5 7 7-7 7',west:'m15 5-7 7 7 7'};
   const icon=(id,cls='')=>`<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[id]||paths.shield}"/></svg>`;
   const art=(id,alt,cls='',extra='')=>`<img class="${cls}" src="assets/${id}.png" alt="${escape(alt)}" ${extra}>`;
@@ -23,6 +23,8 @@ OR.ui=(()=>{
   function asset(b){if(['Danger','Enemy','Dragon'].includes(b.elementType))return enemyArt(b.subtype,b.x,b.y);if(['large-rat','mud-biter'].includes(b.subtype))return b.subtype;if(b.subtype==='rabid-rabbit')return 'rabid-rabbit';if(b.elementType==='Border')return 'outer-realm-border';if(b.subtype==='grandfather-echo')return 'forest-outer';if(b.subtype==='empty-chest')return 'chest-'+(W.local(b.x,b.y)?'village':'outer');if(b.elementType==='Home')return 'home-interior';if(['exile','gravekeeper','hermit'].includes(b.subtype))return b.subtype+'-outer';if(b.elementType==='Landmark'||V.destinations.includes(b.subtype))return b.subtype==='village-forge'?'forge-village':b.subtype+'-village'+(V.empty(b)?'-empty':'');const paired=['Home','Nature','NPC','Food','Animal','Thing','Dragon','LockedItem','BuriedItems','Craft','Puzzle','Path'].includes(b.elementType);return b.subtype+(paired?(W.local(b.x,b.y)?'-village':'-outer'):'');}
   const playerArt=()=>`warrior-${S.data.weapon.type.toLowerCase()}`;
   function hpBar(current,max,cls=''){const p=Math.max(0,Math.min(100,current/max*100));return `<div class="hp-track ${p<=25?'critical':p<=50?'wounded':''} ${cls}" role="progressbar" aria-label="Health" aria-valuenow="${num(current)}" aria-valuemin="0" aria-valuemax="${num(max)}"><span style="width:${p}%"></span></div>`;}
+  const combatUI=OR.createBattleUI({$,escape,num,art,enemyArt,playerArt,eyebrow,hpBar,btn,visibleHealth,render,route,explore,hideNotice:()=>{clearTimeout(toastTimer);$('toast').classList.remove('show');}});
+  const {battle,clearCombatToasts,combatToast,roundToast,showAmbush}=combatUI;
   function hud(){const s=S.data;if(!s){vitalitySnapshot=null;$('hud').hidden=true;$('nav').hidden=true;return;}const hp=visibleHealth();const lost=vitalitySnapshot?.data===s?Math.max(0,vitalitySnapshot.hp-hp.current):0,previousPercent=vitalitySnapshot?Math.min(100,100*vitalitySnapshot.hp/vitalitySnapshot.max):0;vitalitySnapshot={data:s,hp:hp.current,max:hp.max};const local=W.local(s.x,s.y),pack=s.inventory.reduce((n,i)=>n+i.qty,0);$('hud').hidden=false;$('nav').hidden=false;
     $('hud').innerHTML=`<div class="hud-place"><span class="realm-chip ${local?'':'outer'}">${icon('explore')}${local?'STRONGWOOD':'OUTER REALM'}</span><button class="coords" data-action="route:map" aria-label="Open map">${W.coords(s.x,s.y)} ${icon('map')}</button></div><div class="hud-stats"><div class="health-cell ${lost?'vitality-damaged':''}" style="--hp-before:${previousPercent}%">${lost?`<span class="vitality-loss" role="status" aria-live="polite">−${num(lost)} HP</span>`:''}<div class="micro">VITALITY ${S.qty('Potion')&&hp.current<hp.max?`<button class="quick-heal" data-action="potion" aria-label="Heal with potion">HEAL +</button>`:''}</div><strong>${num(hp.current)}<small> / ${num(hp.max)}</small></strong>${hpBar(hp.current,hp.max)}</div><button data-action="route:hero" class="stat-cell"><span>LVL</span><strong>${s.level}</strong><small>WARRIOR</small></button><button data-action="equipment:weapon" aria-label="${A.canCraft()?'Enhance weapon':'Weapon details'}" class="stat-cell ${S.qty('SteelIngot')>=A.weaponCost()?'ready':''}"><span>WPN</span><strong>${s.weapon.basePower}</strong><small>POWER</small></button><button data-action="equipment:armor" aria-label="${A.canCraft()?'Enhance armor':'Armor details'}" class="stat-cell ${S.qty('MetalIngot')>=A.armorCost()&&s.armor.resistance<95?'ready':''}"><span>ARM</span><strong>${s.armor.resistance}</strong><small>RESIST %</small></button><button data-action="route:pack" class="stat-cell"><span>PACK</span><strong>${pack}</strong><small>ITEMS</small></button></div>${S.error?`<p class="storage-error">${escape(S.error)}</p>`:''}`;
     if(lost)damageFeedback();
@@ -117,52 +119,6 @@ OR.ui=(()=>{
     const walking=!interactive&&!activeDialogue(b)&&!suspended&&!healingFind();
     const prompts=['Home','Landmark','BuriedItems'].includes(b.elementType)?tileActions(b):interactive?tileActions(b):'';
     return `<section class="exploration-view${walking?' walking-view':''}${prompts?' has-encounter-actions':''}${['Dragon','BuriedItems','Puzzle'].includes(b.elementType)?' extended-actions':''}">${scene(b,encounter)}<div class="explore-body">${healingFind()}${homeRecovery()}${compass(suspended||prompts)}</div></section>`;
-  }
-  let combatToasts=[];
-  function clearCombatToasts(){for(const entry of combatToasts){clearTimeout(entry.timer);entry.node.remove();}combatToasts=[];}
-  function combatToast(kind,title,detail,value=''){
-    clearTimeout(toastTimer);$('toast').classList.remove('show');
-    // Keep the latest pair stacked below the HUD; notices never take page space.
-    while(combatToasts.length>=2){const oldest=combatToasts.shift();clearTimeout(oldest.timer);oldest.node.remove();}
-    const node=document.createElement('div');node.className='round-event '+kind+' combat-toast';
-    node.innerHTML='<span><b>'+escape(title)+'</b><small>'+escape(detail)+'</small></span>'+(value?'<strong>'+escape(value)+'</strong>':'');
-    $('combat-toasts').appendChild(node);
-    const entry={node,timer:null};combatToasts.push(entry);
-    entry.timer=setTimeout(()=>{node.remove();combatToasts=combatToasts.filter(item=>item!==entry);},5000);
-  }
-  function roundToast(r,enemy=false){
-    if(r.received===null){
-      if(!enemy){
-        if(r.stagger)combatToast('hit','STAGGERED',r.move+' staggered '+(S.data.battle?.enemy.name||'the enemy')+' · ROUND '+r.round+' · NO COUNTER',num(r.dealt)+' DMG');
-        else combatToast(r.magic?'magic-hit':'hit','ENEMY VANQUISHED',r.move+' vanquished '+S.data.outcome.enemy+' · ROUND '+r.round,num(r.dealt)+' DMG');
-      }
-      return;
-    }
-    const amount=enemy?r.received:r.dealt,kind=amount>0?(enemy?'hurt':r.magic?'magic-hit':'hit'):'miss';
-    combatToast(kind,enemy?(amount>0?'YOU TOOK DAMAGE':'ENEMY MISSED'):(amount>0?'YOU HIT':'YOU MISSED'),
-      (enemy?r.reply:r.move)+' · ROUND '+r.round,amount>0?(enemy?'−'+num(amount)+' HP':num(amount)+' DMG'):'MISS');
-  }
-  function battle(){
-    const s=S.data,b=s.battle||roundPlayback;if(!b)return explore();
-    const e=b.enemy,outer=!W.local(b.x,b.y),r=b.lastRound,hp=visibleHealth(),playerBeat=roundPhase==='player';
-    const shake=combatBusy&&r&&(playerBeat?r.dealt>0:r.received>0);
-    const actor=(enemy,portrait=false)=>{
-      const amount=playerBeat?r?.dealt:r?.received,attacking=enemy?!playerBeat:playerBeat;
-      const borderClass=combatBusy&&amount!==null&&amount!==undefined&&(amount>0||attacking)?' fighter-pulse '+(amount>0?(attacking?'border-hit':'border-hurt'):'border-miss'):'';
-      const wrapper='<div class="fighter '+(enemy?'enemy':'player')+borderClass+'">';
-      if(portrait)return wrapper+'<div class="fighter-art">'+
-        art(enemy?enemyArt(e.id,b.x,b.y):playerArt(),enemy?e.name:s.name,'cover')+
-        '</div></div>';
-      return wrapper+'<div class="fighter-info">'+
-        eyebrow((enemy?'ENEMY':'YOU')+' · LVL '+(enemy?e.level:s.level))+'<h2>'+escape(enemy?e.name:s.name)+'</h2><span>'+
-        (enemy?(e.attackStyle?escape(e.attackStyle)+(e.defense?' · '+escape(e.defense)+' '+e.resistance+'%':''):e.weapon+' · '+e.resistance+'% ARM'):s.weapon.type+' · '+s.armor.resistance+'% ARM')+'</span>'+
-        hpBar(enemy?e.hp:hp.current,enemy?e.maxHp:hp.max)+'<b>'+num(enemy?e.hp:hp.current)+' <small>/ '+num(enemy?e.maxHp:hp.max)+' HP</small></b></div></div>';
-    };
-    return '<section class="battle-screen '+(shake?'combat-impact':'')+'">'+
-      '<div class="arena">'+actor(false,true)+'<span class="vs">VS</span>'+actor(true,true)+'</div><div class="battle-status" role="region" aria-label="Fighter health">'+actor(false)+actor(true)+'</div><div class="battle-body">'+
-      '<div class="section-label"><span>'+(combatBusy?(playerBeat?'YOUR ATTACK':'ENEMY RESPONSE'):'MAKE YOUR MOVE')+'</span>'+(S.qty('LuckyCoin')?'<span class="gold">LUCK +5% ACC</span>':'<span>'+(combatBusy?'STEEL IN MOTION':'YOUR TURN')+'</span>')+'</div><div class="moves">'+
-      s.weapon.moves.map((m,i)=>'<button class="move '+(m.magic?'magic':'')+'" data-action="attack:'+i+'" '+(combatBusy||(m.magic&&(!s.enchanted||!S.qty('MagicCrystal')))?'disabled':'')+'><span><strong>'+m.name.toUpperCase()+'</strong><small>'+(m.magic?(!s.enchanted?'SEEK THE VILLAGE WIZARD':S.qty('MagicCrystal')?'CONSUMES 1 CRYSTAL':'MAGIC CRYSTAL REQUIRED'):m.description)+'</small></span><span class="move-stats"><b>'+(s.weapon.basePower+m.power)+'<small>PWR</small></b><b>'+Math.min(100,m.accuracy+(S.qty('LuckyCoin')?5:0))+'%<small>ACC</small></b></span></button>').join('')+
-      '</div><div class="button-pair">'+btn('FLEE','flee','outline',combatBusy?'disabled':'')+(B.canBribe()?btn('BRIBE · 1 GEM','bribe','outline',combatBusy||!S.qty('Gem')?'disabled':''):'')+'</div><p class="fine centered">Fall, and rise again. Your health never falls below 1.</p></div></section>';
   }
   function rewardList(rewards){
     const totals=new Map();for(const r of rewards||[])if(C.items[r.type])totals.set(r.type,(totals.get(r.type)||0)+r.qty);
@@ -263,14 +219,13 @@ OR.ui=(()=>{
     if(typeof ResizeObserver!=='undefined'){exploreDockObserver=new ResizeObserver(measure);exploreDockObserver.observe(dock);exploreDockObserver.observe($('nav'));}
   }
   function render(keepScroll=false){if(S.syncRest().changed)S.save();if(typeFinish)typeFinish();const pos=window.scrollY;document.body.classList.toggle('in-game',!!S.data);document.body.classList.toggle('outer-world',!!S.data&&!W.local(S.data.x,S.data.y));const views={title,embark,explore,encounter:()=>explore(true),battle,aftermath,pack,forge,puzzle,digging,village,map,hero,journal};$('stage').innerHTML=(views[screen]||explore)()+(screen==='hero'?`<div class="page">${btn('RETURN TO TITLE','route:title','text')}</div>`:'');hud();syncHudHeight();mountExploreDock();typewriter();window.scrollTo({top:keepScroll?pos:0,left:0,behavior:'instant'});}
-  function route(id,replace=false,keepCombatToasts=false){if(!keepCombatToasts)clearCombatToasts();clearTimeout(roundTimer);roundPlayback=null;combatBusy=false;roundPhase=null;roundStartHealth=null;const allowed=['title','embark','explore','encounter','battle','aftermath','pack','forge','puzzle','digging','village','map','hero','journal'];if(!allowed.includes(id))id=S.data?'explore':'title';if(!S.data&&!['title','embark'].includes(id))id='title';if(S.data&&id==='embark')id='explore';if(id==='village'&&(!S.data||W.current().elementType!=='Landmark'||!activeDialogue(W.current())))id='explore';if(id==='digging'&&(!S.data||W.current().elementType!=='BuriedItems'&&S.data.foundLoot?.source!=='dig'||S.data.battle||S.data.outcome))id='explore';if(id==='puzzle'&&(!S.data||W.current().elementType!=='Puzzle'||S.data.battle||S.data.outcome))id='explore';if(id==='battle'&&!S.data?.battle)id='explore';if(id==='aftermath'&&!S.data?.outcome)id='explore';screen=id;if(S.data){S.data.state=S.data.battle?'Battle':id==='encounter'?'Interacting':'Explore';S.save();}history[replace?'replaceState':'pushState'](null,'','#'+id);if(!(id==='battle'&&S.data.battle?.ambushed&&!S.data.battle.ambushPresented))render();$('stage').focus({preventScroll:true});if(id==='battle'&&S.data.battle?.ambushed&&!S.data.battle.ambushPresented)showAmbush();else if(id==='battle'&&S.data.battle&&!S.data.battle.lastRound)combatToast('opening','CHOOSE YOUR OPENING',S.data.battle.enemy.name+' awaits your move. · ROUND '+S.data.battle.round);}
-  function showAmbush(){const b=S.data.battle;if(!b||b.ambushPresented)return;b.ambushPresented=true;S.save();combatBusy=true;roundPhase='enemy';render();roundToast(b.lastRound,true);roundTimer=setTimeout(()=>{combatBusy=false;roundPhase=null;render(true);},950);}
+  function route(id,replace=false,keepCombatToasts=false){if(!keepCombatToasts)clearCombatToasts();combatUI.reset();const allowed=['title','embark','explore','encounter','battle','aftermath','pack','forge','puzzle','digging','village','map','hero','journal'];if(!allowed.includes(id))id=S.data?'explore':'title';if(!S.data&&!['title','embark'].includes(id))id='title';if(S.data&&id==='embark')id='explore';if(id==='village'&&(!S.data||W.current().elementType!=='Landmark'||!activeDialogue(W.current())))id='explore';if(id==='digging'&&(!S.data||W.current().elementType!=='BuriedItems'&&S.data.foundLoot?.source!=='dig'||S.data.battle||S.data.outcome))id='explore';if(id==='puzzle'&&(!S.data||W.current().elementType!=='Puzzle'||S.data.battle||S.data.outcome))id='explore';if(id==='battle'&&!S.data?.battle)id='explore';if(id==='aftermath'&&!S.data?.outcome)id='explore';screen=id;if(S.data){S.data.state=S.data.battle?'Battle':id==='encounter'?'Interacting':'Explore';S.save();}history[replace?'replaceState':'pushState'](null,'','#'+id);if(!(id==='battle'&&S.data.battle?.ambushed&&!S.data.battle.ambushPresented))render();$('stage').focus({preventScroll:true});if(id==='battle'&&S.data.battle?.ambushed&&!S.data.battle.ambushPresented)showAmbush();else if(id==='battle'&&S.data.battle&&!S.data.battle.lastRound)combatToast('opening','CHOOSE YOUR OPENING',S.data.battle.enemy.name+' awaits your move. · ROUND '+S.data.battle.round);}
   function toast(text,kind='notice',detail=''){clearCombatToasts();$('toast').className='toast-'+kind;$('toast').innerHTML='<strong>'+escape(text)+'</strong>'+(detail?'<span>'+escape(detail)+'</span>':'');$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),detail?5500:3300);}
   function exportJourney(){try{const blob=new Blob([S.exportSave()],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='ominousrealms-save.json';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('SAVE DOWNLOADED','reward','Keep this file to restore your journey.');}catch(e){toast('SAVE FAILED','danger',e.message);}}
-  function previewImport(raw){pendingImport=null;try{const candidate=S.prepareImport(raw);if(combatBusy)throw Error('Wait until the attack finishes, then choose your save again.');pendingImport=JSON.stringify(candidate);focusBefore=document.activeElement;$('modal').innerHTML=eyebrow('RESTORE JOURNEY')+'<h2 id="modal-title">REPLACE THIS JOURNEY?</h2><p>'+escape(candidate.name)+' · LEVEL '+candidate.level+' · '+escape(W.coords(candidate.x,candidate.y))+'</p><p>'+candidate.blocks.length+' places discovered · '+(candidate.quests?.completed?.length||0)+' quests completed.</p><p class="warning">Your current journey will be replaced. Download it first if you want to keep it.</p>'+btn('KEEP CURRENT JOURNEY','cancel-modal','outline')+btn('RESTORE THIS SAVE','confirm-import','danger');$('modal').showModal();$('modal').querySelector('button').focus();return true;}catch(e){toast('INVALID SAVE','danger',e.message);return false;}}
+  function previewImport(raw){pendingImport=null;try{const candidate=S.prepareImport(raw);if(combatUI.busy)throw Error('Wait until the attack finishes, then choose your save again.');pendingImport=JSON.stringify(candidate);focusBefore=document.activeElement;$('modal').innerHTML=eyebrow('RESTORE JOURNEY')+'<h2 id="modal-title">REPLACE THIS JOURNEY?</h2><p>'+escape(candidate.name)+' · LEVEL '+candidate.level+' · '+escape(W.coords(candidate.x,candidate.y))+'</p><p>'+candidate.blocks.length+' places discovered · '+(candidate.quests?.completed?.length||0)+' quests completed.</p><p class="warning">Your current journey will be replaced. Download it first if you want to keep it.</p>'+btn('KEEP CURRENT JOURNEY','cancel-modal','outline')+btn('RESTORE THIS SAVE','confirm-import','danger');$('modal').showModal();$('modal').querySelector('button').focus();return true;}catch(e){toast('INVALID SAVE','danger',e.message);return false;}}
   async function readSaveFile(file){if(!file)return;try{if(file.size>10000000)throw Error('Choose a save file smaller than 10 MB.');previewImport(await file.text());}catch(e){toast('SAVE COULD NOT BE READ','danger',e.message);}}
   function confirmReset(){focusBefore=document.activeElement;$('modal').innerHTML=`${eyebrow('IRREVERSIBLE DECISION')}<h2 id="modal-title">RETIRE THIS WARRIOR?</h2><p>Your warrior, discovered world, pack, and journal will be erased.</p><p class="warning">THIS CANNOT BE UNDONE.</p>${btn('KEEP DEFENDING','cancel-modal','outline')}${btn('ERASE MY JOURNEY','confirm-reset','danger')}`;$('modal').showModal();$('modal').querySelector('button').focus();}
-  function dispatch(action){if(combatBusy)return;const [key,value]=action.split(':');
+  function dispatch(action){if(combatUI.busy)return;const [key,value]=action.split(':');
     if(key==='route'){route(value);return;}
     if(key==='embark'){step=0;chosen='Sword';route('embark');return;}
     if(key==='back-embark'){if(step){step--;render();}else route('title');return;}
@@ -321,18 +276,7 @@ OR.ui=(()=>{
       case 'unlock':if(A.unlock()){route('explore');toast('CHEST OPENED','reward',S.data.message);}break;
       case 'craft':if(A.craft(value)){forgeFocus=value;toast(value==='armor'?'ARMOR REINFORCED':'WEAPON ENHANCED');render(true);}break;
       case 'fight':if(B.start()){if(S.data.outcome){route('aftermath');roundToast(S.data.outcome.lastRound,true);}else route('battle');}break;
-      case 'attack':{
-        const previous=S.data.battle,before={...S.data.hp};
-        if(!B.attack(Number(value)))break;
-        roundPlayback=previous;roundStartHealth=before;roundPhase='player';combatBusy=true;clearCombatToasts();render(true);roundToast(previous.lastRound);
-        const finish=()=>{roundPlayback=null;roundStartHealth=null;roundPhase=null;combatBusy=false;if(S.data.outcome)route('aftermath',false,true);else{render(true);document.querySelector('[data-action="attack:'+Number(value)+'"]:not(:disabled)')?.focus({preventScroll:true});}};
-        roundTimer=setTimeout(()=>{
-          if(previous.lastRound.received===null){finish();return;}
-          roundPhase='enemy';render(true);roundToast(previous.lastRound,true);
-          roundTimer=setTimeout(finish,950);
-        },950);
-        break;
-      }
+      case 'attack':combatUI.playAttack(value);break;
       case 'flee':if(B.flee()){route('explore');toast(S.data.message,'danger');}break;
       case 'bribe':if(B.bribe())route('aftermath');break;
       case 'claim':case 'recover':{
@@ -349,7 +293,7 @@ OR.ui=(()=>{
     const wasUnableToLeave=S.data.hp.current<=1,result=S.syncRest();
     if(result.changed){
       S.save();
-      if(!combatBusy){
+      if(!combatUI.busy){
         const recovery=document.querySelector('[data-home-recovery]');
         if(recovery&&!wasUnableToLeave&&!result.completed&&S.restStatus()){
           hud();
