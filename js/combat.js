@@ -39,6 +39,7 @@ OR.combat=(()=>{
   function finish(win,bribed=false){
     const s=S.data,b=W.current(),isDragon=b.elementType==='Dragon',e=s.battle.enemy;
     let levels=0,rewards=[],retrieval=null;
+    S.changeHope(win?(bribed?0:2):-8);
     if(win){s.victories++;levels=levelUp();retrieval=OR.errands?.recover(b,'slay');rewards=retrieval?retrieval.rewards:S.grantLoot(isDragon?2:1,isDragon);OR.quests?.complete('slay',b);W.clear(true);if(retrieval?.after)Object.assign(b,retrieval.after);}
     s.outcome={retrieval:!!retrieval,win,bribed,dragon:isDragon&&win&&!bribed,rewards,levels,enemy:e.name,lastRound:s.battle.lastRound||null,art:win?`warrior-${s.weapon.type.toLowerCase()}`:'warrior-wounded'};
     S.log(win?(bribed?`A gem spent. ${e.name} withdraws. This ground is now clear.`:`${e.name} falls. This ground is now clear.`):'You fall unconscious. The realm leaves you one breath.');
@@ -79,7 +80,7 @@ OR.combat=(()=>{
     if(target){for(const key of Object.keys(target))delete target[key];Object.assign(target,moved);}else S.data.blocks.push(moved);
     Object.assign(origin,{elementType:'Nature',subtype:'clearing',dragonHp:null,dragonMaxHp:null,resolved:true,cleared:true});return true;
   }
-  function flee(){if(!S.data?.battle)return false;const b=S.data.battle,moved=advanceDragon(b);S.log(moved?'The wounded dragon moves toward Strongwood.':('You break off the fight. '+b.enemy.name+' still threatens this ground.'));S.data.battle=null;S.data.state='Explore';W.current().resolved=true;S.save();return true;}
+  function flee(){if(!S.data?.battle)return false;const b=S.data.battle,moved=advanceDragon(b);S.changeHope(-2);S.log(moved?'The wounded dragon moves toward Strongwood.':('You break off the fight. '+b.enemy.name+' still threatens this ground.'));S.data.battle=null;S.data.state='Explore';W.current().resolved=true;S.save();return true;}
   const canBribe=()=>!!S.data?.battle&&['ogre','gargoyle','troll'].includes(S.data.battle.enemyId)&&!OR.quests?.atTarget(W.current());
   function bribe(){if(!canBribe()||!S.qty('Gem'))return false;S.add('Gem',-1);return finish(true,true);}
   function claim(){if(!S.data?.outcome)return false;if(S.data.outcome.retrieval&&!OR.errands.collect())return false;if(!S.data.outcome.win)W.current().resolved=true;S.data.outcome=null;S.save();return true;}

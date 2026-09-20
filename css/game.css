@@ -280,3 +280,5 @@ body.outer-world .stat-cell.ready{color:#e6c784;box-shadow:inset 0 -2px #d4b16a}
 .pursuit-copy{color:#d28680}
 @keyframes pursuit-pulse{0%,100%{box-shadow:0 0 5px #b5444433,inset 0 0 7px #b5444415}50%{box-shadow:0 0 12px #b5444477,inset 0 0 14px #b5444430}}
 @media(prefers-reduced-motion:reduce){.direction.pursuit-hint:not(:disabled){animation:none;box-shadow:0 0 7px #b5444455,inset 0 0 8px #b5444422}}
+
+.village-hope{margin-top:26px;padding:20px;border:1px solid var(--line)}.village-hope .section-label{margin:0 0 12px}.village-hope h2{color:var(--gold)}.village-hope meter{display:block;width:100%;height:12px;margin:14px 0;accent-color:var(--gold)}.village-hope p{font-size:14px}.village-hope .fine{margin-top:12px;font-size:12px;color:var(--muted)}

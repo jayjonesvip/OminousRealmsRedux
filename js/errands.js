@@ -45,7 +45,7 @@ OR.errands=(()=>{
     const s=S.data,d=definition();if(!d||s.battle||s.foundLoot||s.outcome&&!s.outcome.retrieval||!atCollection(W.current()))return false;
     const rewards=pendingRewards();for(const r of rewards)S.add(r.type,r.qty);
     if(d.returnToGiver){const p=active();p.phase='return';p.x=p.originX;p.y=p.originY;S.log(C.items[d.item].name+' collected. Return it to the person who asked.');}
-    else {s.pursuit=null;S.log(d.doneText||d.title+' complete.');}
+    else {S.changeHope(5);s.pursuit=null;S.log(d.doneText||d.title+' complete.');}
     if(s.outcome?.retrieval){s.outcome.retrieval=false;s.outcome.rewards=rewards;}S.save();return {rewards};
   }
   function retrieve(){
@@ -56,7 +56,7 @@ OR.errands=(()=>{
   const atGiver=b=>!!active()&&active().phase==='return'&&b?.x===active().originX&&b.y===active().originY;
   function deliver(){
     const s=S.data,d=definition();if(!d||s.battle||s.outcome||s.foundLoot||!atGiver(W.current())||S.qty(d.item)<d.quantity)return false;
-    S.add(d.item,-d.quantity);for(const r of d.rewards)S.add(r.type,r.qty);s.pursuit=null;S.log(d.doneText||'You return '+C.items[d.item].name+'. A small part of their world is whole again.');S.save();return {rewards:d.rewards};
+    S.changeHope(5);S.add(d.item,-d.quantity);for(const r of d.rewards)S.add(r.type,r.qty);s.pursuit=null;S.log(d.doneText||'You return '+C.items[d.item].name+'. A small part of their world is whole again.');S.save();return {rewards:d.rewards};
   }
   function hints(){const p=active(),s=S.data;if(!p)return [];return [...(p.x<s.x?['W']:p.x>s.x?['E']:[]),...(p.y<s.y?['N']:p.y>s.y?['S']:[])];}
   function prompt(b){const d=definition();if(!d)return null;if(atCollection(b))return {action:'errand:collect',label:'COLLECT '+C.items[d.item].name.toUpperCase(),disabled:false};if(atGiver(b))return {action:'errand:deliver',label:'RETURN '+C.items[d.item].name.toUpperCase(),disabled:S.qty(d.item)<d.quantity};if(atTarget(b)&&d.completion==='gather')return {action:'errand:retrieve',label:'RETRIEVE '+C.items[d.item].name.toUpperCase(),disabled:false};return null;}
