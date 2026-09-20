@@ -1,6 +1,8 @@
 'use strict';
 OR.world=(()=>{
   const C=OR.content,S=OR.state;
+  const outerNames={forest:'Ashwood Forest',mossy:'Blackmoss Stones','poison-vine':'Venom Vines',rocks:'Leaning Stones',stream:'Ashrun Stream',clearing:'Hushed Clearing',grove:'Graveroot Grove',meadow:'Bonegrass Meadow',thicket:'Writhing Briars',waterfall:'Bloodmist Falls',glade:'Forsaken Glade',marshland:'Hollow Marsh','dense-woodland':'Blackened Thicket','leafy-clearing':'Ashfall Clearing','grassy-rise':'Withered Rise'};
+  const name=b=>b.elementType==='Nature'&&!local(b.x,b.y)?outerNames[b.subtype]||C.entities[b.subtype].name:C.entities[b.subtype].name;
   const radius=()=>25-(S.data?.borderLoss||0);
   const local=(x,y)=>Math.abs(x)<=radius()&&Math.abs(y)<=radius();
   const border=(x,y)=>Math.max(Math.abs(x),Math.abs(y))===radius()+1;
@@ -100,5 +102,5 @@ OR.world=(()=>{
   }
   function description(b=current()){if(b.subtype==='empty-hideout')return 'The hideout stands empty. The thief will not return.';if(b.elementType==='Bandit'&&(!OR.errands?.active()||b.x!==OR.errands.active().originX||b.y!==OR.errands.active().originY))return 'The thief is gone. Old footprints fade into the ash.';if(b.subtype==='wayside-shrine'&&b.healingUsed)return 'The offering is accepted. The shrine’s warmth has faded.';if(b.subtype==='bandit-hideout'&&OR.errands?.atTarget(b))return 'The thief waits at a hidden cellar. Defeat them to reclaim your '+C.items[OR.errands.definition().item].name+'.';const quest=OR.quests?.description(b);if(quest)return quest;const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
   const coords=(x,y)=>x===0&&y===0?'HOME · 0 / 0':`${Math.abs(x)}${x<0?'W':'E'} ${Math.abs(y)}${y<0?'N':'S'}`;
-  return {radius,weakenBorder,local,border,realm,at,spawn,npcCandidates,migrateNpcs,migrateThreats,migratePuzzles,migrateBorders,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
+  return {name,radius,weakenBorder,local,border,realm,at,spawn,npcCandidates,migrateNpcs,migrateThreats,migratePuzzles,migrateBorders,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
 })();
