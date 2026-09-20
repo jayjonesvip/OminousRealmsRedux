@@ -3,6 +3,7 @@ OR.combat=(()=>{
   const S=OR.state,C=OR.content,W=OR.world;
   const damage=(base,move,resistance,lucky=false)=>Math.random()<Math.min(100,move.accuracy+(lucky?5:0))/100?(base+move.power)*(1-Math.min(95,Math.max(0,resistance))/100):0;
   function enemy(block){
+    if(block.subtype==='large-rat'){const hp=C.random(12,18);return {id:block.subtype,name:C.entities[block.subtype].name,level:1,hp,maxHp:hp,basePower:2,...C.creature(block.subtype,1)};}
     if(block.elementType==='Danger'&&W.local(block.x,block.y)){
       const natural=C.creature(block.subtype,1),hp=C.random(6,10);
       return {id:block.subtype,name:C.entities[block.subtype].name,level:1,hp,maxHp:hp,basePower:1,weapon:null,attackStyle:natural?.attackStyle||'Claws',defense:null,resistance:0,moves:(natural?.moves||[{name:'Bite',power:0,accuracy:80}]).map(m=>({...m,power:Math.min(2,m.power),accuracy:Math.min(85,m.accuracy)}))};

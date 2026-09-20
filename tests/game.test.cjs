@@ -662,3 +662,8 @@ test('Strongwood battles stay small and bats only leak into its outer five rows'
  const g=game();for(const x of [3,-3,20,-20,21,-21,25,-25]){const ids=new Set();for(let i=0;i<100;i++){g.rng(i/100);ids.add(g.world.spawn('Danger',x,0).subtype);}assert.equal(ids.has('bat'),Math.abs(x)>=21);assert.ok(!ids.has('skeleton'));assert.ok(ids.has('rabid-rabbit'));}
  for(const level of [1,3,10])for(const id of ['rabid-rabbit','snake','spider','bat']){g.state.data.level=level;const b=g.place('Danger',id,23,0);g.rng(.99);const e=g.combat.enemy(b);assert.ok(e.hp>=6&&e.hp<=10);assert.equal(e.resistance,0);assert.ok(e.moves.every(m=>e.basePower+m.power<=3));}
 });
+
+test('rats are weak Outer threats and mud biters belong only to Strongwood',()=>{
+ const g=game();for(const x of [3,23,30,-30]){const ids=new Set();for(let i=0;i<100;i++){g.rng(i/100);ids.add(g.world.spawn('Danger',x,0).subtype);}assert.equal(ids.has('large-rat'),Math.abs(x)>25);assert.equal(ids.has('mud-biter'),Math.abs(x)<=25);}
+ for(const level of [1,3,10]){g.state.data.level=level;g.rng(.99);let e=g.combat.enemy(g.place('Danger','large-rat',30,0));assert.ok(e.hp>=12&&e.hp<=18);assert.equal(e.resistance,0);assert.ok(e.moves.every(m=>m.power+e.basePower<=4));e=g.combat.enemy(g.place('Danger','mud-biter',3,3));assert.ok(e.hp<=10);assert.ok(e.moves.every(m=>m.power+e.basePower<=3));}
+});

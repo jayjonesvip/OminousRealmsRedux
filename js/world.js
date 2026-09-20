@@ -25,7 +25,7 @@ OR.world=(()=>{
       else seen.add(b.subtype);
     }
   }
-  function spawn(type,x,y){if(border(x,y))return borderBlock(x,y);let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&(e.id!=='grave'||!local(x,y))&&(!local(x,y)||type!=='Danger'||['rabid-rabbit','snake','spider'].includes(e.id)||e.id==='bat'&&nearBorder(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
+  function spawn(type,x,y){if(border(x,y))return borderBlock(x,y);let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&(e.id!=='mud-biter'||local(x,y))&&(e.id!=='large-rat'||!local(x,y))&&(e.id!=='grave'||!local(x,y))&&(!local(x,y)||type!=='Danger'||['rabid-rabbit','snake','spider','mud-biter'].includes(e.id)||e.id==='bat'&&nearBorder(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
   function borderBlock(x,y,b){
     if(!b)b={x,y};
     for(const key of Object.keys(b))if(!['x','y'].includes(key))delete b[key];

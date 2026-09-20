@@ -443,5 +443,11 @@
   },
   "rabid-rabbit": {
     "file": "rabid-rabbit.png"
+  },
+  "large-rat": {
+    "file": "large-rat.png"
+  },
+  "mud-biter": {
+    "file": "mud-biter.png"
   }
 }
