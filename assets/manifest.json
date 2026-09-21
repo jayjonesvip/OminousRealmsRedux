@@ -488,5 +488,11 @@
   },
   "undead-knight": {
     "file": "undead-knight.png"
+  },
+  "hanging-cage": {
+    "file": "hanging-cage.png"
+  },
+  "empty-cage": {
+    "file": "empty-cage.png"
   }
 }

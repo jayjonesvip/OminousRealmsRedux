@@ -287,3 +287,5 @@ body.outer-world .stat-cell.ready{color:#e6c784;box-shadow:inset 0 -2px #d4b16a}
 .exploration-view>.scene.has-dialogue{height:auto;min-height:max(240px,calc(100dvh - var(--hud-height,122px) - var(--nav-height,84px) - var(--dock-height,250px)));padding-bottom:0;overflow:hidden;}
 .exploration-view>.scene.has-dialogue .scene-dialogue{position:absolute;inset:0;overflow-y:auto;padding:58px 23px 24px;overscroll-behavior:contain;}
 .exploration-view>.scene.has-dialogue .scene-shade{background:linear-gradient(0deg,#10110f 1%,#10110fca 17%,transparent 68%,#10110f88);}
+
+.interaction-page .forge-art:has(img[src*="hanging-cage"]){height:300px}.interaction-page .forge-art>img[src*="hanging-cage"]{object-position:center 22%}

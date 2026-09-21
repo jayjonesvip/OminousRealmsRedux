@@ -26,6 +26,8 @@ OR.errands=(()=>{
     s.blocks.push({...d.target,...target,resolved:false});
     S.log(d.startText||d.title+' accepted. Follow the compass light.');S.save();return true;
   }
+  function rollRescue(x,y){const s=S.data;if(s.rescueDone||s.blocks.some(b=>['hanging-cage','empty-cage'].includes(b.subtype))||W.local(x,y)||W.border(x,y)||blocked()||Math.random()>=.02)return null;s.pursuit={kind:'cage-rescue',phase:'meet',x,y,originX:x,originY:y};return {x,y,elementType:'Thing',subtype:'hanging-cage',resolved:false};}
+  function speakRescue(){const s=S.data,p=active(),b=W.current();if(p?.kind!=='cage-rescue'||b.subtype!=='hanging-cage'||s.battle||s.outcome||s.foundLoot)return false;if(p.phase==='meet'){const target=destination(b.x,b.y,definitions['cage-rescue']);if(!target)return false;Object.assign(p,target,{phase:'retrieve'});s.blocks.push({...definitions['cage-rescue'].target,...target,resolved:false});S.log('Elara waits in a hanging cage at '+W.coords(b.x,b.y)+'. Find something thin enough to pick the lock.');}b.dialogue={text:p.phase==='return'?'“You came back. That nail will do. Turn it gently—the old lock should give.”':'“My name is Elara. The lock is old. Find something thin—a nail might turn it. Please come back.”',speaker:'ELARA',spoken:true};S.save();return true;}
   function roll(x,y){
     const eligible=['bandit','bandit-coin'].filter(id=>S.qty(definitions[id].item)>=1);
     if(W.local(x,y)||W.border(x,y)||blocked()||!eligible.length||Math.random()>=.02)return null;
@@ -44,7 +46,7 @@ OR.errands=(()=>{
   function collect(){
     const s=S.data,d=definition();if(!d||s.battle||s.foundLoot||s.outcome&&!s.outcome.retrieval||!atCollection(W.current()))return false;
     const rewards=pendingRewards();for(const r of rewards)S.add(r.type,r.qty);
-    if(d.returnToGiver){const p=active();p.phase='return';p.x=p.originX;p.y=p.originY;S.log(C.items[d.item].name+' collected. Return it to the person who asked.');}
+    if(d.returnToGiver){const p=active();p.phase='return';p.x=p.originX;p.y=p.originY;S.log(p.kind==='cage-rescue'?'The nail might turn that cage’s lock. Elara is still waiting.':C.items[d.item].name+' collected. Return it to the person who asked.');}
     else {S.changeHope(5);s.pursuit=null;S.log(d.doneText||d.title+' complete.');}
     if(s.outcome?.retrieval){s.outcome.retrieval=false;s.outcome.rewards=rewards;}S.save();return {rewards};
   }
@@ -56,14 +58,15 @@ OR.errands=(()=>{
   const atGiver=b=>!!active()&&active().phase==='return'&&b?.x===active().originX&&b.y===active().originY;
   function deliver(){
     const s=S.data,d=definition();if(!d||s.battle||s.outcome||s.foundLoot||!atGiver(W.current())||S.qty(d.item)<d.quantity)return false;
-    S.changeHope(5);S.add(d.item,-d.quantity);for(const r of d.rewards)S.add(r.type,r.qty);s.pursuit=null;S.log(d.doneText||'You return '+C.items[d.item].name+'. A small part of their world is whole again.');S.save();return {rewards:d.rewards};
+    const rescue=active().kind==='cage-rescue';if(rescue){s.rescueDone=true;const b=W.current();Object.assign(b,{elementType:'Thing',subtype:'empty-cage',resolved:true});delete b.dialogue;}S.changeHope(5);S.add(d.item,-d.quantity);for(const r of d.rewards)S.add(r.type,r.qty);s.pursuit=null;S.log(d.doneText||'You return '+C.items[d.item].name+'. A small part of their world is whole again.');S.save();return {rewards:d.rewards};
   }
   function hints(){const p=active(),s=S.data;if(!p)return [];return [...(p.x<s.x?['W']:p.x>s.x?['E']:[]),...(p.y<s.y?['N']:p.y>s.y?['S']:[])];}
-  function prompt(b){const d=definition();if(!d)return null;if(atCollection(b))return {action:'errand:collect',label:'COLLECT '+C.items[d.item].name.toUpperCase(),disabled:false};if(atGiver(b))return {action:'errand:deliver',label:'RETURN '+C.items[d.item].name.toUpperCase(),disabled:S.qty(d.item)<d.quantity};if(atTarget(b)&&d.completion==='gather')return {action:'errand:retrieve',label:'RETRIEVE '+C.items[d.item].name.toUpperCase(),disabled:false};return null;}
+  function prompt(b){if(b?.subtype==='hanging-cage'&&active()?.kind==='cage-rescue')return {action:'rescue:open',label:atGiver(b)?'FREE THE PRISONER':'SPEAK TO THE PRISONER',disabled:false};const d=definition();if(!d)return null;if(atCollection(b))return {action:'errand:collect',label:'COLLECT '+C.items[d.item].name.toUpperCase(),disabled:false};if(atGiver(b))return {action:'errand:deliver',label:'RETURN '+C.items[d.item].name.toUpperCase(),disabled:S.qty(d.item)<d.quantity};if(atTarget(b)&&d.completion==='gather')return {action:'errand:retrieve',label:'RETRIEVE '+C.items[d.item].name.toUpperCase(),disabled:false};return null;}
   const guideClass=()=>definition()?.guide==='red'?'pursuit-hint':'trail-hint';
-  const status=()=>active()?definition().title+' · '+(active().phase==='return'?'RETURN TO GIVER':active().phase==='collect'?'COLLECT ITEM':'DESTINATION')+' · '+W.coords(active().x,active().y):'';
+  const status=()=>active()?.kind==='cage-rescue'&&active().phase==='meet'?'THE HANGING CAGE · '+W.coords(active().x,active().y):active()?definition().title+' · '+(active().phase==='return'?'RETURN TO GIVER':active().phase==='collect'?'COLLECT ITEM':'DESTINATION')+' · '+W.coords(active().x,active().y):'';
+  register('cage-rescue',{title:'THE HANGING CAGE',item:'RustyNail',realm:'outer',returnToGiver:true,target:{elementType:'Thing',subtype:'rescue-nail'},doneText:'Elara: I thought no one would come back. Thank you. I can go home. Strongwood’s Hope rises.'});
   register('bandit',{title:'STOLEN GEM',enemyName:'Gem Thief',fleeingSubtype:'bandit-fleeing',item:'Gem',steal:true,realm:'outer',completion:'slay',guide:'red',target:{elementType:'Enemy',subtype:'bandit-hideout'},after:{elementType:'Thing',subtype:'empty-hideout'},startText:'A bandit knocks you down (−1 HP) and steals one gem. Follow the red compass light to the hideout.',doneText:'The stolen gem is back in your pack. The red trail fades.'});
   register('bandit-coin',{...definitions.bandit,title:'STOLEN LUCKY COIN',enemyName:'Coin Thief',fleeingSubtype:'bandit-coin-fleeing',item:'LuckyCoin',startText:'A bandit knocks you down (−1 HP) and steals your Lucky Coin. Follow the red compass light to the hideout.',doneText:'Your Lucky Coin is back in your pack. The red trail fades.'});
-  return {register,definitions,start,active,definition,roll,atTarget,recover,retrieve,collect,pendingRewards,deliver,atGiver,hints,prompt,guideClass,status};
+  return {rollRescue,speakRescue,register,definitions,start,active,definition,roll,atTarget,recover,retrieve,collect,pendingRewards,deliver,atGiver,hints,prompt,guideClass,status};
 })();
 

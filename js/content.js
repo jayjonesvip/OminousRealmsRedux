@@ -32,7 +32,7 @@ OR.content = (() => {
     MagicCrystal:{name:'Magic Crystal',art:'item-crystal',group:'RELICS',note:'Consumed by one Realmfire attack.'},
     LuckyCoin:{name:'Lucky Coin',art:'item-coin',group:'RELICS',note:'+5% accuracy on every attack.'},
     BrokenPottery:{name:'Broken Pottery',art:'item-pottery',group:'REMNANTS',note:'A small piece of a forgotten life.'},
-    RustyNail:{name:'Rusty Nail',art:'item-nail',group:'REMNANTS',note:'Even the old world had loose ends.'}
+    RustyNail:{name:'Rusty Nail',art:'item-nail',group:'SUPPLIES',note:'Thin enough to pick the hanging cage’s lock.'}
   };
   const entries = [
     ['Border','outer-realm-border','The Veil','A rotten fence divides quiet woodland from scorched earth.','A rotten fence divides quiet woodland from scorched earth.'],
@@ -42,6 +42,9 @@ OR.content = (() => {
     ['Nature','forest','Oldwood Forest','Sunlight cuts through the trees like ancestral steel.','Dead branches claw at a blood-red sky.'],
     ['Nature','mossy','Mossbound Stones','Green velvet softens the bones of the earth.','Black moss drinks from the cracks in the stone.'],
     ['Nature','poison-vine','Poison Vines','Thorned vines cross the path. Their poison lingers until you fully heal.','Purple sap beads on the thorns. Their poison lingers until you fully heal.'],
+    ['Thing','hanging-cage','The Hanging Cage','A woman waits behind locked iron bars.','A woman grips the bars. The lock is small, but her hands cannot reach it.'],
+    ['Thing','empty-cage','Empty Hanging Cage','The door hangs open. She is free.','An open door moves in the wind. No one waits behind these bars now.'],
+    ['Thing','rescue-nail','A Rusty Nail','A thin nail lies among broken timber.','A thin nail protrudes from a broken plank. It might turn the cage’s lock.'],
     ['Thing','empty-hideout','Abandoned Hideout','The hideout stands empty. The thief will not return.','The hideout stands empty. The thief will not return.'],
     ['Bandit','bandit-coin-fleeing','A Fleeing Bandit','A thief disappears down the road.','Your Lucky Coin is gone. Follow the red compass light to the thief’s hideout.'],
     ['Bandit','bandit-fleeing','A Fleeing Bandit','A thief disappears down the road.','One gem lighter. Follow the red compass light to the thief’s hideout.'],
