@@ -54,16 +54,17 @@ OR.combat=(()=>{
   function attack(index){
     const s=S.data;if(!s?.battle)return false;const move=s.weapon.moves[index];if(!move||(move.magic&&(!s.enchanted||!S.qty('MagicCrystal'))))return false;
     if(move.magic)S.add('MagicCrystal',-1);
-    const b=s.battle,e=b.enemy,hit=damage(s.weapon.basePower,move,e.resistance,S.qty('LuckyCoin')>0);
+    const b=s.battle,e=b.enemy,braced=b.lastRound?.stagger===true,hit=damage(s.weapon.basePower,move,e.resistance,S.qty('LuckyCoin')>0);
     e.hp=Math.max(0,e.hp-hit);let line=hit?`${move.name} lands for ${fmt(hit)}.`:`${move.name} misses.`;
     b.lastRound={round:b.round,move:move.name,magic:!!move.magic,dealt:hit,received:null,reply:null,stagger:false};
     if(W.current().elementType==='Dragon')W.current().dragonHp=e.hp;
     if(e.hp<=0){b.log=line;S.log(line);return finish(true);}
     if(e.id==='malrec'&&e.phase===1&&e.hp<=e.maxHp/2){e.phase=2;e.resistance=0;e.basePower+=2;e.attackStyle='Unbound shadow';e.moves=[{name:'Veil Lash',power:5,accuracy:92},{name:'Last Dominion',power:10,accuracy:68}];b.lastRound.phaseChanged=true;line+=' His armor breaks. Malrec fights as unbound shadow.';}
-    if(hit&&move.stagger){
+    if(hit&&move.stagger&&!braced){
       line+=` ${e.name} staggers. No counter.`;
       b.lastRound.stagger=true;b.log=line;b.round++;S.log(line);S.save();return true;
     }
+    if(hit&&move.stagger&&braced){b.lastRound.braced=true;line+=' The enemy braces. It cannot be staggered twice in a row.';}
     const response=C.pick(e.moves),hurt=damage(e.basePower,response,s.armor.resistance);
     s.hp.current=Math.max(1,s.hp.current-hurt);line+=hurt?` ${e.name}: ${response.name}, ${fmt(hurt)} damage.`:` ${e.name} misses ${response.name}.`;
     b.lastRound.received=hurt;b.lastRound.reply=response.name;

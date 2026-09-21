@@ -88,7 +88,7 @@ OR.ui=(()=>{
     case 'Danger':
     case 'Enemy':return (b.elementType==='Enemy'&&!W.local(b.x,b.y)?'<p class="warning">AMBUSH · ENEMY STRIKES FIRST</p>':'')+btn('ENTER BATTLE '+icon('battle'),'fight','danger');
     case 'Dragon':return '<div class="warning">ANCIENT THREAT · '+num(b.dragonHp)+' HP REMAINING'+(!W.local(b.x,b.y)?' · STRIKES FIRST':'')+'</div>'+btn('ENTER BATTLE '+icon('battle'),'fight','danger');
-    case 'Food':return b.subtype==='wild-berries'?btn(S.data.hp.current>=S.data.hp.max?'HEALTH FULL':'EAT BERRIES · +10 HP','eat','primary',S.data.hp.current>=S.data.hp.max?'disabled':''):btn('EAT MUSHROOMS','eat');
+    case 'Food':return b.subtype==='wild-berries'?btn(S.data.hp.current>=S.data.hp.max?'HEALTH FULL':'EAT BERRIES · +10 HP','eat','primary',S.data.hp.current>=S.data.hp.max?'disabled':''):btn('EAT MUSHROOMS · RISK POISON','eat');
     case 'Shrine':return b.healingUsed?'':btn(S.data.hp.current>=S.data.hp.max?'HEALTH FULL':S.qty('MetalIngot')?'OFFER 1 METAL INGOT · FULL HEAL':'1 METAL INGOT REQUIRED','shrine','primary',S.data.hp.current>=S.data.hp.max||!S.qty('MetalIngot')?'disabled':'');
     case 'BuriedItems':return btn(b.dug?'RESUME DIGGING':'DIG','route:digging');
     case 'LockedItem':return btn('UNLOCK · '+(S.qty('Key')?'USE 1 KEY':'KEY REQUIRED'),'unlock','primary',!S.qty('Key')?'disabled':'');

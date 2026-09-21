@@ -18,14 +18,14 @@ OR.createBattleUI=({$,escape,num,art,enemyArt,playerArt,eyebrow,hpBar,btn,visibl
   function roundToast(r,enemy=false){
     if(r.received===null){
       if(!enemy){
-        if(r.stagger){const first=!S.data.heavyStaggerSeen;if(first){S.data.heavyStaggerSeen=true;S.save();}combatToast('hit','STAGGERED',r.move+' staggered '+(S.data.battle?.enemy.name||'the enemy')+' · ROUND '+r.round+' · NO COUNTER'+(first?' · A landed heavy strike denies the counter.':'')+(r.phaseChanged?' · MALREC UNBOUND':''),num(r.dealt)+' DMG');}
+        if(r.stagger){const first=!S.data.heavyStaggerSeen;if(first){S.data.heavyStaggerSeen=true;S.save();}combatToast('hit','STAGGERED',r.move+' staggered '+(S.data.battle?.enemy.name||'the enemy')+' · ROUND '+r.round+' · NO COUNTER'+(first?' · A landed heavy strike denies the counter. Enemies resist stagger on the next turn.':'')+(r.phaseChanged?' · MALREC UNBOUND':''),num(r.dealt)+' DMG');}
         else combatToast(r.magic?'magic-hit':'hit','ENEMY VANQUISHED',r.move+' vanquished '+S.data.outcome.enemy+' · ROUND '+r.round,num(r.dealt)+' DMG');
       }
       return;
     }
     const amount=enemy?r.received:r.dealt,kind=amount>0?(enemy?'hurt':r.magic?'magic-hit':'hit'):'miss';
     combatToast(kind,enemy?(amount>0?'YOU TOOK DAMAGE':'ENEMY MISSED'):(amount>0?'YOU HIT':'YOU MISSED'),
-      (enemy?r.reply:r.move)+' · ROUND '+r.round+(!enemy&&r.phaseChanged?' · ARMOR BROKEN — MALREC UNBOUND':''),amount>0?(enemy?'−'+num(amount)+' HP':num(amount)+' DMG'):'MISS');
+      (enemy?r.reply:r.move)+' · ROUND '+r.round+(!enemy&&r.braced?' · BRACED — COUNTER POSSIBLE':'')+(!enemy&&r.phaseChanged?' · ARMOR BROKEN — MALREC UNBOUND':''),amount>0?(enemy?'−'+num(amount)+' HP':num(amount)+' DMG'):'MISS');
   }
   function battle(){
     const s=S.data,b=s.battle||roundPlayback;if(!b)return explore();
@@ -46,7 +46,7 @@ OR.createBattleUI=({$,escape,num,art,enemyArt,playerArt,eyebrow,hpBar,btn,visibl
     return '<section class="battle-screen '+(shake?'combat-impact':'')+'">'+
       '<div class="arena">'+actor(false,true)+'<span class="vs">VS</span>'+actor(true,true)+'</div><div class="battle-status" role="region" aria-label="Fighter health">'+actor(false)+actor(true)+'</div><div class="battle-body">'+
       '<div class="section-label"><span>'+(combatBusy?(playerBeat?'YOUR ATTACK':'ENEMY RESPONSE'):'MAKE YOUR MOVE')+'</span>'+(S.qty('LuckyCoin')?'<span class="gold">LUCK +5% ACC</span>':'<span>'+(combatBusy?'STEEL IN MOTION':'YOUR TURN')+'</span>')+'</div><div class="moves">'+
-      s.weapon.moves.map((m,i)=>'<button class="move '+(m.magic?'magic':'')+'" data-action="attack:'+i+'" '+(combatBusy||(m.magic&&(!s.enchanted||!S.qty('MagicCrystal')))?'disabled':'')+'><span><strong>'+m.name.toUpperCase()+'</strong><small>'+(m.magic?(!s.enchanted?'SEEK THE VILLAGE WIZARD':S.qty('MagicCrystal')?'CONSUMES 1 CRYSTAL':'MAGIC CRYSTAL REQUIRED'):m.description)+'</small></span><span class="move-stats"><b>'+(s.weapon.basePower+m.power)+'<small>PWR</small></b><b>'+Math.min(100,m.accuracy+(S.qty('LuckyCoin')?5:0))+'%<small>ACC</small></b></span></button>').join('')+
+      s.weapon.moves.map((m,i)=>'<button class="move '+(m.magic?'magic':'')+'" data-action="attack:'+i+'" '+(combatBusy||(m.magic&&(!s.enchanted||!S.qty('MagicCrystal')))?'disabled':'')+'><span><strong>'+m.name.toUpperCase()+'</strong><small>'+(m.magic?(!s.enchanted?'SEEK THE VILLAGE WIZARD':S.qty('MagicCrystal')?'CONSUMES 1 CRYSTAL':'MAGIC CRYSTAL REQUIRED'):m.description+(m.stagger&&b.lastRound?.stagger?' Enemy braced: no stagger this turn.':''))+'</small></span><span class="move-stats"><b>'+(s.weapon.basePower+m.power)+'<small>PWR</small></b><b>'+Math.min(100,m.accuracy+(S.qty('LuckyCoin')?5:0))+'%<small>ACC</small></b></span></button>').join('')+
       '</div><div class="button-pair">'+btn('FLEE','flee','outline',combatBusy?'disabled':'')+(B.canBribe()?btn('BRIBE · 1 GEM','bribe','outline',combatBusy||!S.qty('Gem')?'disabled':''):'')+'</div><p class="fine centered">Fall, and rise again. Your health never falls below 1.</p></div></section>';
   }
   function showAmbush(){const b=S.data.battle;if(!b||b.ambushPresented)return;b.ambushPresented=true;S.save();combatBusy=true;roundPhase='enemy';render();roundToast(b.lastRound,true);roundTimer=setTimeout(()=>{combatBusy=false;roundPhase=null;render(true);},950);}
