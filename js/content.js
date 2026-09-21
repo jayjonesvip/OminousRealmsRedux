@@ -125,14 +125,14 @@ OR.content = (() => {
     const poolWeight=eligible.reduce((total,[type,weight])=>total+(inPool(type)?weight:0),0);
     // Keep each healing encounter at the original mushroom rate.
     const pool=isLocal?50:33.5,mushroomRate=pool*weights.Food/poolWeight;
-    const threatWeight=threats.reduce((total,type)=>total+weights[type],0);
+    const threatWeights={Danger:56,Enemy:15,Dragon:.5},threatWeight=71.5;
     return Object.fromEntries(eligible.map(([type,weight])=>[type,
       type==='Food'?mushroomRate*(isLocal?2:1):type==='Shrine'?mushroomRate:type==='Nature'?40:type==='NPC'?(isLocal?10:5):type==='Puzzle'?1.5:
-      !isLocal&&threats.includes(type)?20*weight/threatWeight:(pool-2*mushroomRate)*weight/(poolWeight-weights.Food)
+      !isLocal&&threats.includes(type)?20*threatWeights[type]/threatWeight:(pool-2*mushroomRate)*weight/(poolWeight-weights.Food)
     ]));
   };
   // Relative weights within each existing threat category, not extra encounter rolls.
-  const enemyRarity={'large-rat':8,'rabid-rabbit':3,snake:3,spider:3,bat:4,skeleton:2,'mud-biter':5,'undead-knight':3,ogre:3,troll:2,gargoyle:1,dragon:1};
+  const enemyRarity={'large-rat':10,'rabid-rabbit':10,snake:10,spider:10,bat:10,skeleton:6,'mud-biter':10,'undead-knight':8,ogre:1,troll:4,gargoyle:2,dragon:.5};
   function pickEnemy(candidates){const total=candidates.reduce((n,e)=>n+(enemyRarity[e.id]||1),0);let roll=Math.random()*total;return candidates.find(e=>(roll-=enemyRarity[e.id]||1)<0)||candidates[candidates.length-1];}
   const random = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
   const pick = arr=>arr[random(0,arr.length-1)];
