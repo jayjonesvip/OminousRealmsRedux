@@ -9,7 +9,7 @@ OR.errands=(()=>{
   }
   const active=()=>S.data?.pursuit||null;
   const definition=()=>active()?definitions[active().kind||'bandit']:null;
-  const blocked=()=>{const s=S.data,q=OR.quests.data();return !!(active()||q.active||q.offer||s.battle||s.outcome||s.foundLoot||OR.village.visionActive());};
+  const blocked=()=>{const s=S.data,q=OR.quests.data();return !!(OR.finale?.active()||s.quests?.completed?.includes('hollowflame')&&!s.finale||active()||q.active||q.offer||s.battle||s.outcome||s.foundLoot||OR.village.visionActive());};
   function destination(x,y,d){
     const candidates=[];
     for(let dx=-9;dx<=9;dx++)for(let dy=-9;dy<=9;dy++){

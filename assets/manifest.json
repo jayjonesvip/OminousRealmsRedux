@@ -494,5 +494,17 @@
   },
   "empty-cage": {
     "file": "empty-cage.png"
+  },
+  "veil-grimoire": {
+    "file": "veil-grimoire.png"
+  },
+  "vaelric-refuge": {
+    "file": "vaelric-refuge.png"
+  },
+  "malrec": {
+    "file": "malrec.png"
+  },
+  "strongwood-dawn": {
+    "file": "strongwood-dawn.png"
   }
 }

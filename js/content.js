@@ -32,6 +32,7 @@ OR.content = (() => {
     MagicCrystal:{name:'Magic Crystal',art:'item-crystal',group:'RELICS',note:'Consumed by one Realmfire attack.'},
     LuckyCoin:{name:'Lucky Coin',art:'item-coin',group:'RELICS',note:'+5% accuracy on every attack.'},
     BrokenPottery:{name:'Broken Pottery',art:'item-pottery',group:'REMNANTS',note:'A small piece of a forgotten life.'},
+    VeilboundGrimoire:{name:'Veilbound Grimoire',art:'veil-grimoire',group:'RELICS',note:'Its shifting language is unknown. Bring it to Vaelric, the Ashen Sage.'},
     RustyNail:{name:'Rusty Nail',art:'item-nail',group:'SUPPLIES',note:'Thin enough to pick the hanging cage’s lock.'}
   };
   const entries = [
@@ -42,6 +43,10 @@ OR.content = (() => {
     ['Nature','forest','Oldwood Forest','Sunlight cuts through the trees like ancestral steel.','Dead branches claw at a blood-red sky.'],
     ['Nature','mossy','Mossbound Stones','Green velvet softens the bones of the earth.','Black moss drinks from the cracks in the stone.'],
     ['Nature','poison-vine','Poison Vines','Thorned vines cross the path. Their poison lingers until you fully heal.','Purple sap beads on the thorns. Their poison lingers until you fully heal.'],
+    ['Thing','veil-grimoire','Veilbound Grimoire','Ancient pages wait beneath a broken arch.','Letters shift across brittle pages. A golden tree marks the cover.'],
+    ['Thing','vaelric-refuge','Vaelric’s Refuge','A golden ward holds the dark at bay.','Deep in the ash, a golden ward burns. Vaelric waits within.'],
+    ['Thing','veil-gate','The Veil Gate','The last gate stands open.','Black iron frames a wound in the sky. Malrec waits beyond it.'],
+    ['Enemy','malrec','Malrec, Lord of the Veil','The Veil’s anchor awaits.','His crown divides the crimson sky. Your weapon answers with golden light.'],
     ['Thing','hanging-cage','The Hanging Cage','A woman waits behind locked iron bars.','A woman grips the bars. The lock is small, but her hands cannot reach it.'],
     ['Thing','empty-cage','Empty Hanging Cage','The door hangs open. She is free.','An open door moves in the wind. No one waits behind these bars now.'],
     ['Thing','rescue-nail','A Rusty Nail','A thin nail lies among broken timber.','A thin nail protrudes from a broken plank. It might turn the cage’s lock.'],

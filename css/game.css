@@ -289,3 +289,6 @@ body.outer-world .stat-cell.ready{color:#e6c784;box-shadow:inset 0 -2px #d4b16a}
 .exploration-view>.scene.has-dialogue .scene-shade{background:linear-gradient(0deg,#10110f 1%,#10110fca 17%,transparent 68%,#10110f88);}
 
 .interaction-page .forge-art:has(img[src*="hanging-cage"]){height:300px}.interaction-page .forge-art>img[src*="hanging-cage"]{object-position:center 22%}
+
+.interaction-page .forge-art:has(img[src*="vaelric-refuge"],img[src*="malrec"]){height:300px}.interaction-page .forge-art>img:is([src*="vaelric-refuge"],[src*="malrec"]){object-position:center top}
+.interaction-page:has([data-action="finale:home"]),.interaction-page:has([data-action="reset"]){padding-bottom:170px}

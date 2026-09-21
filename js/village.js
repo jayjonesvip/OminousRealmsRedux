@@ -2,7 +2,7 @@
 OR.village=(()=>{
   const C=OR.content,S=OR.state;
   const destinations=['tavern','wizard-sanctuary','herbalist-cottage'];
-  const names={'wizard-sanctuary':'The Wizard',tavern:'The Barkeep','village-forge':'Eldric','herbalist-cottage':'The Herbalist'};
+  const names={'wizard-sanctuary':'Vaelric, the Ashen Sage',tavern:'The Barkeep','village-forge':'Eldric','herbalist-cottage':'The Herbalist'};
   const words={
     'wizard-sanctuary':'Strongwood deserves a quieter age. Let me bind Realmfire to your weapon. A Magic Crystal will awaken it for one strike; the enchantment itself will remain. Take this crystal, and use that power to bring peace home.',
     tavern:'Take these ingots for the road: one metal, one steel. Metal reinforces armor; steel improves weapons. Find a wayfarer’s forge while exploring to put them to use. Your map marks discovered forges with crossed weapons, so you can find your way back. No smith works here; I only keep a little iron for those defending Strongwood.',
