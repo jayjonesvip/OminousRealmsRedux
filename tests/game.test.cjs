@@ -1,4 +1,6 @@
 function finishDialogue(g){for(let i=0;i<12&&g.nodes.stage.innerHTML.includes('data-action="next-dialogue"');i++)g.ui.dispatch('next-dialogue');}
+function offerSiren(g){g.rng(0);const b=g.siren.roll(40,40);assert.ok(b);g.state.data.blocks.push(b);g.state.data.x=40;g.state.data.y=40;return b;}
+function enterSirenPit(g){offerSiren(g);assert.ok(g.siren.accept());const p=g.siren.active();g.state.data.x=p.x;g.state.data.y=p.y;assert.ok(g.siren.arrive());}
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const vm=require('node:vm');
@@ -14,7 +16,7 @@ function game(storage=new Map(),ui=false){
   const nodes=Object.fromEntries(['hud','stage','nav','modal','toast','combat-toasts'].map(id=>[id,mockNode()]));
   const ctx={console,Math:Object.create(Math),localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setInterval:()=>1,clearInterval(){},setTimeout:()=>1,clearTimeout,matchMedia:()=>({matches:true}),scrollY:0,scrollTo(){},history:{pushState(){},replaceState(){}},location:{hash:''},addEventListener(){},document:{createElement:mockNode,getElementById:id=>nodes[id],querySelector:()=>null,addEventListener(){},body:{classList:{toggle(){}}}}};
   ctx.window=ctx;vm.createContext(ctx);
-  for(const file of ['content','dialogue','state','world','village','puzzles','combat','actions','quests','errands','finale',...(ui?['ui-battle','ui']:[])])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),ctx,{filename:file+'.js'});
+  for(const file of ['content','dialogue','state','world','village','puzzles','combat','actions','quests','errands','finale','siren',...(ui?['ui-battle','ui']:[])])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),ctx,{filename:file+'.js'});
   const g=ctx.OR;g.state.create('Rowan','Sword');g.world.current();g.state.save();
   return {...g,storage,ctx,nodes,rng:n=>ctx.Math.random=()=>n,place:(type,subtype,x=3,y=3)=>{g.state.data.x=x;g.state.data.y=y;let b=g.world.at(x,y);if(!b){b={x,y};g.state.data.blocks.push(b);}Object.assign(b,{elementType:type,subtype,resolved:false});return b;}};
 }
@@ -908,4 +910,28 @@ test('old save display text migrates without renaming the player or rewriting ti
   const tile=restored.blocks.find(v=>v.x===40&&v.y===40);assert.equal(tile.subtype,'waterfall');assert.equal(tile.dialogue.speaker,'SERETH VENN');assert.equal(tile.dialogue.text,'Bring the Cinderseam Grimoire to Sereth Venn.');
   assert.equal(restored.battle.enemyId,'malrec');assert.equal(restored.battle.enemy.name,'Ordrath, Lord of the Cinderseam');assert.equal(restored.battle.enemy.hp,31);assert.equal(restored.battle.enemy.phase,2);assert.equal(restored.battle.round,3);assert.equal(restored.battle.lastRound.move,'Gravesoil Blow');assert.equal(restored.battle.enemy.moves[0].name,'Cinderseam Lash');assert.equal(restored.battle.lastRound.stagger,true);
   assert.equal(g.state.importSave(raw),true);const exported=g.state.exportSave();assert.equal(g.state.importSave(exported),true);assert.equal(g.state.exportSave(),exported);
+});
+
+test('siren is rare, Outer-only, one-time and shares mission exclusion',()=>{
+ const g=game();g.rng(0);assert.equal(g.siren.roll(3,3),null);assert.equal(g.siren.roll(26,0),null);g.rng(.02);assert.equal(g.siren.roll(40,40),null);
+ for(const setup of [s=>s.pursuit={kind:'bandit'},s=>s.quests={active:{id:'keepsake'}},s=>s.quests={offer:{id:'keepsake'}},s=>s.finale={stage:'hunt'},s=>s.sirenDone=true]){const h=game();h.rng(0);setup(h.state.data);assert.equal(h.siren.roll(40,40),null);}
+ offerSiren(g);assert.equal(g.siren.roll(42,42),null);g.state.data.level=3;assert.equal(g.quests.roll(50,50),null);g.state.add('Gem');assert.equal(g.errands.roll(41,40),null);assert.equal(g.errands.rollRescue(41,40),null);
+});
+test('declining shows her true form with no penalty, then retires the encounter permanently',()=>{
+ const g=game(new Map(),true),b=offerSiren(g),hp=g.state.data.hp.current;g.ui.dispatch('siren:open');assert.match(g.nodes.stage.innerHTML,/FOLLOW HER/);g.ui.dispatch('siren:decline');assert.match(g.nodes.stage.innerHTML,/siren-revealed/);assert.equal(g.state.data.hp.current,hp);assert.equal(g.world.move('N'),false);g.state.save();assert.ok(g.state.load());g.ui.route('map');assert.match(g.nodes.stage.innerHTML,/THE DISGUISE FALLS/);g.ui.dispatch('siren:leave');assert.equal(g.state.data.sirenDone,true);assert.equal(g.siren.active(),null);assert.equal(g.world.at(b.x,b.y).subtype,'forest');assert.equal(g.siren.roll(45,45),null);assert.ok(g.state.load());assert.equal(g.state.data.sirenDone,true);
+});
+test('siren guidance reserves fresh Outer ground and entry fires only once through movement',()=>{
+ const g=game(new Map(),true),origin=offerSiren(g),known=JSON.stringify(g.state.data.blocks);assert.ok(g.siren.accept());const p=g.siren.active(),distance=Math.abs(p.x-origin.x)+Math.abs(p.y-origin.y);assert.ok(distance>=5&&distance<=9);assert.equal(g.world.local(p.x,p.y),false);assert.equal(JSON.stringify(g.state.data.blocks.slice(0,-1)),known);assert.ok(g.siren.hints().length);g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/siren-hint/);
+ g.state.data.x=p.x+1;g.state.data.y=p.y;g.place('Nature','forest',p.x+1,p.y);const hp=g.state.data.hp.current;g.ui.dispatch('move:W');assert.equal(g.state.data.hp.current,hp-4);assert.equal(g.siren.trapped(),true);assert.match(g.nodes.stage.innerHTML,/CLIMB OUT/);assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="move:/);assert.equal(g.world.move('E'),false);assert.equal(g.siren.arrive(),false);g.state.save();assert.ok(g.state.load());assert.equal(g.state.data.hp.current,hp-4);g.ui.route('hero');assert.match(g.nodes.stage.innerHTML,/THE VENOM PIT/);
+});
+test('pit searches damage per action, stop after three failures, and pause existing poison while reading',()=>{
+ const g=game();enterSirenPit(g);g.state.data.poisoned={lastTick:0};const hp=g.state.data.hp.current;g.state.syncRest(3600000);assert.equal(g.state.data.hp.current,hp);g.rng(.5);for(let i=1;i<=3;i++){assert.ok(g.siren.act('search'));assert.equal(g.state.data.hp.current,hp-2*i);}g.state.save();assert.ok(g.state.load());assert.equal(g.siren.active().attempts,3);assert.ok(g.siren.act('search'));assert.equal(g.siren.active(),null);assert.equal(g.state.data.hp.current,hp-6);assert.ok(g.state.data.poisoned);g.state.syncRest(g.state.data.poisoned.lastTick+60000);assert.equal(g.state.data.hp.current,hp-7);g.state.data.hp.current=g.state.data.hp.max;g.state.save();assert.equal(g.state.data.poisoned,null);
+});
+test('climbing always escapes, successful search avoids extra damage and low health returns home',()=>{
+ for(const action of ['climb','search']){const g=game();enterSirenPit(g);const hp=g.state.data.hp.current;g.rng(0);assert.ok(g.siren.act(action));assert.equal(g.state.data.hp.current,hp-(action==='climb'?3:0));assert.equal(g.state.data.sirenDone,true);assert.equal(g.world.current().subtype,'forest');assert.equal(g.siren.act(action),false);}
+ const g=game();offerSiren(g);g.siren.accept();const p=g.siren.active();g.state.data.x=p.x;g.state.data.y=p.y;g.state.data.hp.current=3;g.siren.arrive();assert.equal(g.state.data.x,0);assert.equal(g.state.data.y,0);assert.equal(g.siren.active(),null);assert.equal(g.state.data.hp.current,1);assert.equal(g.state.data.sirenDone,true);
+});
+test('siren save defaults and validation preserve progress and reject malformed or overlapping traps',()=>{
+ const g=game();let old=JSON.parse(g.state.exportSave());delete old.siren;delete old.sirenDone;const restored=g.state.prepareImport(JSON.stringify(old));assert.equal(restored.siren,null);assert.equal(restored.sirenDone,false);enterSirenPit(g);const raw=g.state.exportSave();assert.ok(g.state.importSave(raw));assert.equal(g.siren.active().phase,'pit');
+ for(const mutate of [s=>s.sirenDone='yes',s=>s.sirenDone=true,s=>s.siren.phase='bad',s=>s.siren.attempts=4,s=>s.siren.x++,s=>s.siren.originX++,s=>s.siren.y=NaN,s=>s.pursuit={kind:'bandit'},s=>s.quests={active:{id:'keepsake'}},s=>s.finale={stage:'hunt'},s=>s.battle={enemy:{}}]){const s=JSON.parse(raw);mutate(s);assert.throws(()=>g.state.prepareImport(JSON.stringify(s)));}
 });

@@ -506,5 +506,14 @@
   },
   "strongwood-dawn": {
     "file": "strongwood-dawn.png"
+  },
+  "siren-disguise": {
+    "file": "siren-disguise.png"
+  },
+  "siren-revealed": {
+    "file": "siren-revealed.png"
+  },
+  "siren-pit": {
+    "file": "siren-pit.png"
   }
 }

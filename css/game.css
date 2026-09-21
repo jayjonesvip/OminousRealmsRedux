@@ -292,3 +292,13 @@ body.outer-world .stat-cell.ready{color:#e6c784;box-shadow:inset 0 -2px #d4b16a}
 
 .interaction-page .forge-art:has(img[src*="vaelric-refuge"],img[src*="malrec"]){height:300px}.interaction-page .forge-art>img:is([src*="vaelric-refuge"],[src*="malrec"]){object-position:center top}
 .interaction-page:has([data-action="finale:home"]),.interaction-page:has([data-action="reset"]){padding-bottom:170px}
+
+/* The stranger's cold light is distinct from Grandfather's gold. */
+.interaction-page .forge-art:has(img[src*="siren-"]){height:300px}
+.interaction-page .forge-art>img[src*="siren-"]{object-position:center top}
+.interaction-page .forge-art>img[src*="siren-pit"]{object-position:center bottom}
+.interaction-page:has([data-action^="siren:"]){padding-bottom:210px}
+.dialogue-dock:has([data-action^="siren:"]) .btn+.btn{margin-top:8px}
+.direction.siren-hint {border-color:#a6bac2;box-shadow:0 0 10px #a6bac255;animation:siren-pulse 2s ease-in-out infinite;}
+@keyframes siren-pulse {50%{box-shadow:0 0 18px #a6bac288;}}
+@media (prefers-reduced-motion:reduce){.direction.siren-hint{animation:none;}}

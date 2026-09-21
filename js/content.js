@@ -36,6 +36,8 @@ OR.content = (() => {
     RustyNail:{name:'Rusty Nail',art:'item-nail',group:'SUPPLIES',note:'Thin enough to pick the hanging cage’s lock.'}
   };
   const entries = [
+    ['Thing','siren-disguise','A Beautiful Stranger','A pale hand beckons. Her shadow bends the wrong way.','A pale hand beckons. Her shadow bends the wrong way.'],
+    ['Thing','siren-pit','Broken Ground','Loose stones conceal a hollow.','Loose stones conceal a hollow.'],
     ['Border','outer-realm-border','The Cinderseam','A rotten fence divides quiet woodland from scorched earth.','A rotten fence divides quiet woodland from scorched earth.'],
     ['Quest','grandfather-echo','A Familiar Voice','Your grandfather waits.','Your grandfather’s voice reaches through the Cinderseam.'],
     ['Thing','empty-chest','Empty Chest','An old chest stands empty.','An abandoned chest holds only ash.'],
