@@ -282,3 +282,8 @@ body.outer-world .stat-cell.ready{color:#e6c784;box-shadow:inset 0 -2px #d4b16a}
 @media(prefers-reduced-motion:reduce){.direction.pursuit-hint:not(:disabled){animation:none;box-shadow:0 0 7px #b5444455,inset 0 0 8px #b5444422}}
 
 .village-hope{margin-top:26px;padding:20px;border:1px solid var(--line)}.village-hope .section-label{margin:0 0 12px}.village-hope h2{color:var(--gold)}.village-hope meter{display:block;width:100%;height:12px;margin:14px 0;accent-color:var(--gold)}.village-hope p{font-size:14px}.village-hope .fine{margin-top:12px;font-size:12px;color:var(--muted)}
+
+/* NPC speech overlays the full scene rather than sizing the portrait to its text. */
+.exploration-view>.scene.has-dialogue{height:auto;min-height:max(240px,calc(100dvh - var(--hud-height,122px) - var(--nav-height,84px) - var(--dock-height,250px)));padding-bottom:0;overflow:hidden;}
+.exploration-view>.scene.has-dialogue .scene-dialogue{position:absolute;inset:0;overflow-y:auto;padding:58px 23px 24px;overscroll-behavior:contain;}
+.exploration-view>.scene.has-dialogue .scene-shade{background:linear-gradient(0deg,#10110f 1%,#10110fca 17%,transparent 68%,#10110f88);}
