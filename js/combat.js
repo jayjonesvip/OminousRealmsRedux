@@ -12,22 +12,30 @@ OR.combat=(()=>{
   };
   function lightCreature(id,hp,base,extra){const natural=C.creature(id,1);return {id,name:C.entities[id].name,level:1,hp,maxHp:hp,...natural,basePower:base,resistance:0,moves:natural.moves.map(m=>({...m,power:Math.min(extra,m.power),accuracy:Math.min(90,m.accuracy)}))};}
   function migrateWildlife(){const b=S.data?.battle;if(!b)return;const id=b.enemyId,local=W.local(b.x,b.y);if(!wildlife[id]&&id!=='mud-biter')return;const p=local?{max:10,base:1,extra:2}:wildlife[id];if(!p)return;const e=b.enemy,max=Math.min(e.maxHp||p.max,p.max),hp=Math.min(e.hp,max);Object.assign(e,lightCreature(id,max,p.base,p.extra),{hp});}
-  function enemy(block){
+  function buildEnemy(block){
+    const fixedLevel=block.enemyLevel??S.data.level;
     if(block.subtype==='traveler-ambush')return {id:block.subtype,name:'Cart Bandits',level:1,hp:32,maxHp:32,basePower:3,...C.creature(block.subtype,1)};
-    if(block.subtype==='malrec'){const level=S.data.level,hp=110+8*level;return {id:'malrec',name:'Ordrath, Lord of the Cinderseam',level,hp,maxHp:hp,basePower:6+Math.floor(level/2),resistance:S.data.finale?.veilbreaker?12:85,attackStyle:'Crowned blade',defense:'Cinderseam armor',weapon:null,phase:1,moves:[{name:'Black Edge',power:3,accuracy:86},{name:'Crownfall',power:7,accuracy:70}]};}
-    if(block.subtype==='undead-knight'){const level=S.data.level,hp=30+4*(level-1);return {id:block.subtype,name:C.entities[block.subtype].name,level,hp,maxHp:hp,basePower:4+Math.floor((level-1)/2),...C.creature(block.subtype,level),resistance:Math.min(20,8+level)};}
+    if(block.subtype==='malrec'){const level=fixedLevel,hp=110+8*level;return {id:'malrec',name:'Ordrath, Lord of the Cinderseam',level,hp,maxHp:hp,basePower:6+Math.floor(level/2),resistance:S.data.finale?.veilbreaker?12:85,attackStyle:'Crowned blade',defense:'Cinderseam armor',weapon:null,phase:1,moves:[{name:'Black Edge',power:3,accuracy:86},{name:'Crownfall',power:7,accuracy:70}]};}
+    if(block.subtype==='undead-knight'){const level=fixedLevel,hp=30+4*(level-1);return {id:block.subtype,name:C.entities[block.subtype].name,level,hp,maxHp:hp,basePower:4+Math.floor((level-1)/2),...C.creature(block.subtype,level),resistance:Math.min(20,8+level)};}
     if(block.subtype==='bandit-hideout')return {id:block.subtype,name:OR.errands?.atTarget(block)?OR.errands.definition().enemyName||'Bandit':'Gem Thief',level:1,hp:18,maxHp:18,basePower:2,...C.creature(block.subtype,1)};
     const profile=wildlife[block.subtype];if(profile&&!W.local(block.x,block.y))return lightCreature(block.subtype,C.random(profile.min,profile.max),profile.base,profile.extra);
     if(block.elementType==='Danger'&&W.local(block.x,block.y)){
       const natural=C.creature(block.subtype,1),hp=C.random(6,10);
       return {id:block.subtype,name:C.entities[block.subtype].name,level:1,hp,maxHp:hp,basePower:1,weapon:null,attackStyle:natural?.attackStyle||'Claws',defense:null,resistance:0,moves:(natural?.moves||[{name:'Bite',power:0,accuracy:80}]).map(m=>({...m,power:Math.min(2,m.power),accuracy:Math.min(85,m.accuracy)}))};
     }
-    const natural=C.creature(block.subtype,S.data.level),type={ogre:'Axe',troll:'Hammer',skeleton:'Sword'}[block.subtype]||'Sword';
+    const natural=C.creature(block.subtype,fixedLevel),type={ogre:'Axe',troll:'Hammer',skeleton:'Sword'}[block.subtype]||'Sword';
     let max=block.elementType==='Danger'?C.random(20,30):50,base=5,armor=C.random(1,15);
-    for(let l=2;l<=S.data.level;l++){max+=1.2*Math.ceil(C.required(l-1))+l;base++;armor=Math.min(95,armor+1);}
+    for(let l=2;l<=fixedLevel;l++){max+=1.2*Math.ceil(C.required(l-1))+l;base++;armor=Math.min(95,armor+1);}
     if(block.elementType==='Dragon')max=block.dragonMaxHp||block.dragonHp;
     const moves=C.weapon(type).moves.filter(m=>!m.magic);
-    return {id:block.subtype,name:OR.quests?.name(block)||C.entities[block.subtype].name,level:S.data.level,hp:block.dragonHp||max,maxHp:max,basePower:base,resistance:armor,weapon:type,moves,...natural};
+    return {id:block.subtype,name:OR.quests?.name(block)||C.entities[block.subtype].name,level:fixedLevel,hp:block.dragonHp||max,maxHp:max,basePower:base,resistance:armor,weapon:type,moves,...natural};
+  }
+  function enemy(block){
+    if(!OR.exploration?.ordinaryEnemy(block))return buildEnemy(block);
+    if(!block.enemyProfile){const e=buildEnemy(block);block.enemyLevel=e.level;block.enemyProfile={...e,hp:e.maxHp};if(W.at(block.x,block.y)===block)S.save();}
+    const e=JSON.parse(JSON.stringify(block.enemyProfile));
+    if(block.elementType==='Dragon')e.hp=Math.min(e.maxHp,block.dragonHp??e.maxHp);
+    return e;
   }
   function start(){const s=S.data,b=W.current();if(b.subtype==='traveler-ambush'&&!OR.traveler?.isBattle(b))return false;if(b.subtype==='malrec'&&(!s.finale?.veilbreaker||s.finale.stage!=='gate'))return false;if(b.finaleTile&&s.finale&&!['hunt','gate'].includes(s.finale.stage))return false;if(s.battle||s.outcome||s.foundLoot||b.cleared||!['Danger','Enemy','Dragon'].includes(b.elementType))return false;const e=enemy(b);if(b.elementType==='Dragon')b.dragonMaxHp=e.maxHp;s.battle={enemyId:b.subtype,enemy:e,x:s.x,y:s.y,round:1,log:`${e.name} confronts you. Choose your opening.`};s.state='Battle';if(!W.local(s.x,s.y)&&['Enemy','Dragon'].includes(b.elementType))ambush();S.save();return true;}
   function ambush(){
@@ -82,8 +90,8 @@ OR.combat=(()=>{
     const target=W.at(x,y),reserved=OR.village?.template(x,y);
     if(reserved||target?.subtype==='poison-vine'||target&&target.elementType!=='Nature')return false;
     const origin=W.at(battle.x,battle.y);if(!origin||origin.elementType!=='Dragon')return false;
-    const moved={...(origin.questId?{questId:origin.questId}:{}),x,y,elementType:'Dragon',subtype:'dragon',dragonHp:battle.enemy.hp,dragonMaxHp:battle.enemy.maxHp,resolved:false};
-    OR.quests?.relocate(origin,x,y);delete origin.questId;
+    const moved={...(origin.enemyProfile?{enemyLevel:origin.enemyLevel,enemyProfile:JSON.parse(JSON.stringify(origin.enemyProfile))}:{}),...(origin.questId?{questId:origin.questId}:{}),x,y,elementType:'Dragon',subtype:'dragon',dragonHp:battle.enemy.hp,dragonMaxHp:battle.enemy.maxHp,resolved:false,visited:target?.visited===true};
+    OR.quests?.relocate(origin,x,y);delete origin.questId;delete origin.enemyLevel;delete origin.enemyProfile;
     if(target){for(const key of Object.keys(target))delete target[key];Object.assign(target,moved);}else S.data.blocks.push(moved);
     Object.assign(origin,{elementType:'Nature',subtype:'clearing',dragonHp:null,dragonMaxHp:null,resolved:true,cleared:true});return true;
   }

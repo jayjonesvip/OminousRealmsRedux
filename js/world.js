@@ -28,10 +28,10 @@ OR.world=(()=>{
       else seen.add(b.subtype);
     }
   }
-  function spawn(type,x,y,safe=false){if(border(x,y))return borderBlock(x,y);if(type==='Dragon'&&S.data.level<3){type='Nature';safe=true;}if(type==='Puzzle'){const p=OR.puzzles.unique();if(p)return {x,y,elementType:'Puzzle',...p,resolved:false};type='Nature';}let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&!['traveler-lure','traveler-cart','traveler-ambush','traveler-cart-empty','siren-disguise','siren-pit','malrec','veil-grimoire','vaelric-refuge','veil-gate'].includes(e.id)&&e.id!=='bandit-hideout'&&e.id!=='empty-hideout'&&!['hanging-cage','empty-cage','rescue-nail'].includes(e.id)&&(!(safe||S.data.poisoned)||e.id!=='poison-vine')&&(e.id!=='wild-berries'||local(x,y))&&(e.id!=='mud-biter'||local(x,y))&&(e.id!=='large-rat'||!local(x,y))&&(e.id!=='grave'||!local(x,y))&&(!local(x,y)||type!=='Danger'||['rabid-rabbit','snake','spider','mud-biter'].includes(e.id)||e.id==='bat'&&nearBorder(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=['Danger','Enemy','Dragon'].includes(type)?C.pickEnemy(candidates):C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
+  function spawn(type,x,y,safe=false){if(border(x,y))return borderBlock(x,y);if(type==='Dragon'&&S.data.level<3){type='Nature';safe=true;}if(type==='Puzzle'){const p=OR.puzzles.unique();if(p)return {x,y,elementType:'Puzzle',...p,resolved:false};type='Nature';}let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&!['landmark-giant','landmark-bell','landmark-stone-host','traveler-lure','traveler-cart','traveler-ambush','traveler-cart-empty','siren-disguise','siren-pit','malrec','veil-grimoire','vaelric-refuge','veil-gate'].includes(e.id)&&e.id!=='bandit-hideout'&&e.id!=='empty-hideout'&&!['hanging-cage','empty-cage','rescue-nail'].includes(e.id)&&(!(safe||S.data.poisoned)||e.id!=='poison-vine')&&(e.id!=='wild-berries'||local(x,y))&&(e.id!=='mud-biter'||local(x,y))&&(e.id!=='large-rat'||!local(x,y))&&(e.id!=='grave'||!local(x,y))&&(!local(x,y)||type!=='Danger'||['rabid-rabbit','snake','spider','mud-biter'].includes(e.id)||e.id==='bat'&&nearBorder(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=['Danger','Enemy','Dragon'].includes(type)?C.pickEnemy(candidates):C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);OR.exploration?.prepareEnemy(b);return b;}
   function borderBlock(x,y,b){
     if(!b)b={x,y};
-    for(const key of Object.keys(b))if(!['x','y'].includes(key))delete b[key];
+    for(const key of Object.keys(b))if(!['x','y','visited'].includes(key))delete b[key];
     return Object.assign(b,{elementType:'Border',subtype:'outer-realm-border',resolved:true});
   }
   function migrateBorders(){if(S.data.borderLoss)return;for(const b of S.data.blocks)if(border(b.x,b.y))borderBlock(b.x,b.y,b);}
@@ -52,10 +52,10 @@ OR.world=(()=>{
       let roll=Math.random()*100;
       type=types.find(t=>(roll-=rates[t])<0)||types[types.length-1];
     }
-    b=(type==='Thing'?OR.errands?.rollRescue(x,y):null)||(type==='Nature'?(OR.errands?.roll(x,y)||OR.siren?.roll(x,y)||OR.traveler?.roll(x,y)):null)||spawn(type,x,y);S.data.blocks.push(b);return b;
+    b=(type==='Thing'?OR.errands?.rollRescue(x,y):null)||(type==='Nature'?(OR.errands?.roll(x,y)||OR.siren?.roll(x,y)||OR.traveler?.roll(x,y)||OR.exploration?.rollLandmark(x,y)):null)||spawn(type,x,y);S.data.blocks.push(b);return b;
   }
-  const current=()=>getOrCreateBlock(S.data.x,S.data.y);
-  function clear(permanent=false){const b=current();Object.assign(b,{elementType:'Nature',subtype:'clearing',dragonHp:null,resolved:true,cleared:permanent||b.cleared===true});}
+  const current=()=>{const b=getOrCreateBlock(S.data.x,S.data.y);OR.exploration?.visit(b);return b;};
+  function clear(permanent=false){const b=current();delete b.enemyProfile;delete b.enemyLevel;Object.assign(b,{elementType:'Nature',subtype:'clearing',dragonHp:null,resolved:true,cleared:permanent||b.cleared===true});}
   function weakenBorder(){const s=S.data;if((s.borderLoss||0)>=5)return false;s.borderLoss=(s.borderLoss||0)+1;s.borderNotice=true;S.log('Strongwood’s border is growing weaker. The darkness presses closer.');return true;}
   function returnHome(reason='Your strength gives out. You are carried home to Strongwood Cottage.'){
     const s=S.data;
@@ -96,7 +96,7 @@ OR.world=(()=>{
     const source=current(),needsQuiet=s.explorationNeedsQuiet||source.subtype==='poison-vine'||!['Nature','Path','Home','Border'].includes(source.elementType);
     retireBandit(source);
     const wasLocal=local(s.x,s.y);s.x+=delta[0];s.y+=delta[1];s.direction=direction;s.steps++;s.state='Explore';
-    const fresh=!at(s.x,s.y);retireBandit(at(s.x,s.y));const b=getOrCreateBlock(s.x,s.y,needsQuiet);b.resolved=false;
+    const fresh=!at(s.x,s.y);retireBandit(at(s.x,s.y));const b=getOrCreateBlock(s.x,s.y,needsQuiet);b.resolved=false;OR.exploration?.visit(b);
     if(b.subtype==='poison-vine'){S.poison();}
     s.explorationNeedsQuiet=b.subtype==='poison-vine'||!['Nature','Path','Home','Border'].includes(b.elementType);
     const quietStep=fresh&&needsQuiet&&b.elementType==='Nature';

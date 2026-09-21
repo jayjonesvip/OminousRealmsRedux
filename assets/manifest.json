@@ -524,5 +524,14 @@
   },
   "traveler-cart-empty": {
     "file": "traveler-cart-empty.png"
+  },
+  "landmark-giant": {
+    "file": "landmark-giant.png"
+  },
+  "landmark-bell": {
+    "file": "landmark-bell.png"
+  },
+  "landmark-stone-host": {
+    "file": "landmark-stone-host.png"
   }
 }

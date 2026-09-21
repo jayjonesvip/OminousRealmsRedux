@@ -7,6 +7,47 @@ const vm=require('node:vm');
 const fs=require('node:fs');
 const path=require('node:path');
 const root=fs.existsSync(path.resolve(__dirname,'../index.html'))?path.resolve(__dirname,'..'):path.resolve(__dirname,'../outputs/ominous-realms');
+
+test('moving dragons keep fixed strength and do not grant an unvisited discovery',()=>{
+  const g=game();g.rng(.999);const b=g.place('Dragon','dragon',40,0);b.dragonHp=300;b.dragonMaxHp=400;g.combat.start();const snapshot=JSON.stringify(b.enemyProfile),count=g.exploration.count();g.combat.flee();const moved=g.world.at(39,0);assert.equal(JSON.stringify(moved.enemyProfile),snapshot);assert.equal(moved.visited,false);assert.equal(g.exploration.count(),count);assert.equal(b.enemyProfile,undefined);g.state.data.level=8;g.state.save();g.state.load();assert.equal(g.world.at(39,0).enemyLevel,1);assert.equal(g.exploration.count(),count);
+});
+test('deep roaming enemies have an eight percent stronger roll and fixed profiles across return and restore',()=>{
+  const g=game();let rolls=[0,.999,.5];g.ctx.Math.random=()=>rolls.shift()??.5;
+  const b=g.place('Enemy','gargoyle',36,0);g.exploration.prepareEnemy(b);assert.equal(b.enemyLevel,5);
+  const profile=JSON.stringify(b.enemyProfile);assert.match(g.exploration.warning(b).label,/OVERWHELMING/);
+  g.state.data.level=8;assert.equal(JSON.stringify(g.combat.enemy(b)),profile);assert.equal(g.exploration.warning(b).danger,false);
+  assert.equal(g.state.importSave(g.state.exportSave()),true);assert.equal(JSON.stringify(g.world.current().enemyProfile),profile);
+  for(const [x,chance,wanted] of [[35,0,1],[36,.08,1],[36,.079,3],[3,0,1]]){const h=game();h.rng(chance);const e=h.place('Enemy','gargoyle',x,0);h.exploration.prepareEnemy(e);assert.equal(e.enemyLevel,wanted);}
+});
+test('stronger rolls never alter wildlife, dragons, quest targets or active mission travel',()=>{
+  for(const [type,id] of [['Danger','large-rat'],['Danger','bat'],['Dragon','dragon']]){const g=game();g.rng(0);const b=g.place(type,id,50,0);if(type==='Dragon')b.dragonHp=300;g.exploration.prepareEnemy(b);assert.equal(b.enemyLevel,1);}
+  for(const field of ['pursuit','siren','traveler']){const g=game();g.state.data[field]={};g.rng(0);const b=g.place('Enemy','gargoyle',50,0);g.exploration.prepareEnemy(b);assert.equal(b.enemyLevel,1);}
+  for(const field of ['active','offer']){const g=game();g.quests.data()[field]={};g.rng(0);const b=g.place('Enemy','gargoyle',50,0);g.exploration.prepareEnemy(b);assert.equal(b.enemyLevel,1);}
+  for(const field of ['questId','finaleTile']){const g=game();const b=g.place('Enemy','ogre',50,0);b[field]='test';g.rng(0);g.exploration.prepareEnemy(b);assert.equal(b.enemyProfile,undefined);}
+});
+test('discovery titles count visited coordinates once, persist, and grant no combat rewards',()=>{
+  const g=game();g.state.data.blocks=[];const before=[g.state.data.level,g.state.data.victories,g.state.data.weapon.basePower];
+  for(let i=0;i<1000;i++){const b={x:i,y:50,elementType:'Nature',subtype:'clearing'};g.state.data.blocks.push(b);g.state.data.x=i;g.state.data.y=50;g.exploration.visit(b);g.exploration.visit(b);if(i===98)assert.equal(g.state.data.discoveryTitles.length,0);if(i===99)assert.equal(g.exploration.summary().title,'Wayfarer');if(i===499)assert.equal(g.exploration.summary().title,'Far Wanderer');}
+  assert.equal(g.exploration.summary().title,'Beyond the Last Road');assert.equal(g.exploration.count(),1000);assert.equal(g.state.data.discoveryTitles.length,3);assert.deepEqual([g.state.data.level,g.state.data.victories,g.state.data.weapon.basePower],before);
+  const raw=g.state.exportSave();assert.equal(g.state.importSave(raw),true);assert.equal(g.exploration.count(),1000);assert.equal(g.state.data.discoveryTitles.length,3);
+  g.state.data.blocks.push({x:9000,y:9000,elementType:'Nature',subtype:'clearing',visited:false});assert.equal(g.exploration.count(),1000);
+});
+test('discovery migration handles legacy terrain and excludes reserved quest destinations',()=>{
+  const g=game();const raw=JSON.parse(g.state.exportSave());delete raw.discoveryTitles;raw.blocks.forEach(b=>delete b.visited);const restored=g.state.prepareImport(JSON.stringify(raw));assert.deepEqual(Array.from(restored.discoveryTitles),[]);assert.ok(restored.blocks.every(b=>typeof b.visited==='boolean'));
+  const b={x:50,y:50,elementType:'Nature',subtype:'clearing'};g.state.data.blocks.push(b);g.state.data.pursuit={x:50,y:50};g.exploration.migrate();assert.equal(b.visited,false);g.state.data.x=50;g.state.data.y=50;g.exploration.visit(b);assert.equal(b.visited,true);
+});
+test('discovery save validation rejects malformed titles, visit flags and fixed combat stats',()=>{
+  const g=game();g.rng(.5);const b=g.place('Enemy','gargoyle',40,0);g.exploration.prepareEnemy(b);const raw=JSON.parse(g.state.exportSave());assert.equal(g.state.valid(raw),true);
+  for(const mutate of [s=>s.discoveryTitles=['unknown'],s=>s.discoveryTitles=['wayfarer','wayfarer'],s=>s.blocks.at(-1).visited='yes',s=>s.blocks.at(-1).enemyLevel=-1,s=>s.blocks.at(-1).enemyProfile.maxHp=0,s=>s.blocks.at(-1).enemyProfile.moves[0].accuracy=101,s=>s.blocks.at(-1).enemyProfile.id='dragon']){const s=JSON.parse(JSON.stringify(raw));mutate(s);assert.equal(g.state.valid(s),false);assert.throws(()=>g.state.prepareImport(JSON.stringify(s)),/valid/);}
+});
+test('three illustrated landmarks are rare Outer discoveries, unique, stable and without actions',()=>{
+  const g=game(new Map(),true);g.rng(0);assert.equal(g.exploration.rollLandmark(3,3),null);assert.equal(g.exploration.rollLandmark(26,0),null);g.rng(.01);assert.equal(g.exploration.rollLandmark(40,0),null);g.rng(0);
+  const seen=[];for(let i=0;i<3;i++){const b=g.exploration.rollLandmark(40+i,0);assert.ok(b);seen.push(b.subtype);g.state.data.blocks.push(b);g.state.data.x=b.x;g.state.data.y=b.y;g.world.current();g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/RARE LANDMARK/);assert.match(g.nodes.stage.innerHTML,new RegExp(b.subtype+'\\.png'));assert.doesNotMatch(g.nodes.stage.innerHTML,/data-action="fight"/);const snapshot=JSON.stringify(b);g.world.current();assert.equal(JSON.stringify(b),snapshot);}
+  assert.equal(new Set(seen).size,3);assert.equal(g.exploration.rollLandmark(99,0),null);assert.equal(g.state.importSave(g.state.exportSave()),true);assert.equal(g.exploration.summary().landmarks.length,3);
+});
+test('overwhelming foes warn before combat and walking past costs no health or hope',()=>{
+  const g=game(new Map(),true),b=g.place('Enemy','gargoyle',40,0);b.enemyLevel=5;g.combat.enemy(b);g.ui.route('explore');assert.match(g.nodes.stage.innerHTML,/OVERWHELMING THREAT/);assert.match(g.nodes.stage.innerHTML,/Enemy level 5/);const hp=g.state.data.hp.current,hope=g.state.data.hope;g.rng(.5);g.ui.dispatch('move:N');assert.equal(g.state.data.hp.current,hp);assert.equal(g.state.data.hope,hope);assert.equal(g.state.data.battle,null);assert.equal(b.enemyLevel,5);
+});
 function game(storage=new Map(),ui=false){
   function mockNode(){let html='';return {children:[],className:'',hidden:false,classList:{add(){},remove(){}},
     get innerHTML(){return html+this.children.map(n=>'<div class="'+n.className+'">'+n.innerHTML+'</div>').join('');},
@@ -16,9 +57,9 @@ function game(storage=new Map(),ui=false){
   const nodes=Object.fromEntries(['hud','stage','nav','modal','toast','combat-toasts'].map(id=>[id,mockNode()]));
   const ctx={console,Math:Object.create(Math),localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setInterval:()=>1,clearInterval(){},setTimeout:()=>1,clearTimeout,matchMedia:()=>({matches:true}),scrollY:0,scrollTo(){},history:{pushState(){},replaceState(){}},location:{hash:''},addEventListener(){},document:{createElement:mockNode,getElementById:id=>nodes[id],querySelector:()=>null,addEventListener(){},body:{classList:{toggle(){}}}}};
   ctx.window=ctx;vm.createContext(ctx);
-  for(const file of ['content','dialogue','state','world','village','puzzles','combat','actions','quests','errands','finale','siren','traveler',...(ui?['ui-battle','ui']:[])])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),ctx,{filename:file+'.js'});
+  for(const file of ['content','dialogue','state','world','village','puzzles','combat','actions','quests','errands','finale','siren','traveler','exploration',...(ui?['ui-battle','ui']:[])])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),ctx,{filename:file+'.js'});
   const g=ctx.OR;g.state.create('Rowan','Sword');g.world.current();g.state.save();
-  return {...g,storage,ctx,nodes,rng:n=>ctx.Math.random=()=>n,place:(type,subtype,x=3,y=3)=>{g.state.data.x=x;g.state.data.y=y;let b=g.world.at(x,y);if(!b){b={x,y};g.state.data.blocks.push(b);}Object.assign(b,{elementType:type,subtype,resolved:false});return b;}};
+  return {...g,storage,ctx,nodes,rng:n=>ctx.Math.random=()=>n,place:(type,subtype,x=3,y=3)=>{g.state.data.x=x;g.state.data.y=y;let b=g.world.at(x,y);if(!b){b={x,y};g.state.data.blocks.push(b);}delete b.enemyProfile;delete b.enemyLevel;Object.assign(b,{elementType:type,subtype,resolved:false,visited:true});return b;}};
 }
 test('encounter prompts sit below directions, which leave in one tap without consuming the encounter',()=>{
   for(const [type,id,action] of [['NPC','elder','talk'],['Food','mushrooms','eat'],['Danger','snake','fight'],['Enemy','ogre','fight'],['Dragon','dragon','fight'],['BuriedItems','dig','route:digging'],['LockedItem','chest','unlock'],['Craft','forge','forge:armor']]){

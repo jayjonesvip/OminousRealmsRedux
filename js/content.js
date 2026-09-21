@@ -37,6 +37,9 @@ OR.content = (() => {
     RustyNail:{name:'Rusty Nail',art:'item-nail',group:'SUPPLIES',note:'Thin enough to pick the hanging cage’s lock.'}
   };
   const entries = [
+    ['Thing','landmark-giant','Giant’s Remains','Ancient ribs rise over the road.','The road passes through its ribs. Even giants found no shelter here.'],
+    ['Thing','landmark-bell','Silent Bell Tower','An old bell hangs beyond reach.','The rope has rotted away. The bell still waits for a hand that will never return.'],
+    ['Thing','landmark-stone-host','Petrified Battlefield','Stone figures stand among the grass.','They became stone before the battle ended. One still reaches for a fallen friend.'],
     ['Thing','traveler-lure','A Wounded Traveler','He cradles a bandaged leg. The linen is spotless.','He cradles a bandaged leg. The linen is spotless.'],
     ['Thing','traveler-cart','A Ruined Cart','Torn sacks lie beneath a broken wheel.','Torn sacks lie beneath a broken wheel.'],
     ['Thing','traveler-ambush','Cart Bandits','Three blades close around the cart.','Three blades close around the cart.'],
