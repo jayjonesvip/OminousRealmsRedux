@@ -1,6 +1,6 @@
 # The Hanging Cage
 
-One-time Outer Realm rescue using the shared retrieval system. A cage can replace 2% of eligible Thing rolls, only with no other active retrieval, grandfather quest or offer. Encounter reserves the quest slot. Speak to Elara to reserve a nail find 5–9 cardinal steps away on undiscovered Outer ground. Collecting the nail reminds you of her and redirects guidance to the cage. Freeing her consumes the nail, adds 5 Hope once, journals her thanks, and returns to Explore with empty cage artwork. No attacks against her. No nails in general loot; obsolete inventory nails are removed outside this rescue.
+One-time Outer Realm rescue using the shared retrieval system. A cage can replace 2% of eligible Thing rolls, only with no other active retrieval, grandfather quest or offer. Encounter reserves the quest slot. Speak to Mara Thenn to reserve a nail find 5–9 cardinal steps away on undiscovered Outer ground. Collecting the nail reminds you of her and redirects guidance to the cage. Freeing her consumes the nail, adds 5 Hope once, journals her thanks, and returns to Explore with empty cage artwork. No attacks against her. No nails in general loot; obsolete inventory nails are removed outside this rescue.
 
 ## Artwork
 Built-in image_gen. Encounter and after-rescue assets: assets/hanging-cage.png and assets/empty-cage.png. Existing item-nail.png reused for quest find.

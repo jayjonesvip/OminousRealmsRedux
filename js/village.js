@@ -2,7 +2,7 @@
 OR.village=(()=>{
   const C=OR.content,S=OR.state;
   const destinations=['tavern','wizard-sanctuary','herbalist-cottage'];
-  const names={'wizard-sanctuary':'Vaelric, the Ashen Sage',tavern:'The Barkeep','village-forge':'Eldric','herbalist-cottage':'The Herbalist'};
+  const names={'wizard-sanctuary':'Sereth Venn, the Ashen Sage',tavern:'The Barkeep','village-forge':'Dornik Harth','herbalist-cottage':'The Herbalist'};
   const words={
     'wizard-sanctuary':'Strongwood deserves a quieter age. Let me bind Realmfire to your weapon. A Magic Crystal will awaken it for one strike; the enchantment itself will remain. Take this crystal, and use that power to bring peace home.',
     tavern:'Take these ingots for the road: one metal, one steel. Metal reinforces armor; steel improves weapons. Find a wayfarer’s forge while exploring to put them to use. Your map marks discovered forges with crossed weapons, so you can find your way back. No smith works here; I only keep a little iron for those defending Strongwood.',
@@ -82,7 +82,7 @@ OR.village=(()=>{
     if(allVisited()){updateSpeech(b);S.log(names[b.subtype]+': '+farewell);}
     S.log((b.subtype==='wizard-sanctuary'?'Realmfire enchanted. ':'')+'Received: '+rewards.map(r=>r.qty+' '+C.items[r.type].name).join(', ')+'.');retireCompleted();S.save();return rewards;
   }
-  const visionWords='That gentle golden light upon your compass was me, my child. I have been watching over you, guiding you to those who could help. I will watch over you still. When that light returns, know that I am pointing the way—but the choice is always yours. Grow stronger, and venture deeper beyond the veil. When you are ready, listen for my voice. There are things I left unfinished—tasks that could help our village. I will ask for your help, but the choice to accept will be yours. Trust your instincts. Protect the people who believe in you. Save Strongwood from the shadow. You never walk alone.';
+  const visionWords='That gentle golden light upon your compass was me, my child. I have been watching over you, guiding you to those who could help. I will watch over you still. When that light returns, know that I am pointing the way—but the choice is always yours. Grow stronger, and venture deeper beyond the Cinderseam. When you are ready, listen for my voice. There are things I left unfinished—tasks that could help our village. I will ask for your help, but the choice to accept will be yours. Trust your instincts. Protect the people who believe in you. Save Strongwood from the shadow. You never walk alone.';
   const visionActive=()=>!!S.data?.village?.visionPending;
   function triggerVision(b){
     const v=S.data?.village;if(!allVisited()||v.visionSeen||destinations.includes(b.subtype)||['Border','Home','Path','Landmark'].includes(b.elementType))return false;
@@ -101,10 +101,10 @@ OR.village=(()=>{
   function empty(b){return destinations.includes(b.subtype)&&completed(b.subtype);}
   function description(b){
     if(b.elementType==='Home'&&(allVisited()||S.data.village?.legacy||S.data.village?.visionSeen))return 'A warm hearth. A familiar bed. Rest here and recover.';
-    if(b.elementType==='Home')return S.data.village?.legacy?'Your hearth is warm. Find wayfarer forges while exploring; your map remembers them.':'Follow the cobblestone path north to the Lantern Tavern. The people of Strongwood will help prepare you for the road.';
+    if(b.elementType==='Home')return S.data.village?.legacy?'Your hearth is warm. Find wayfarer forges while exploring; your map remembers them.':'Follow the cobblestone path north to the Crooked Kettle. The people of Strongwood will help prepare you for the road.';
     if(b.elementType==='Path')return 'Weathered cobblestones wind through Strongwood. Follow the trail on your map; no wandering encounters disturb this path.';
     if(!destinations.includes(b.subtype)&&b.elementType!=='Landmark')return null;
-    if(b.subtype==='village-forge')return 'Eldric’s forge burns beside the village path. Bring metal for armor and steel for weapons.';
+    if(b.subtype==='village-forge')return 'Dornik Harth’s forge burns beside the village path. Bring metal for armor and steel for weapons.';
     if(!empty(b))return C.entities[b.subtype].village;
     return {'wizard-sanctuary':'The wizard has departed. The sanctuary is quiet; his enchantment remains.',tavern:'The tavern is quiet. The barkeep is away.','herbalist-cottage':'The herbalist is gathering beyond the village. Her cottage stands quiet.'}[b.subtype];
   }

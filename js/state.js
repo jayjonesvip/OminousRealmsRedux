@@ -5,7 +5,7 @@ OR.state = (() => {
   let data = null;
   let storageError = '';
   let staging=false;
-  const deedLines={watchpostRecovered:'Strongwood: the watchpost stores are recovered.',provisionsReturned:'Strongwood: the missing provisions have come home.',ogreDefeated:'Strongwood: the Roadkeeper’s Bane is dead.',roadCleared:'Strongwood: travelers can use the old road again.',hollowflameDead:'Strongwood: Hollowflame’s smoke no longer hangs over the village.'};
+  const deedLines={watchpostRecovered:'Strongwood: the watchpost stores are recovered.',provisionsReturned:'Strongwood: the missing provisions have come home.',ogreDefeated:'Strongwood: the Roadkeeper’s Bane is dead.',roadCleared:'Strongwood: travelers can use the old road again.',hollowflameDead:'Strongwood: Rauthkell’s smoke no longer hangs over the village.'};
   const flags=()=>Object.fromEntries(Object.keys(deedLines).map(key=>[key,false]));
   const record=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
   const validDeeds=s=>(s.worldFlags===undefined||record(s.worldFlags)&&Object.entries(s.worldFlags).every(([k,v])=>Object.hasOwn(deedLines,k)&&typeof v==='boolean'))&&(s.reactionSeen===undefined||record(s.reactionSeen)&&Object.values(s.reactionSeen).every(v=>Array.isArray(v)&&v.every(k=>Object.hasOwn(deedLines,k))));
@@ -17,6 +17,19 @@ OR.state = (() => {
   function hopeStatus(){const value=data.hope??50,index=Math.min(4,Math.floor(value/20));return {value,label:['Fading','Uneasy','Steady','Hopeful','Resolute'][index],words:['Shutters stay barred. The roads lie empty.','Doors close earlier. Few villagers travel alone.','Hearths burn through the evening. The village holds on.','Travelers return to the road. Lamps burn in open windows.','Neighbors stand watch together. Strongwood will not yield.'][index]};}
   const fresh = (name='Warrior',type='Sword')=>({version:1,finale:null,rescueDone:false,hope:50,borderLoss:0,borderNotice:false,poisoned:null,pursuit:null,heavyStaggerSeen:false,worldFlags:flags(),reactionSeen:{},enchanted:false,name:name.trim().slice(0,24)||'Warrior',x:0,y:0,direction:'N',state:'Explore',hp:{current:50,max:50},level:1,victories:0,levelStartVictories:0,armor:{resistance:10,craftCost:10},weapon:OR.content.weapon(type),inventory:[],message:'Your father’s iron. Your own legend.',journal:[],blocks:[],battle:null,outcome:null,foundLoot:null,steps:0,healingSearchSteps:0,lastFind:null,rest:null});
   const valid = s=>s && s.version===1 && (s.quests?.searchSteps===undefined||Number.isInteger(s.quests.searchSteps)&&s.quests.searchSteps>=0&&s.quests.searchSteps<100) && (OR.finale?.valid(s)??(s.finale===undefined||s.finale===null)) && (s.rescueDone===undefined||typeof s.rescueDone==='boolean') && (s.hope===undefined||Number.isInteger(s.hope)&&s.hope>=0&&s.hope<=100) && (s.borderLoss===undefined||Number.isInteger(s.borderLoss)&&s.borderLoss>=0&&s.borderLoss<=5) && (s.borderNotice===undefined||typeof s.borderNotice==='boolean') && validHazards(s) && (s.heavyStaggerSeen===undefined||typeof s.heavyStaggerSeen==='boolean') && validDeeds(s) && typeof s.name==='string' && Number.isInteger(s.x) && Number.isInteger(s.y) && s.hp && Number.isFinite(s.hp.current) && Number.isFinite(s.hp.max) && s.hp.max>=1 && s.hp.current>=1 && s.hp.current<=s.hp.max && Number.isInteger(s.level) && s.level>=1 && Number.isFinite(s.victories) && s.victories>=0 && s.armor && Number.isFinite(s.armor.resistance) && s.armor.resistance>=0 && s.armor.resistance<=95 && s.weapon && OR.content.weapons[s.weapon.type] && Number.isFinite(s.weapon.basePower) && s.weapon.basePower>=1 && Array.isArray(s.inventory) && s.inventory.every(i=>OR.content.items[i.type] && Number.isInteger(i.qty) && i.qty>=0) && Array.isArray(s.blocks) && s.blocks.every(b=>b&&(b.healingUsed===undefined||typeof b.healingUsed==='boolean')&&Number.isInteger(b.x)&&Number.isInteger(b.y)&&OR.content.entities[b.subtype]&&OR.content.weights[b.elementType]) && Array.isArray(s.journal) && s.journal.every(j=>typeof j==='string');
+
+  // Display-only migration: save IDs, discovered coordinates and player names stay intact.
+  const formerNames=[["Veilbound Grimoire","Cinderseam Grimoire"],["Veilbreaker","Strongwood’s Oath"],["Earthshaker","Gravesoil Blow"],["Thornback Spider","Needleleg Spider"],["Oldwood Forest","Rafterroot Forest"],["Ashwood Forest","Coalstump Forest"],["Veilfall","Hushrill Falls"],["Forsaken Glade","Cinderhush Glade"],["Verdant Dragon","Sootveil Dragon"],["Briar Snake","Ditchscale Snake"],["Eldric","Dornik Harth"],["Elara","Mara Thenn"],["Vaelric","Sereth Venn"],["Malrec","Ordrath"],["Hollowflame","Rauthkell"],["Gravewing Gargoyle","Ruinperch Gargoyle"],["Ember Fox","Russetbrush Fox"],["Silverrun Stream","Sparrowbend Stream"],["Whispering Glade","Stillbough Glade"],["Sunlit Clearing","Warmfern Clearing"],["Reedwater Marsh","Sedgepool Marsh"],["Lantern Tavern","Crooked Kettle"],["Elder Grove","Bentroot Grove"],["Witchcap","Duskfrill"],["Writhing Briars","Hookthorn Tangle"],["Ironjaw Ogre","Kilnmaw Ogre"],["The Weighted Gate","The Ingot Balance"],["The Turning Stones","The Rune Bearings"],["The Missing Provisions","The Stolen Winter Stores"],["Veil","Cinderseam"]];
+  const nameChanges=formerNames.flatMap(([oldName,newName])=>[[oldName,newName],[oldName.toUpperCase(),newName.toUpperCase()]]).concat([['the veil','the Cinderseam']]);
+  function currentWording(text){return typeof text!=='string'?text:nameChanges.reduce((line,[oldName,newName])=>line.replace(new RegExp('\\b'+oldName+'\\b','g'),newName),text);}
+  function refreshWording(){
+    data.message=currentWording(data.message);
+    data.journal=data.journal.map(currentWording);
+    const textKeys=new Set(['name','speaker','text','description','log','move','reply','enemy','defense']);
+    function visit(value){if(!value||typeof value!=='object')return;for(const key of Object.keys(value)){if(textKeys.has(key)&&typeof value[key]==='string')value[key]=currentWording(value[key]);else if(typeof value[key]==='object')visit(value[key]);}}
+    for(const block of data.blocks)visit(block.dialogue);
+    visit(data.battle);visit(data.outcome);visit(data.finale?.dialogue);
+  }
   function load(rawOverride) {
     try {
       const raw=rawOverride===undefined?localStorage.getItem(KEY):rawOverride;
@@ -24,6 +37,7 @@ OR.state = (() => {
       const parsed=JSON.parse(raw);
       if (!valid(parsed)) {storageError='This save cannot be read. Starting a new journey will replace it.';return null;}
       data={...fresh(parsed.name,parsed.weapon.type),...parsed};
+      refreshWording();
       // Legacy levels started at the previous lifetime threshold. Keep that
       // level and its earned wins when adopting the per-level progression.
       if(!Number.isInteger(parsed.levelStartVictories)||parsed.levelStartVictories<0||parsed.levelStartVictories>data.victories)
@@ -67,7 +81,7 @@ OR.state = (() => {
   function exportSave(){if(!data)throw Error('No journey to export.');syncRest();save();return JSON.stringify(data,null,2);}
   function prepareImport(raw){const previous=data,error=storageError;try{if(typeof raw!=='string'||raw.length>10000000)throw Error('Choose a save file smaller than 10 MB.');const candidate=JSON.parse(raw);if(!valid(candidate))throw Error('This is not a valid Ominous Realms save.');staging=true;data=null;const loaded=load(raw);if(!loaded)throw Error('This save could not be restored.');return JSON.parse(JSON.stringify(loaded));}catch(e){throw Error(e instanceof SyntaxError?'The file is not valid JSON.':e.message);}finally{data=previous;storageError=error;staging=false;}}
   function importSave(raw){const previous=data;try{const candidate=prepareImport(raw);data=candidate;if(!save()){data=previous;return false;}return true;}catch(e){storageError=e.message;data=previous;return false;}}
-  function create(name,type) {data=fresh(name,type);OR.village?.setup();log('Eldric placed ancestral iron in your hands. Strongwood has a defender.');save();return data;}
+  function create(name,type) {data=fresh(name,type);OR.village?.setup();log('Dornik Harth placed ancestral iron in your hands. Strongwood has a defender.');save();return data;}
   function reset() {try {localStorage.removeItem(KEY);}catch (_){storageError='Could not erase the save. Enable device storage and try again.';return false;}data=null;return true;}
   function qty(type) {return data?.inventory.find(i=>i.type===type)?.qty||0;}
   function levelProgress() {const required=OR.content.required(data.level),earned=Math.max(0,data.victories-data.levelStartVictories);return {required,earned,remaining:Math.max(0,required-earned),percent:Math.min(100,earned/required*100)};}

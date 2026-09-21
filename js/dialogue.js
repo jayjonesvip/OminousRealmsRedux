@@ -179,7 +179,7 @@ OR.dialogue=(()=>{
         ['tip','Do not confuse a powerful move with a reliable one. Out here, the difference bites.'],
         ['tip','The village wizard can awaken Realmfire. Keep a Magic Crystal to fuel it.'],
         ['tip','Armor reduces a blow; it does not promise you will feel nothing.'],
-        ['tip','The hammer’s Earthshaker lands half the time before any Lucky Coin bonus. A hit staggers. Pick your moment.'],
+        ['tip','The hammer’s Gravesoil Blow lands half the time before any Lucky Coin bonus. A hit staggers. Pick your moment.'],
         ['tip','You can flee an unfinished fight. The road will still be there.'],
         ['tip','Wounded and carrying no potion? Keep an eye out as you travel; the road can yield one.'],
         ['rambling','I split a log and found ash inside. The fire appears to be arriving out of order.'],
@@ -789,7 +789,7 @@ OR.dialogue=(()=>{
     provisionsReturned:['The missing provisions are home. There is food on tables that stood bare.','Your recovered provisions mean we can spare bread for travelers again.'],
     ogreDefeated:['You killed the ogre on the old road. My brother finally made it home.','The Roadkeeper’s Bane is dead. We no longer listen for its tread at night.'],
     roadCleared:['The road you cleared is carrying carts again. We can bring timber home.','Children can wait for their parents by the road again. You made that possible.'],
-    hollowflameDead:['Since you killed Hollowflame, the smoke has lifted. We can see the far ridge again.','Hollowflame is dead. Last night, nobody kept watch for fire.']
+    hollowflameDead:['Since you killed Rauthkell, the smoke has lifted. We can see the far ridge again.','Rauthkell is dead. Last night, nobody kept watch for fire.']
   };
   function reaction(type,context,previousId){const s=OR.state.data;if(context!=='strongwood'||!['villager','farmer','woodcutter','elder'].includes(type)||!s)return null;const active=Object.keys(reactions).filter(k=>s.worldFlags?.[k]);if(!active.length)return null;s.reactionSeen=s.reactionSeen||{};const seen=s.reactionSeen[type]||[],unheard=active.filter(k=>!seen.includes(k));if(!unheard.length&&Math.random()>=.25)return null;const choices=(unheard.length?unheard:active).flatMap(key=>reactions[key].map((text,i)=>({id:type+'.reaction.'+key+'.'+i,tone:'reaction',text,key}))).filter(line=>line.id!==previousId);if(!choices.length)return null;const line=OR.content.pick(choices);s.reactionSeen[type]=[...new Set([...seen,line.key])];return line;}
   function choose(type,context,previousId){

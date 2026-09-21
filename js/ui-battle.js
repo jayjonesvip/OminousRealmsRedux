@@ -18,14 +18,14 @@ OR.createBattleUI=({$,escape,num,art,enemyArt,playerArt,eyebrow,hpBar,btn,visibl
   function roundToast(r,enemy=false){
     if(r.received===null){
       if(!enemy){
-        if(r.stagger){const first=!S.data.heavyStaggerSeen;if(first){S.data.heavyStaggerSeen=true;S.save();}combatToast('hit','STAGGERED',r.move+' staggered '+(S.data.battle?.enemy.name||'the enemy')+' · ROUND '+r.round+' · NO COUNTER'+(first?' · A landed heavy strike denies the counter. Enemies resist stagger on the next turn.':'')+(r.phaseChanged?' · MALREC UNBOUND':''),num(r.dealt)+' DMG');}
+        if(r.stagger){const first=!S.data.heavyStaggerSeen;if(first){S.data.heavyStaggerSeen=true;S.save();}combatToast('hit','STAGGERED',r.move+' staggered '+(S.data.battle?.enemy.name||'the enemy')+' · ROUND '+r.round+' · NO COUNTER'+(first?' · A landed heavy strike denies the counter. Enemies resist stagger on the next turn.':'')+(r.phaseChanged?' · ORDRATH UNBOUND':''),num(r.dealt)+' DMG');}
         else combatToast(r.magic?'magic-hit':'hit','ENEMY VANQUISHED',r.move+' vanquished '+S.data.outcome.enemy+' · ROUND '+r.round,num(r.dealt)+' DMG');
       }
       return;
     }
     const amount=enemy?r.received:r.dealt,kind=amount>0?(enemy?'hurt':r.magic?'magic-hit':'hit'):'miss';
     combatToast(kind,enemy?(amount>0?'YOU TOOK DAMAGE':'ENEMY MISSED'):(amount>0?'YOU HIT':'YOU MISSED'),
-      (enemy?r.reply:r.move)+' · ROUND '+r.round+(!enemy&&r.braced?' · BRACED — COUNTER POSSIBLE':'')+(!enemy&&r.phaseChanged?' · ARMOR BROKEN — MALREC UNBOUND':''),amount>0?(enemy?'−'+num(amount)+' HP':num(amount)+' DMG'):'MISS');
+      (enemy?r.reply:r.move)+' · ROUND '+r.round+(!enemy&&r.braced?' · BRACED — COUNTER POSSIBLE':'')+(!enemy&&r.phaseChanged?' · ARMOR BROKEN — ORDRATH UNBOUND':''),amount>0?(enemy?'−'+num(amount)+' HP':num(amount)+' DMG'):'MISS');
   }
   function battle(){
     const s=S.data,b=s.battle||roundPlayback;if(!b)return explore();

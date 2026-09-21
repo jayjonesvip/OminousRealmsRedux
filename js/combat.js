@@ -13,7 +13,7 @@ OR.combat=(()=>{
   function lightCreature(id,hp,base,extra){const natural=C.creature(id,1);return {id,name:C.entities[id].name,level:1,hp,maxHp:hp,...natural,basePower:base,resistance:0,moves:natural.moves.map(m=>({...m,power:Math.min(extra,m.power),accuracy:Math.min(90,m.accuracy)}))};}
   function migrateWildlife(){const b=S.data?.battle;if(!b)return;const id=b.enemyId,local=W.local(b.x,b.y);if(!wildlife[id]&&id!=='mud-biter')return;const p=local?{max:10,base:1,extra:2}:wildlife[id];if(!p)return;const e=b.enemy,max=Math.min(e.maxHp||p.max,p.max),hp=Math.min(e.hp,max);Object.assign(e,lightCreature(id,max,p.base,p.extra),{hp});}
   function enemy(block){
-    if(block.subtype==='malrec'){const level=S.data.level,hp=110+8*level;return {id:'malrec',name:'Malrec, Lord of the Veil',level,hp,maxHp:hp,basePower:6+Math.floor(level/2),resistance:S.data.finale?.veilbreaker?12:85,attackStyle:'Crowned blade',defense:'Veil armor',weapon:null,phase:1,moves:[{name:'Black Edge',power:3,accuracy:86},{name:'Crownfall',power:7,accuracy:70}]};}
+    if(block.subtype==='malrec'){const level=S.data.level,hp=110+8*level;return {id:'malrec',name:'Ordrath, Lord of the Cinderseam',level,hp,maxHp:hp,basePower:6+Math.floor(level/2),resistance:S.data.finale?.veilbreaker?12:85,attackStyle:'Crowned blade',defense:'Cinderseam armor',weapon:null,phase:1,moves:[{name:'Black Edge',power:3,accuracy:86},{name:'Crownfall',power:7,accuracy:70}]};}
     if(block.subtype==='undead-knight'){const level=S.data.level,hp=30+4*(level-1);return {id:block.subtype,name:C.entities[block.subtype].name,level,hp,maxHp:hp,basePower:4+Math.floor((level-1)/2),...C.creature(block.subtype,level),resistance:Math.min(20,8+level)};}
     if(block.subtype==='bandit-hideout')return {id:block.subtype,name:OR.errands?.atTarget(block)?OR.errands.definition().enemyName||'Bandit':'Gem Thief',level:1,hp:18,maxHp:18,basePower:2,...C.creature(block.subtype,1)};
     const profile=wildlife[block.subtype];if(profile&&!W.local(block.x,block.y))return lightCreature(block.subtype,C.random(profile.min,profile.max),profile.base,profile.extra);
@@ -59,7 +59,7 @@ OR.combat=(()=>{
     b.lastRound={round:b.round,move:move.name,magic:!!move.magic,dealt:hit,received:null,reply:null,stagger:false};
     if(W.current().elementType==='Dragon')W.current().dragonHp=e.hp;
     if(e.hp<=0){b.log=line;S.log(line);return finish(true);}
-    if(e.id==='malrec'&&e.phase===1&&e.hp<=e.maxHp/2){e.phase=2;e.resistance=0;e.basePower+=2;e.attackStyle='Unbound shadow';e.moves=[{name:'Veil Lash',power:5,accuracy:92},{name:'Last Dominion',power:10,accuracy:68}];b.lastRound.phaseChanged=true;line+=' His armor breaks. Malrec fights as unbound shadow.';}
+    if(e.id==='malrec'&&e.phase===1&&e.hp<=e.maxHp/2){e.phase=2;e.resistance=0;e.basePower+=2;e.attackStyle='Unbound shadow';e.moves=[{name:'Cinderseam Lash',power:5,accuracy:92},{name:'Last Dominion',power:10,accuracy:68}];b.lastRound.phaseChanged=true;line+=' His armor breaks. Ordrath fights as unbound shadow.';}
     if(hit&&move.stagger&&!braced){
       line+=` ${e.name} staggers. No counter.`;
       b.lastRound.stagger=true;b.log=line;b.round++;S.log(line);S.save();return true;

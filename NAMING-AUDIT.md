@@ -6,7 +6,7 @@ The names are **not all unused elsewhere**. Several exact or closely related gam
 
 This is a naming/discoverability audit, not trademark clearance. Search indexes cannot cover every released, unpublished, modded, player-created, or non-English game. Ordinary words such as Sword, Potion, Skeleton, Backstab, and The Hunter cannot sensibly be made exclusive.
 
-No names have been changed in this pass. Distinctive overlaps are listed for a coordinated rename rather than quietly changing the user's world. Internal save identifiers can remain stable if display names change.
+The coordinated rename below is implemented. The original audit and catalog remain below as historical evidence. Internal save identifiers and artwork filenames remain stable.
 
 ## Highest-priority overlaps
 | Our name | Evidence | Match and recommendation |
@@ -86,3 +86,40 @@ Ashfall Clearing; Ashrun Stream; Ashwood Forest; Blackened Thicket; Blackmoss St
 ### Additional story and UI
 
 Ancestral Iron; Axe; Black Edge; Coin Thief; Crownfall; Elara; Eldric; Flame; Gem Thief; Hammer; Hollowflame; Knife; Last Dominion; Malrec, Lord of the Veil; Moon; Nightfall; Ominous Realms; Outer Realm; Raven; Realmfire; Root; Serpent; Stag; Stolen Gem; Stolen Lucky Coin; Strongwood; Strongwood Endures; Sword; The Echo; The Hanging Cage; The Veil Remains; The Watchfire; Vaelric, the Ashen Sage; Veil Lash; Veilbreaker; Wolf.
+
+## Implemented rename — 2026-09-21
+
+| Previous display name | Current display name |
+|---|---|
+| Veilbound Grimoire | Cinderseam Grimoire |
+| Veilbreaker | Strongwood’s Oath |
+| Earthshaker | Gravesoil Blow |
+| Thornback Spider | Needleleg Spider |
+| Oldwood Forest | Rafterroot Forest |
+| Ashwood Forest | Coalstump Forest |
+| Veilfall | Hushrill Falls |
+| Forsaken Glade | Cinderhush Glade |
+| Verdant Dragon | Sootveil Dragon |
+| Briar Snake | Ditchscale Snake |
+| Eldric | Dornik Harth |
+| Elara | Mara Thenn |
+| Vaelric | Sereth Venn |
+| Malrec | Ordrath |
+| Hollowflame | Rauthkell |
+| Gravewing Gargoyle | Ruinperch Gargoyle |
+| Ember Fox | Russetbrush Fox |
+| Silverrun Stream | Sparrowbend Stream |
+| Whispering Glade | Stillbough Glade |
+| Sunlit Clearing | Warmfern Clearing |
+| Reedwater Marsh | Sedgepool Marsh |
+| Lantern Tavern | Crooked Kettle |
+| Elder Grove | Bentroot Grove |
+| Witchcap | Duskfrill |
+| Writhing Briars | Hookthorn Tangle |
+| Ironjaw Ogre | Kilnmaw Ogre |
+| The Weighted Gate | The Ingot Balance |
+| The Turning Stones | The Rune Bearings |
+| The Missing Provisions | The Stolen Winter Stores |
+| Veil | Cinderseam |
+
+Exact-phrase web checks of the replacement names did not establish an exact game-content match in the reviewed results. This is a limited discoverability check, not proof of uniqueness. Rejected proposals included Cairneth (existing fantasy fiction/tabletop use) and Tovin Rusk (existing tabletop/world-building uses). Ominous Realms, Strongwood, Realmfire and ordinary labels remain unchanged. Related titles, possessives, uppercase UI, dialogue, journal copy and the guide use the new names. Art IDs and save keys intentionally retain their original spelling.

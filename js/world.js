@@ -1,7 +1,7 @@
 'use strict';
 OR.world=(()=>{
   const C=OR.content,S=OR.state;
-  const outerNames={forest:'Ashwood Forest',mossy:'Blackmoss Stones','poison-vine':'Venom Vines',rocks:'Leaning Stones',stream:'Ashrun Stream',clearing:'Hushed Clearing',grove:'Graveroot Grove',meadow:'Bonegrass Meadow',thicket:'Writhing Briars',waterfall:'Bloodmist Falls',glade:'Forsaken Glade',marshland:'Hollow Marsh','dense-woodland':'Blackened Thicket','leafy-clearing':'Ashfall Clearing','grassy-rise':'Withered Rise'};
+  const outerNames={forest:'Coalstump Forest',mossy:'Blackmoss Stones','poison-vine':'Venom Vines',rocks:'Leaning Stones',stream:'Ashrun Stream',clearing:'Hushed Clearing',grove:'Graveroot Grove',meadow:'Bonegrass Meadow',thicket:'Hookthorn Tangle',waterfall:'Bloodmist Falls',glade:'Cinderhush Glade',marshland:'Hollow Marsh','dense-woodland':'Blackened Thicket','leafy-clearing':'Ashfall Clearing','grassy-rise':'Withered Rise'};
   const name=b=>b.elementType==='Nature'&&!local(b.x,b.y)?outerNames[b.subtype]||C.entities[b.subtype].name:C.entities[b.subtype].name;
   const radius=()=>25-(S.data?.borderLoss||0);
   const local=(x,y)=>Math.abs(x)<=radius()&&Math.abs(y)<=radius();
@@ -97,7 +97,7 @@ OR.world=(()=>{
     if(b.subtype==='poison-vine'){S.poison();}
     s.explorationNeedsQuiet=b.subtype==='poison-vine'||!['Nature','Path','Home','Border'].includes(b.elementType);
     const quietStep=fresh&&needsQuiet&&b.elementType==='Nature';
-    if(wasLocal&&!local(s.x,s.y))S.log('THE VEIL BREAKS. Strongwood’s warmth dies behind you.');
+    if(wasLocal&&!local(s.x,s.y))S.log('THE CINDERSEAM BREAKS. Strongwood’s warmth dies behind you.');
     S.log(description(b));if(!quietStep){findHealing();OR.village?.triggerVision(b);}else s.lastFind=null;S.syncRest();rescueIfNeeded();S.save();return b;
   }
   function description(b=current()){if(b.subtype==='empty-hideout')return 'The hideout stands empty. The thief will not return.';if(b.elementType==='Bandit'&&(!OR.errands?.active()||b.x!==OR.errands.active().originX||b.y!==OR.errands.active().originY))return 'The thief is gone. Old footprints fade into the ash.';if(b.subtype==='wayside-shrine'&&b.healingUsed)return 'The offering is accepted. The shrine’s warmth has faded.';if(b.subtype==='bandit-hideout'&&OR.errands?.atTarget(b))return 'The thief waits at a hidden cellar. Defeat them to reclaim your '+C.items[OR.errands.definition().item].name+'.';const quest=OR.quests?.description(b);if(quest)return quest;const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}

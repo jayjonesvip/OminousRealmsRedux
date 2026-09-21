@@ -1,8 +1,10 @@
-# The Veil Remains — final act
+# The Cinderseam Remains — final act
 
-Implemented continuation of Hollowflame’s quest. Grandfather guides the player to an unreadable grimoire on newly reserved Outer Realm ground. Taking it begins a six-guard pursuit corridor; cleared guards remain cleared and exploration stays available. Vaelric, the Ashen Sage, requires all six defeated, takes the book, fully heals the player, and grants a permanent +8 weapon power (Veilbreaker). Realmfire still uses crystals.
+Implemented continuation of Rauthkell’s quest. Grandfather guides the player to an unreadable grimoire on newly reserved Outer Realm ground. Taking it begins a six-guard pursuit corridor; cleared guards remain cleared and exploration stays available. Sereth Venn, the Ashen Sage, requires all six defeated, takes the book, fully heals the player, and grants a permanent +8 weapon power (Strongwood’s Oath). Realmfire still uses crystals.
 
-Malrec, Lord of the Veil, loses his armor at half health and gains stronger attacks. Victory closes the Veil and returns the player to a peaceful homecoming, with Continue Exploring and confirmed New Journey choices. Stage, route, cleared guards, gift, and boss phase persist through saves. Other missions cannot overlap the active finale.
+Ordrath, Lord of the Cinderseam, loses his armor at half health and gains stronger attacks. Victory closes the Cinderseam and returns the player to a peaceful homecoming, with Continue Exploring and confirmed New Journey choices. Stage, route, cleared guards, gift, and boss phase persist through saves. Other missions cannot overlap the active finale.
+
+Names above reflect the current game. Original artwork prompts below retain their creation-time names for provenance.
 
 ## Artwork
 
