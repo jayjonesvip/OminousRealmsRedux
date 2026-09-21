@@ -13,6 +13,7 @@ OR.combat=(()=>{
   function lightCreature(id,hp,base,extra){const natural=C.creature(id,1);return {id,name:C.entities[id].name,level:1,hp,maxHp:hp,...natural,basePower:base,resistance:0,moves:natural.moves.map(m=>({...m,power:Math.min(extra,m.power),accuracy:Math.min(90,m.accuracy)}))};}
   function migrateWildlife(){const b=S.data?.battle;if(!b)return;const id=b.enemyId,local=W.local(b.x,b.y);if(!wildlife[id]&&id!=='mud-biter')return;const p=local?{max:10,base:1,extra:2}:wildlife[id];if(!p)return;const e=b.enemy,max=Math.min(e.maxHp||p.max,p.max),hp=Math.min(e.hp,max);Object.assign(e,lightCreature(id,max,p.base,p.extra),{hp});}
   function enemy(block){
+    if(block.subtype==='undead-knight'){const level=S.data.level,hp=30+4*(level-1);return {id:block.subtype,name:C.entities[block.subtype].name,level,hp,maxHp:hp,basePower:4+Math.floor((level-1)/2),...C.creature(block.subtype,level),resistance:Math.min(20,8+level)};}
     if(block.subtype==='bandit-hideout')return {id:block.subtype,name:OR.errands?.atTarget(block)?OR.errands.definition().enemyName||'Bandit':'Gem Thief',level:1,hp:18,maxHp:18,basePower:2,...C.creature(block.subtype,1)};
     const profile=wildlife[block.subtype];if(profile&&!W.local(block.x,block.y))return lightCreature(block.subtype,C.random(profile.min,profile.max),profile.base,profile.extra);
     if(block.elementType==='Danger'&&W.local(block.x,block.y)){

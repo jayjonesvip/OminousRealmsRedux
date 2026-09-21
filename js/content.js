@@ -10,6 +10,7 @@ OR.content = (() => {
   };
   const weapon = type => ({type,basePower:5,moves:[move('Tackle',0,99,'Shoulder first. No hesitation.'),...weapons[type].moves.map(m=>({...m})),move('Realmfire',25,100,'Burn a magic crystal. Scorch the veil.',true)]});
   const creatures = {
+    'undead-knight':{attackStyle:'Rusted longsword',defense:'Rusted plate',moves:[move('Iron Cut',0,88,''),move('Graveward Slash',4,78,''),move('Fallen Oath',7,62,'')]},
     'bandit-hideout':{attackStyle:'Knife',moves:[move('Knife Jab',0,98,''),move('Quick Cut',1,95,''),move('Low Slash',2,92,'')]},
     'large-rat':{attackStyle:'Teeth & claws',moves:[move('Gnaw',0,90,''),move('Lunging Bite',2,80,'')]},
     'mud-biter':{attackStyle:'Snapping pincers',moves:[move('Pinch',0,85,''),move('Pincer Snap',2,75,'')]},
@@ -20,7 +21,7 @@ OR.content = (() => {
     gargoyle:{attackStyle:'Talons',defense:'Stone hide',moves:[move('Talon Strike',0,99,''),move('Stone Claw',6,92,''),move('Wing Slam',12,72,'')]},
     dragon:{attackStyle:'Claws & fire',defense:'Scales',moves:[move('Tail Sweep',0,99,''),move('Claw Rake',11,78,''),move('Crushing Bite',20,50,''),move('Cinder Breath',15,75,'')]}
   };
-  const creature=(id,level=1)=>{const c=creatures[id];return c?{weapon:null,attackStyle:c.attackStyle,defense:c.defense||null,resistance:c.defense?Math.min(95,14+level):0,moves:c.moves.map(m=>({...m}))}:null;};
+  const creature=(id,level=1)=>{const c=creatures[id];return c?{weapon:null,attackStyle:c.attackStyle,defense:c.defense||null,resistance:id==='undead-knight'?Math.min(20,8+level):c.defense?Math.min(95,14+level):0,moves:c.moves.map(m=>({...m}))}:null;};
   const items = {
     MetalIngot:{name:'Metal Ingot',art:'item-metal',group:'CRAFTING',note:'Reinforce your ancestral armor.'},
     SteelIngot:{name:'Steel Ingot',art:'item-steel',group:'CRAFTING',note:'Put a sharper edge on your weapon.'},
@@ -96,6 +97,7 @@ OR.content = (() => {
     ['Thing','lantern','Rusted Lantern','A lantern waits for a flame and a traveler.','The empty lantern glows without a wick.'],
     ['Thing','figurine','Wooden Figurine','A small wooden guardian has lost its owner.','A carved face bears a freshly cut smile.'],
     ['Thing','grave','Unmarked Grave','A crooked wooden marker stands over settled earth.','A nameless wooden marker leans above an ash-covered mound.'],
+    ['Enemy','undead-knight','Undead Knight','An ancient visor turns toward you.','Red eyes burn behind a rusted visor. A torn cloak drags through the ash.'],
     ['Enemy','ogre','Ironjaw Ogre','The trees shake under a heavy tread.','A crude axe drags a long scar through the ash.'],
     ['Enemy','troll','Angry Troll','A hulking shape stirs beyond the trees.','The troll lifts its hammer. The ground goes still.'],
     ['Enemy','gargoyle','Gravewing Gargoyle','Stone wings stir in the fading light.','A stone sentinel unfolds its broken wings.'],
@@ -129,9 +131,12 @@ OR.content = (() => {
       !isLocal&&threats.includes(type)?20*weight/threatWeight:(pool-2*mushroomRate)*weight/(poolWeight-weights.Food)
     ]));
   };
+  // Relative weights within each existing threat category, not extra encounter rolls.
+  const enemyRarity={'large-rat':8,'rabid-rabbit':3,snake:3,spider:3,bat:4,skeleton:2,'mud-biter':5,'undead-knight':3,ogre:3,troll:2,gargoyle:1,dragon:1};
+  function pickEnemy(candidates){const total=candidates.reduce((n,e)=>n+(enemyRarity[e.id]||1),0);let roll=Math.random()*total;return candidates.find(e=>(roll-=enemyRarity[e.id]||1)<0)||candidates[candidates.length-1];}
   const random = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
   const pick = arr=>arr[random(0,arr.length-1)];
   // Victories earned within this level, not a lifetime victory threshold.
   const required = level=>Math.ceil(5*Math.pow(1.5,level-1));
-  return {weapons,weapon,creatures,creature,items,entities,weights,outerOnly,encounterRates,random,pick,required};
+  return {weapons,weapon,creatures,creature,items,entities,weights,outerOnly,encounterRates,enemyRarity,pickEnemy,random,pick,required};
 })();
