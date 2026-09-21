@@ -2,7 +2,7 @@
 OR.world=(()=>{
   const C=OR.content,S=OR.state;
   const outerNames={forest:'Coalstump Forest',mossy:'Blackmoss Stones','poison-vine':'Venom Vines',rocks:'Leaning Stones',stream:'Ashrun Stream',clearing:'Hushed Clearing',grove:'Graveroot Grove',meadow:'Bonegrass Meadow',thicket:'Hookthorn Tangle',waterfall:'Bloodmist Falls',glade:'Cinderhush Glade',marshland:'Hollow Marsh','dense-woodland':'Blackened Thicket','leafy-clearing':'Ashfall Clearing','grassy-rise':'Withered Rise'};
-  const name=b=>b.subtype==='siren-disguise'&&OR.siren?.active()?.phase==='trail'?'Fading Footsteps':b.elementType==='Nature'&&!local(b.x,b.y)?outerNames[b.subtype]||C.entities[b.subtype].name:C.entities[b.subtype].name;
+  const name=b=>b.subtype==='traveler-lure'&&OR.traveler?.active()?.phase==='trail'?'An Empty Milestone':b.subtype==='siren-disguise'&&OR.siren?.active()?.phase==='trail'?'Fading Footsteps':b.elementType==='Nature'&&!local(b.x,b.y)?outerNames[b.subtype]||C.entities[b.subtype].name:C.entities[b.subtype].name;
   const radius=()=>25-(S.data?.borderLoss||0);
   const local=(x,y)=>Math.abs(x)<=radius()&&Math.abs(y)<=radius();
   const border=(x,y)=>Math.max(Math.abs(x),Math.abs(y))===radius()+1;
@@ -28,7 +28,7 @@ OR.world=(()=>{
       else seen.add(b.subtype);
     }
   }
-  function spawn(type,x,y,safe=false){if(border(x,y))return borderBlock(x,y);if(type==='Dragon'&&S.data.level<3){type='Nature';safe=true;}if(type==='Puzzle'){const p=OR.puzzles.unique();if(p)return {x,y,elementType:'Puzzle',...p,resolved:false};type='Nature';}let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&!['siren-disguise','siren-pit','malrec','veil-grimoire','vaelric-refuge','veil-gate'].includes(e.id)&&e.id!=='bandit-hideout'&&e.id!=='empty-hideout'&&!['hanging-cage','empty-cage','rescue-nail'].includes(e.id)&&(!(safe||S.data.poisoned)||e.id!=='poison-vine')&&(e.id!=='wild-berries'||local(x,y))&&(e.id!=='mud-biter'||local(x,y))&&(e.id!=='large-rat'||!local(x,y))&&(e.id!=='grave'||!local(x,y))&&(!local(x,y)||type!=='Danger'||['rabid-rabbit','snake','spider','mud-biter'].includes(e.id)||e.id==='bat'&&nearBorder(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=['Danger','Enemy','Dragon'].includes(type)?C.pickEnemy(candidates):C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
+  function spawn(type,x,y,safe=false){if(border(x,y))return borderBlock(x,y);if(type==='Dragon'&&S.data.level<3){type='Nature';safe=true;}if(type==='Puzzle'){const p=OR.puzzles.unique();if(p)return {x,y,elementType:'Puzzle',...p,resolved:false};type='Nature';}let candidates=type==='NPC'?npcCandidates(x,y):Object.values(C.entities).filter(e=>e.type===type&&!['traveler-lure','traveler-cart','traveler-ambush','traveler-cart-empty','siren-disguise','siren-pit','malrec','veil-grimoire','vaelric-refuge','veil-gate'].includes(e.id)&&e.id!=='bandit-hideout'&&e.id!=='empty-hideout'&&!['hanging-cage','empty-cage','rescue-nail'].includes(e.id)&&(!(safe||S.data.poisoned)||e.id!=='poison-vine')&&(e.id!=='wild-berries'||local(x,y))&&(e.id!=='mud-biter'||local(x,y))&&(e.id!=='large-rat'||!local(x,y))&&(e.id!=='grave'||!local(x,y))&&(!local(x,y)||type!=='Danger'||['rabid-rabbit','snake','spider','mud-biter'].includes(e.id)||e.id==='bat'&&nearBorder(x,y)));if(!candidates.length&&type==='NPC'){type='Nature';candidates=Object.values(C.entities).filter(e=>e.type==='Nature');}const e=['Danger','Enemy','Dragon'].includes(type)?C.pickEnemy(candidates):C.pick(candidates);const b={x,y,elementType:type,subtype:e.id,dragonHp:type==='Dragon'?C.random(250,1000):null,resolved:false};if(type==='Puzzle')b.puzzle=OR.puzzles.create(e.id);return b;}
   function borderBlock(x,y,b){
     if(!b)b={x,y};
     for(const key of Object.keys(b))if(!['x','y'].includes(key))delete b[key];
@@ -52,7 +52,7 @@ OR.world=(()=>{
       let roll=Math.random()*100;
       type=types.find(t=>(roll-=rates[t])<0)||types[types.length-1];
     }
-    b=(type==='Thing'?OR.errands?.rollRescue(x,y):null)||(type==='Nature'?(OR.errands?.roll(x,y)||OR.siren?.roll(x,y)):null)||spawn(type,x,y);S.data.blocks.push(b);return b;
+    b=(type==='Thing'?OR.errands?.rollRescue(x,y):null)||(type==='Nature'?(OR.errands?.roll(x,y)||OR.siren?.roll(x,y)||OR.traveler?.roll(x,y)):null)||spawn(type,x,y);S.data.blocks.push(b);return b;
   }
   const current=()=>getOrCreateBlock(S.data.x,S.data.y);
   function clear(permanent=false){const b=current();Object.assign(b,{elementType:'Nature',subtype:'clearing',dragonHp:null,resolved:true,cleared:permanent||b.cleared===true});}
@@ -64,6 +64,7 @@ OR.world=(()=>{
       if(origin?.elementType==='Dragon')origin.dragonHp=s.battle.enemy.hp;
     }
     if(OR.siren?.trapped())OR.siren.finish();
+    if(OR.traveler?.locked()||OR.traveler?.active()?.phase==='battle')OR.traveler.finish();
     s.x=0;s.y=0;s.battle=null;s.state='Explore';s.lastFind=null;s.healingSearchSteps=0;
     const home=getOrCreateBlock(0,0);Object.assign(home,{elementType:'Home',subtype:'home',resolved:true});
     s.homecoming=reason;if(s.outcome&&!s.outcome.win)s.outcome.returnedHome=true;
@@ -86,7 +87,7 @@ OR.world=(()=>{
   }
   function move(direction){
     const s=S.data;if(!s||s.battle||s.outcome||s.foundLoot)return false;
-    if(OR.siren?.locked())return false;
+    if(OR.siren?.locked()||OR.traveler?.locked())return false;
     if(OR.village?.pendingGift()||OR.village?.visionActive())return false;
     const delta={N:[0,-1],S:[0,1],E:[1,0],W:[-1,0]}[direction];if(!delta)return false;
     S.syncRest();
@@ -102,7 +103,7 @@ OR.world=(()=>{
     if(wasLocal&&!local(s.x,s.y))S.log('THE CINDERSEAM BREAKS. Strongwood’s warmth dies behind you.');
     S.log(description(b));if(!quietStep){findHealing();OR.village?.triggerVision(b);}else s.lastFind=null;S.syncRest();OR.siren?.arrive();rescueIfNeeded();S.save();return b;
   }
-  function description(b=current()){if(b.subtype==='siren-disguise'&&OR.siren?.active()?.phase==='trail')return 'She has gone ahead. A pale light marks her trail.';if(b.subtype==='empty-hideout')return 'The hideout stands empty. The thief will not return.';if(b.elementType==='Bandit'&&(!OR.errands?.active()||b.x!==OR.errands.active().originX||b.y!==OR.errands.active().originY))return 'The thief is gone. Old footprints fade into the ash.';if(b.subtype==='wayside-shrine'&&b.healingUsed)return 'The offering is accepted. The shrine’s warmth has faded.';if(b.subtype==='bandit-hideout'&&OR.errands?.atTarget(b))return 'The thief waits at a hidden cellar. Defeat them to reclaim your '+C.items[OR.errands.definition().item].name+'.';const quest=OR.quests?.description(b);if(quest)return quest;const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
+  function description(b=current()){if(b.subtype==='traveler-lure'&&OR.traveler?.active()?.phase==='trail')return 'The traveler has slipped away. His directions still lead toward the cart.';if(b.subtype==='siren-disguise'&&OR.siren?.active()?.phase==='trail')return 'She has gone ahead. A pale light marks her trail.';if(b.subtype==='empty-hideout')return 'The hideout stands empty. The thief will not return.';if(b.elementType==='Bandit'&&(!OR.errands?.active()||b.x!==OR.errands.active().originX||b.y!==OR.errands.active().originY))return 'The thief is gone. Old footprints fade into the ash.';if(b.subtype==='wayside-shrine'&&b.healingUsed)return 'The offering is accepted. The shrine’s warmth has faded.';if(b.subtype==='bandit-hideout'&&OR.errands?.atTarget(b))return 'The thief waits at a hidden cellar. Defeat them to reclaim your '+C.items[OR.errands.definition().item].name+'.';const quest=OR.quests?.description(b);if(quest)return quest;const village=OR.village?.description(b);if(village)return village;return b.elementType==='Puzzle'&&b.puzzle?.solved?(b.puzzle.claimed?'The seal stays open. This chamber has already been searched.':'The seal stands open. A hidden chamber awaits.') : b.cleared?'This ground is cleared. No threat remains here.':C.entities[b.subtype][local(b.x,b.y)?'village':'outer'];}
   const coords=(x,y)=>x===0&&y===0?'HOME · 0 / 0':`${Math.abs(x)}${x<0?'W':'E'} ${Math.abs(y)}${y<0?'N':'S'}`;
   return {name,radius,weakenBorder,local,border,realm,at,spawn,npcCandidates,migrateNpcs,migrateThreats,migratePuzzles,migrateBorders,getOrCreateBlock,current,clear,move,description,coords,returnHome,rescueIfNeeded};
 })();

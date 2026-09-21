@@ -515,5 +515,14 @@
   },
   "siren-pit": {
     "file": "siren-pit.png"
+  },
+  "traveler-lure": {
+    "file": "traveler-lure.png"
+  },
+  "traveler-ambush": {
+    "file": "traveler-ambush.png"
+  },
+  "traveler-cart-empty": {
+    "file": "traveler-cart-empty.png"
   }
 }

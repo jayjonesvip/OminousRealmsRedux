@@ -8,7 +8,7 @@ OR.siren=(()=>{
   function valid(s){
     if(s.sirenDone!==undefined&&typeof s.sirenDone!=='boolean')return false;
     const p=s.siren;if(p===undefined||p===null)return true;
-    if(s.sirenDone||!p||!['offer','trail','pit','reveal'].includes(p.phase)||s.pursuit||s.quests?.active||s.quests?.offer||s.finale&&s.finale.stage!=='done')return false;
+    if(s.sirenDone||s.traveler||!p||!['offer','trail','pit','reveal'].includes(p.phase)||s.pursuit||s.quests?.active||s.quests?.offer||s.finale&&s.finale.stage!=='done')return false;
     if(!['x','y','originX','originY'].every(k=>Number.isSafeInteger(p[k]))||!Number.isInteger(p.attempts)||p.attempts<0||p.attempts>3)return false;
     const origin=s.blocks?.find(b=>b.x===p.originX&&b.y===p.originY);
     if(origin?.subtype!=='siren-disguise'||origin.elementType!=='Thing'||Math.max(Math.abs(p.originX),Math.abs(p.originY))<27-(s.borderLoss||0))return false;
@@ -16,7 +16,7 @@ OR.siren=(()=>{
     if(['offer','reveal'].includes(p.phase))return p.x===p.originX&&p.y===p.originY&&(p.phase!=='reveal'||s.x===p.x&&s.y===p.y);
     return Math.max(Math.abs(p.x),Math.abs(p.y))>=27-(s.borderLoss||0)&&s.blocks.some(b=>b.x===p.x&&b.y===p.y&&b.subtype==='siren-pit')&&(p.phase!=='pit'||s.x===p.x&&s.y===p.y)&&!(p.x===p.originX&&p.y===p.originY);
   }
-  function roll(x,y){const s=S.data;if(s.sirenDone||active()||W.local(x,y)||W.border(x,y)||s.pursuit||s.quests?.active||s.quests?.offer||OR.finale?.active()||s.quests?.completed?.includes('hollowflame')&&!s.finale||s.battle||s.outcome||s.foundLoot||OR.village.visionActive()||Math.random()>=.02)return null;
+  function roll(x,y){const s=S.data;if(s.sirenDone||s.traveler||active()||W.local(x,y)||W.border(x,y)||s.pursuit||s.quests?.active||s.quests?.offer||OR.finale?.active()||s.quests?.completed?.includes('hollowflame')&&!s.finale||s.battle||s.outcome||s.foundLoot||OR.village.visionActive()||Math.random()>=.02)return null;
     s.siren={phase:'offer',x,y,originX:x,originY:y,attempts:0};return {x,y,elementType:'Thing',subtype:'siren-disguise',resolved:false};
   }
   const here=()=>{const p=active(),s=S.data;return !!p&&s.x===p.x&&s.y===p.y;};

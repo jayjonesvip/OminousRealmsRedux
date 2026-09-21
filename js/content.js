@@ -10,6 +10,7 @@ OR.content = (() => {
   };
   const weapon = type => ({type,basePower:5,moves:[move('Tackle',0,99,'Shoulder first. No hesitation.'),...weapons[type].moves.map(m=>({...m})),move('Realmfire',25,100,'Burn a magic crystal. Scorch the Cinderseam.',true)]});
   const creatures = {
+    'traveler-ambush':{attackStyle:'Knives',moves:[move('Knife Jab',1,95,''),move('Flanking Cut',3,90,'')]},
     'undead-knight':{attackStyle:'Rusted longsword',defense:'Rusted plate',moves:[move('Iron Cut',0,88,''),move('Graveward Slash',4,78,''),move('Fallen Oath',7,62,'')]},
     'bandit-hideout':{attackStyle:'Knife',moves:[move('Knife Jab',0,98,''),move('Quick Cut',1,95,''),move('Low Slash',2,92,'')]},
     'large-rat':{attackStyle:'Teeth & claws',moves:[move('Gnaw',0,90,''),move('Lunging Bite',2,80,'')]},
@@ -36,6 +37,10 @@ OR.content = (() => {
     RustyNail:{name:'Rusty Nail',art:'item-nail',group:'SUPPLIES',note:'Thin enough to pick the hanging cage’s lock.'}
   };
   const entries = [
+    ['Thing','traveler-lure','A Wounded Traveler','He cradles a bandaged leg. The linen is spotless.','He cradles a bandaged leg. The linen is spotless.'],
+    ['Thing','traveler-cart','A Ruined Cart','Torn sacks lie beneath a broken wheel.','Torn sacks lie beneath a broken wheel.'],
+    ['Thing','traveler-ambush','Cart Bandits','Three blades close around the cart.','Three blades close around the cart.'],
+    ['Thing','traveler-cart-empty','Abandoned Cart','The cart stands picked clean. No one waits here.','The cart stands picked clean. No one waits here.'],
     ['Thing','siren-disguise','A Beautiful Stranger','A pale hand beckons. Her shadow bends the wrong way.','A pale hand beckons. Her shadow bends the wrong way.'],
     ['Thing','siren-pit','Broken Ground','Loose stones conceal a hollow.','Loose stones conceal a hollow.'],
     ['Border','outer-realm-border','The Cinderseam','A rotten fence divides quiet woodland from scorched earth.','A rotten fence divides quiet woodland from scorched earth.'],
