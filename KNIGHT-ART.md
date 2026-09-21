@@ -10,4 +10,6 @@ Outer Realm only. 30 HP at level 1, +4 per player level. Base power 4, +1 every 
 
 ## Relative encounter weights
 Outer threat weights across all types: each animal 10, knight 8, skeleton 6, troll 4, gargoyle 2, ogre 1, dragon 0.5. Total 71.5; total threat chance remains 20%.
-Eligible ordinary new Outer tile odds: each animal 2.80%, knight 2.24%, skeleton 1.68%, troll 1.12%, gargoyle 0.56%, ogre 0.28%, dragon 0.14%. Dragon rolls become wilderness below level 3. Quiet steps, revisits and quest overrides do not use these odds. Mud Biters remain Strongwood-only; bandits remain separate retrieval encounters.
+Eligible ordinary new Outer tile odds: each animal 2.80%, knight 2.24%, skeleton 1.68%, troll 1.12%, gargoyle 0.56%, ogre 0.28%, dragon 0.14%. No dragon rolls occur below level 3. Quiet steps, revisits and quest overrides do not use these odds. Mud Biters remain Strongwood-only; bandits remain separate retrieval encounters.
+
+Dragon progression supersedes the fixed dragon weight: level 1–2 0%; level 3 0.14%; add 0.5 percentage points per level, capped at 3% at level 9. Remaining threat chance (20 minus dragon chance) divides 56:15 between Danger and Enemy, then uses their subtype weights. Strongwood rates do not change.

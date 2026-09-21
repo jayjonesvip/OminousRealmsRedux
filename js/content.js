@@ -118,17 +118,18 @@ OR.content = (() => {
   const outerOnly = ['Enemy','Dragon','LockedItem','Puzzle','Shrine'];
   // New coordinates: quiet terrain and scarce travelers in both realms.
   // Outside, reserve 20% for threats; preserve relative weights within each pool.
-  const encounterRates=isLocal=>{
+  const encounterRates=(isLocal,level=3)=>{
     const eligible=Object.entries(weights).filter(([type])=>!['Bandit','Border','Home','Path','Landmark','Quest','LockedItem'].includes(type)&&(!isLocal||!outerOnly.includes(type)));
     const threats=['Danger','Enemy','Dragon'];
     const inPool=type=>type!=='Nature'&&type!=='NPC'&&type!=='Puzzle'&&type!=='Shrine'&&(isLocal||!threats.includes(type));
     const poolWeight=eligible.reduce((total,[type,weight])=>total+(inPool(type)?weight:0),0);
     // Keep each healing encounter at the original mushroom rate.
     const pool=isLocal?50:33.5,mushroomRate=pool*weights.Food/poolWeight;
-    const threatWeights={Danger:56,Enemy:15,Dragon:.5},threatWeight=71.5;
+    const dragonRate=level<3?0:Math.min(3,.14+.5*(level-3));
+    const threatRates={Danger:(20-dragonRate)*56/71,Enemy:(20-dragonRate)*15/71,Dragon:dragonRate};
     return Object.fromEntries(eligible.map(([type,weight])=>[type,
       type==='Food'?mushroomRate*(isLocal?2:1):type==='Shrine'?mushroomRate:type==='Nature'?40:type==='NPC'?(isLocal?10:5):type==='Puzzle'?1.5:
-      !isLocal&&threats.includes(type)?20*threatWeights[type]/threatWeight:(pool-2*mushroomRate)*weight/(poolWeight-weights.Food)
+      !isLocal&&threats.includes(type)?threatRates[type]:(pool-2*mushroomRate)*weight/(poolWeight-weights.Food)
     ]));
   };
   // Relative weights within each existing threat category, not extra encounter rolls.

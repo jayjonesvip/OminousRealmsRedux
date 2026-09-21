@@ -48,7 +48,7 @@ OR.world=(()=>{
     let type;
     if(x===0&&y===0)type='Home';
     else{
-      const rates=C.encounterRates(local(x,y)),types=Object.keys(rates);
+      const rates=C.encounterRates(local(x,y),S.data.level),types=Object.keys(rates);
       let roll=Math.random()*100;
       type=types.find(t=>(roll-=rates[t])<0)||types[types.length-1];
     }
