@@ -22,12 +22,12 @@ OR.errands=(()=>{
     const d=definitions[kind],s=S.data;if(!d||blocked()||d.steal&&S.qty(d.item)<d.quantity)return false;
     const target=destination(giver.x,giver.y,d);if(!target)return false;
     if(d.steal)S.add(d.item,-d.quantity);
-    s.pursuit={kind,phase:'retrieve',...target,originX:giver.x,originY:giver.y};
+    s.pursuit={kind,phase:'retrieve',...target,originX:giver.x,originY:giver.y};OR.analytics?.track('quest_started',{quest_id:kind,quest_type:'retrieval'});
     s.blocks.push({...d.target,...target,resolved:false});
     S.log(d.startText||d.title+' accepted. Follow the compass light.');S.save();return true;
   }
   function rollRescue(x,y){const s=S.data;if(s.rescueDone||s.blocks.some(b=>['hanging-cage','empty-cage'].includes(b.subtype))||W.local(x,y)||W.border(x,y)||blocked()||Math.random()>=.02)return null;s.pursuit={kind:'cage-rescue',phase:'meet',x,y,originX:x,originY:y};return {x,y,elementType:'Thing',subtype:'hanging-cage',resolved:false};}
-  function speakRescue(){const s=S.data,p=active(),b=W.current();if(p?.kind!=='cage-rescue'||b.subtype!=='hanging-cage'||s.battle||s.outcome||s.foundLoot)return false;if(p.phase==='meet'){const target=destination(b.x,b.y,definitions['cage-rescue']);if(!target)return false;Object.assign(p,target,{phase:'retrieve'});s.blocks.push({...definitions['cage-rescue'].target,...target,resolved:false});S.log('Mara Thenn waits in a hanging cage at '+W.coords(b.x,b.y)+'. Find something thin enough to pick the lock.');}b.dialogue={text:p.phase==='return'?'“You came back. That nail will do. Turn it gently—the old lock should give.”':'“My name is Mara Thenn. The lock is old. Find something thin—a nail might turn it. Please come back.”',speaker:'MARA THENN',spoken:true};S.save();return true;}
+  function speakRescue(){const s=S.data,p=active(),b=W.current();if(p?.kind!=='cage-rescue'||b.subtype!=='hanging-cage'||s.battle||s.outcome||s.foundLoot)return false;if(p.phase==='meet'){const target=destination(b.x,b.y,definitions['cage-rescue']);if(!target)return false;Object.assign(p,target,{phase:'retrieve'});OR.analytics?.track('quest_started',{quest_id:p.kind,quest_type:'retrieval'});s.blocks.push({...definitions['cage-rescue'].target,...target,resolved:false});S.log('Mara Thenn waits in a hanging cage at '+W.coords(b.x,b.y)+'. Find something thin enough to pick the lock.');}b.dialogue={text:p.phase==='return'?'“You came back. That nail will do. Turn it gently—the old lock should give.”':'“My name is Mara Thenn. The lock is old. Find something thin—a nail might turn it. Please come back.”',speaker:'MARA THENN',spoken:true};S.save();return true;}
   function roll(x,y){
     const eligible=['bandit','bandit-coin'].filter(id=>S.qty(definitions[id].item)>=1);
     if(W.local(x,y)||W.border(x,y)||blocked()||!eligible.length||Math.random()>=.02)return null;
@@ -47,7 +47,7 @@ OR.errands=(()=>{
     const s=S.data,d=definition();if(!d||s.battle||s.foundLoot||s.outcome&&!s.outcome.retrieval||!atCollection(W.current()))return false;
     const rewards=pendingRewards();for(const r of rewards)S.add(r.type,r.qty);
     if(d.returnToGiver){const p=active();p.phase='return';p.x=p.originX;p.y=p.originY;S.log(p.kind==='cage-rescue'?'The nail might turn that cage’s lock. Mara Thenn is still waiting.':C.items[d.item].name+' collected. Return it to the person who asked.');}
-    else {S.changeHope(5);s.pursuit=null;S.log(d.doneText||d.title+' complete.');}
+    else {OR.analytics?.track('quest_finished',{quest_id:active().kind,quest_type:'retrieval'});S.changeHope(5);s.pursuit=null;S.log(d.doneText||d.title+' complete.');}
     if(s.outcome?.retrieval){s.outcome.retrieval=false;s.outcome.rewards=rewards;}S.save();return {rewards};
   }
   function retrieve(){
@@ -58,7 +58,7 @@ OR.errands=(()=>{
   const atGiver=b=>!!active()&&active().phase==='return'&&b?.x===active().originX&&b.y===active().originY;
   function deliver(){
     const s=S.data,d=definition();if(!d||s.battle||s.outcome||s.foundLoot||!atGiver(W.current())||S.qty(d.item)<d.quantity)return false;
-    const rescue=active().kind==='cage-rescue';if(rescue){s.rescueDone=true;const b=W.current();Object.assign(b,{elementType:'Thing',subtype:'empty-cage',resolved:true});delete b.dialogue;}S.changeHope(5);S.add(d.item,-d.quantity);for(const r of d.rewards)S.add(r.type,r.qty);s.pursuit=null;S.log(d.doneText||'You return '+C.items[d.item].name+'. A small part of their world is whole again.');S.save();return {rewards:d.rewards};
+    OR.analytics?.track('quest_finished',{quest_id:active().kind,quest_type:'retrieval'});const rescue=active().kind==='cage-rescue';if(rescue){s.rescueDone=true;const b=W.current();Object.assign(b,{elementType:'Thing',subtype:'empty-cage',resolved:true});delete b.dialogue;}S.changeHope(5);S.add(d.item,-d.quantity);for(const r of d.rewards)S.add(r.type,r.qty);s.pursuit=null;S.log(d.doneText||'You return '+C.items[d.item].name+'. A small part of their world is whole again.');S.save();return {rewards:d.rewards};
   }
   function hints(){const p=active(),s=S.data;if(!p)return [];return [...(p.x<s.x?['W']:p.x>s.x?['E']:[]),...(p.y<s.y?['N']:p.y>s.y?['S']:[])];}
   function prompt(b){if(b?.subtype==='hanging-cage'&&active()?.kind==='cage-rescue')return {action:'rescue:open',label:atGiver(b)?'FREE THE PRISONER':'SPEAK TO THE PRISONER',disabled:false};const d=definition();if(!d)return null;if(atCollection(b))return {action:'errand:collect',label:'COLLECT '+C.items[d.item].name.toUpperCase(),disabled:false};if(atGiver(b))return {action:'errand:deliver',label:'RETURN '+C.items[d.item].name.toUpperCase(),disabled:S.qty(d.item)<d.quantity};if(atTarget(b)&&d.completion==='gather')return {action:'errand:retrieve',label:'RETRIEVE '+C.items[d.item].name.toUpperCase(),disabled:false};return null;}

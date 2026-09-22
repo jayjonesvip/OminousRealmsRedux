@@ -50,12 +50,14 @@ OR.combat=(()=>{
   function finish(win,bribed=false){
     const s=S.data,b=W.current(),isDragon=b.elementType==='Dragon',e=s.battle.enemy,traveler=OR.traveler?.isBattle(b);
     let levels=0,rewards=[],retrieval=null;
+    if(!bribed)OR.analytics?.track(win?'enemy_defeated':'battle_lost',{enemy_id:e.id,enemy_level:e.level});
     S.changeHope(win?(bribed?0:2):-8);
     if(win){s.victories++;levels=levelUp();retrieval=OR.errands?.recover(b,'slay');rewards=traveler?OR.traveler.reward():retrieval?retrieval.rewards:S.grantLoot(isDragon?2:1,isDragon);OR.quests?.complete('slay',b);OR.finale?.won(b);W.clear(true);if(retrieval?.after)Object.assign(b,retrieval.after);}
     if(traveler)OR.traveler.finish();
     s.outcome={retrieval:!!retrieval,win,bribed,dragon:isDragon&&win&&!bribed,rewards,levels,enemy:e.name,lastRound:s.battle.lastRound||null,art:win?`warrior-${s.weapon.type.toLowerCase()}`:'warrior-wounded'};
     S.log(win?(bribed?`A gem spent. ${e.name} withdraws. This ground is now clear.`:`${e.name} falls. This ground is now clear.`):'You fall unconscious. The realm leaves you one breath.');
     if(win&&traveler)S.log('The bandits scatter. A potion lies among their stolen supplies. The medicine was real.');
+    if(levels)OR.analytics?.track('level_up');
     if(levels)S.log(`LEVEL ${s.level}. Your gear improves and your health is restored.`);
     s.battle=null;s.state='Explore';
     if(!win){W.weakenBorder();W.returnHome('You fall unconscious. You wake at Strongwood Cottage with 1 HP.');}
